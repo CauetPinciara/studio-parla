@@ -9,6 +9,7 @@ interface AuthContextValue {
   member: Row<"app_members"> | null;
   loading: boolean;
   membershipChecked: boolean;
+  accessError: string | null;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -19,10 +20,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [membership, setMembership] = useState<{ email: string; member: Row<"app_members"> | null } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => { setSession(data.session); setLoading(false); });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => { setSession(nextSession); setLoading(false); });
+    void supabase.auth.getSession().then(({ data, error }) => {
+      setAccessError(error?.message ?? null);
+      setSession(data.session);
+      setLoading(false);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setAccessError(null);
+      setSession(nextSession);
+      setLoading(false);
+    });
     return () => listener.subscription.unsubscribe();
   }, []);
 
@@ -32,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let active = true;
     void supabase.from("app_members").select("email,nome,created_at").eq("email", email).maybeSingle().then(({ data, error }) => {
       if (!active) return;
-      if (error) console.error("Falha ao verificar allowlist", error.message);
+      setAccessError(error ? `Não foi possível verificar a allowlist: ${error.message}` : null);
       setMembership({ email, member: data });
     });
     return () => { active = false; };
@@ -41,10 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const member = session?.user.email && membership?.email === session.user.email ? membership.member : null;
   const membershipChecked = !session?.user.email || membership?.email === session.user.email;
   const value = useMemo<AuthContextValue>(() => ({
-    session, member, loading, membershipChecked,
+    session, member, loading, membershipChecked, accessError,
     signInWithGoogle: async () => { const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } }); if (error) throw error; },
     signOut: async () => { const { error } = await supabase.auth.signOut(); if (error) throw error; },
-  }), [loading, member, membershipChecked, session]);
+  }), [accessError, loading, member, membershipChecked, session]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

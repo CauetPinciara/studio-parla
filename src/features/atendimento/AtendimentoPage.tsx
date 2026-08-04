@@ -1,0 +1,9 @@
+import { Check, Copy } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { messages } from "@/features/atendimento/messages";
+export default function AtendimentoPage() {
+  const copy = async (text: string) => { await navigator.clipboard.writeText(text); toast.success("Copiado!"); };
+  return <div className="flex max-w-3xl flex-col gap-4"><p className="text-sm text-muted-foreground">Mensagens prontas pra copiar e colar. Sempre com saudação + nome e um convite no fim.</p><Card><CardHeader><CardTitle className="text-xs uppercase tracking-widest text-muted-foreground">Tom do ateliê</CardTitle></CardHeader><CardContent><ul className="flex flex-col gap-3 text-sm">{[<>Saudação (bom dia/tarde/noite) <strong>+ o nome</strong> da pessoa</>, <>Emojis com leveza (💗 😊 🤍), sem exagero</>, <>Terminar com um convite (call to action)</>, <>Separar saudação e cobrança em mensagens diferentes</>].map((item, index) => <li key={index} className="flex gap-2"><span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-success text-white"><Check /></span><span>{item}</span></li>)}</ul></CardContent></Card><h2 className="mt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Biblioteca de respostas</h2>{messages.map((message) => <Card key={message.title}><CardHeader><div className="flex items-center justify-between gap-3"><CardTitle className="text-sm">{message.title}</CardTitle><Button size="sm" variant="outline" onClick={() => void copy(message.body)}><Copy data-icon="inline-start" />Copiar</Button></div></CardHeader><CardContent><div className="whitespace-pre-wrap rounded-lg border-l-4 border-primary bg-secondary/40 p-3 text-sm leading-relaxed">{message.body}</div></CardContent></Card>)}</div>;
+}

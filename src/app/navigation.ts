@@ -12,8 +12,10 @@ import {
   Tags,
   type LucideIcon,
 } from "lucide-react";
+import { WORKSPACES, type WorkspaceId } from "@/workspaces";
 
-export type WorkspaceId = "operacao" | "cadastros" | "tatica";
+export type { WorkspaceId } from "@/workspaces";
+export { WORKSPACES } from "@/workspaces";
 
 export interface NavigationItem {
   workspace: WorkspaceId;
@@ -23,20 +25,7 @@ export interface NavigationItem {
   icon: LucideIcon;
 }
 
-export interface Workspace {
-  id: WorkspaceId;
-  label: string;
-  hint: string;
-  defaultPath: string;
-}
-
 export const DEFAULT_ROUTE = "/relatorios";
-
-export const WORKSPACES: Workspace[] = [
-  { id: "operacao", label: "Operação", hint: "Uso diário do ateliê", defaultPath: "/relatorios" },
-  { id: "cadastros", label: "Cadastros", hint: "Pessoas, turmas e serviços", defaultPath: "/contatos" },
-  { id: "tatica", label: "Tática", hint: "Visão geral e estratégia", defaultPath: "/visao-geral" },
-];
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   { workspace: "operacao", path: "/relatorios", title: "Relatório do dia", subtitle: "O que a Catarina registra no fim de cada aula", icon: ClipboardList },
