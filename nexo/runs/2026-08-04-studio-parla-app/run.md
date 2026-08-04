@@ -18,3 +18,4 @@ O planejamento detalhado está em `nexo/plans/studio-parla-app/`.
 - 01-shell-visual: PASS no teste de navegação, lint e build; commit `366081d`.
 - 02-supabase-auth: PASS no teste de configuração, lint, build e varredura de segredos; commit `bcebd0b`.
 - 03-cadastros: PASS no teste público, lint, build e revisão dos seis módulos CRUD; commit `8e119cb`.
+- 04-operacao: PASS no teste da máquina de estados, lint, build e revisão dos relatórios; commit `04c2f1e`.

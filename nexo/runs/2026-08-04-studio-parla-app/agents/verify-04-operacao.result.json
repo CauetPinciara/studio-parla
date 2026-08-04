@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "04-operacao",
+  "status": "PASS",
+  "report": "nexo/runs/2026-08-04-studio-parla-app/verify-04-operacao.md",
+  "summary": "Teste focado, lint e build passaram; CRUD de pecas, fluxo de status, relatorios e calendario foram confirmados por inspecao.",
+  "done": true,
+  "started": "2026-08-04T22:42:25Z",
+  "ended": "2026-08-04T22:42:51Z",
+  "ts": "2026-08-04T22:42:51Z"
+}

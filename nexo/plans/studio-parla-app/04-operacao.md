@@ -1,7 +1,7 @@
 ---
 id: 04-operacao
 milestone: m1
-status: todo
+status: done
 depends_on: [03-cadastros]
 files_modified:
   - src/app/router.tsx
