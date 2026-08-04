@@ -1,7 +1,7 @@
 ---
 id: 03-cadastros
 milestone: m1
-status: todo
+status: done
 depends_on: [02-supabase-auth]
 files_modified:
   - src/app/router.tsx
