@@ -1,0 +1,1 @@
+{"agent":"verify","slice":"init","status":"PASS","report":"nexo/runs/2026-08-04-init/verify.md","summary":"All ten Nexo init acceptance criteria pass in fresh local checks.","done":true,"started":"2026-08-04T20:28:20Z","ended":"2026-08-04T20:29:52Z","ts":"2026-08-04T20:29:52Z"}

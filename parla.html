@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel · Studio Parla</title>
+<style>
+  :root{
+    --bg:#FAFAF8;--surface:#FFFFFF;--ink:#2A2724;--muted:#8B847A;
+    --clay:#B5623C;--clay-soft:#F4E9E2;--line:#ECE7DF;
+    --green:#4E7A5A;--green-soft:#E7F0E9;--amber:#B7822B;--amber-soft:#F6EDD9;
+    --blue:#3B5C8A;--blue-soft:#E7EDF5;--radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .app{display:flex;min-height:100vh}
+
+  .sidebar{width:242px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
+  .brand{padding:2px 8px 14px}
+  .brand .logo{display:flex;align-items:center;gap:9px}
+  .brand .mark{width:26px;height:26px;border-radius:7px;background:var(--clay);display:flex;align-items:center;justify-content:center}
+  .brand .mark svg{width:15px;height:15px}
+  .brand h1{font-size:15px;margin:0;letter-spacing:-.2px;font-weight:650}
+  .brand span{font-size:11px;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+
+  .ws-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:650;padding:0 8px 6px}
+  .ws-seg{display:flex;background:#F3EFE8;border-radius:10px;padding:3px;gap:2px;margin:0 4px}
+  .ws-seg button{all:unset;flex:1;text-align:center;cursor:pointer;font-size:11.5px;font-weight:600;padding:7px 2px;border-radius:8px;color:var(--muted);transition:.12s}
+  .ws-seg button.active{background:#fff;color:var(--clay);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .ws-hint{font-size:11px;color:var(--muted);padding:8px 8px 4px}
+
+  .nav{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+  .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:var(--muted);font-weight:550;font-size:13.5px;transition:.12s}
+  .nav button svg{width:17px;height:17px;flex-shrink:0;opacity:.85}
+  .nav button:hover{background:#F5F1EA;color:var(--ink)}
+  .nav button.active{background:var(--clay-soft);color:var(--clay)}
+  .side-foot{margin-top:auto;padding:12px 8px 2px;font-size:11px;color:var(--muted);border-top:1px solid var(--line)}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:22px 30px 16px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
+  .topbar h2{margin:0;font-size:20px;letter-spacing:-.3px;font-weight:650}
+  .topbar .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .topbar .today{font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .content{padding:24px 30px 70px;max-width:1080px}
+
+  h3.blk{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin:26px 0 12px;font-weight:650}
+  h3.blk:first-child{margin-top:2px}
+  .lead{color:#4a453e;font-size:14px;max-width:64ch;margin:0 0 4px}
+  .muted{color:var(--muted)}
+  .row-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 12px}
+
+  .grid{display:grid;gap:14px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(158px,1fr))}
+  .two{grid-template-columns:1fr 1fr}
+  @media(max-width:820px){.two{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .kpi .n{font-size:26px;font-weight:680;letter-spacing:-.5px}
+  .kpi .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .kpi .n .u{font-size:14px;color:var(--muted);font-weight:600;margin-left:3px}
+  .daycard{transition:border-color .12s,box-shadow .12s}
+  .daycard:hover{border-color:var(--clay);box-shadow:0 2px 10px rgba(181,98,60,.08)}
+
+  .alert{display:flex;gap:11px;padding:12px 14px;border-radius:10px;align-items:flex-start;margin-bottom:9px;border:1px solid var(--line);background:var(--surface)}
+  .alert .dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;background:var(--amber)}
+  .alert.crit .dot{background:var(--clay)}
+  .alert .txt{font-size:13.5px}
+  .alert .txt b{font-weight:620}
+  .alert .txt small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:650;padding:8px 12px;border-bottom:1px solid var(--line)}
+  tbody td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#FBF8F3}
+  .tbl-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .name{font-weight:600}
+
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.2px;white-space:nowrap}
+  .tag.g{background:var(--green-soft);color:var(--green)}
+  .tag.c{background:var(--clay-soft);color:var(--clay)}
+  .tag.a{background:var(--amber-soft);color:var(--amber)}
+  .tag.b{background:var(--blue-soft);color:var(--blue)}
+  .tag.n{background:#F0EDE8;color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;gap:4px}
+
+  .btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:var(--clay);color:#fff;padding:9px 15px;border-radius:9px;font-weight:600;font-size:13px;transition:filter .12s}
+  .btn:hover{filter:brightness(1.06)}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.sm{padding:6px 11px;font-size:12px}
+  .btn svg{width:14px;height:14px}
+
+  label.f{display:block;font-size:12px;color:var(--muted);font-weight:600;margin:12px 0 5px}
+  .i{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:14px;background:#fff;color:var(--ink)}
+  .i:focus{outline:none;border-color:var(--clay);box-shadow:0 0 0 3px var(--clay-soft)}
+  textarea.i{resize:vertical;min-height:64px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .calc{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.calc{grid-template-columns:1fr}}
+  .result{background:#FBF7F3;border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .line{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px dashed var(--line)}
+  .line.tot{border-bottom:none;border-top:2px solid var(--ink);margin-top:6px;padding-top:10px;font-weight:700;font-size:16px}
+  .line .k{color:var(--muted)}
+  textarea.msgbox{width:100%;min-height:150px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13.5px;line-height:1.55;background:#fff;resize:vertical;white-space:pre-wrap}
+
+  .msgcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px;margin-bottom:12px}
+  .msgcard .h{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+  .msgcard .body{font-size:13.5px;color:#4a453e;white-space:pre-wrap;line-height:1.55;background:#FBF8F3;border-left:3px solid var(--clay);border-radius:6px;padding:10px 12px}
+
+  .list{list-style:none;padding:0;margin:0}
+  .list li{padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
+  .list li:last-child{border-bottom:none}
+  .chk{width:16px;height:16px;border-radius:5px;border:2px solid var(--line);flex-shrink:0;margin-top:2px}
+  .chk.on{background:var(--green);border-color:var(--green);position:relative}
+  .chk.on::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .pill{font-size:11.5px;background:#F3EFE8;border-radius:6px;padding:2px 7px;color:var(--muted);font-weight:600}
+
+  .cal{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .cal-head b{font-size:15px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+  .dow{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:8px;text-align:center;font-weight:600;border-bottom:1px solid var(--line)}
+  .cal-cell{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px}
+  .cal-cell:nth-child(7n){border-right:none}
+  .cal-cell.out{background:#FBF9F5}
+  .cal-cell .d{font-weight:600;font-size:12px;margin-bottom:4px;color:var(--muted)}
+  .cal-cell.today .d{background:var(--clay);color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center}
+  .ev{font-size:10.5px;padding:2px 5px;border-radius:5px;margin-bottom:3px;background:var(--clay-soft);color:var(--clay);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ev.w{background:var(--blue-soft);color:var(--blue)} .ev.k{background:var(--amber-soft);color:var(--amber)} .ev.a{background:var(--green-soft);color:var(--green)}
+
+  .overlay{position:fixed;inset:0;background:rgba(30,26,22,.42);display:flex;align-items:center;justify-content:center;padding:20px;z-index:60;opacity:0;pointer-events:none;transition:.15s}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .modal{background:#fff;border-radius:14px;width:100%;max-width:460px;max-height:88vh;overflow:auto;padding:20px 22px;box-shadow:0 24px 60px rgba(0,0,0,.28)}
+  .modal h4{margin:0 0 4px;font-size:16px}
+  .modal .mactions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;opacity:0;transition:.22s;pointer-events:none;z-index:70}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:720px){
+    .app{flex-direction:column}
+    .sidebar{width:auto;height:auto;position:static;padding:12px}
+    .side-foot{display:none}
+    .topbar{padding:16px 18px 12px}.content{padding:18px}
+    .cal-cell{min-height:70px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M8 21h8M12 21v-4M7 3h10l-1 7a4 4 0 01-8 0L7 3z"/></svg></div>
+      <div><h1>Studio Parla</h1><span>Painel interno</span></div>
+    </div></div>
+    <div class="ws-lbl">Workspace</div>
+    <div class="ws-seg" id="wsSeg"></div>
+    <div class="ws-hint" id="wsHint"></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">Protótipo local · nada é salvo (recarregar zera as edições)</div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div><h2 id="ttl">—</h2><div class="sub" id="sub"></div></div>
+      <div class="today">Sábado, 11 jul 2026 · Vitória/ES</div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="toast" id="toast">Copiado!</div>
+
+<script>
+/* ---------------- DADOS (em memória, sem persistência) ---------------- */
+let _id=100; const uid=()=>++_id;
+const db={
+  turmas:[
+    {id:1,nome:"Quarta · 15h–18h",dia:3,hora:"15:00"},
+    {id:2,nome:"Quarta · 18h–21h",dia:3,hora:"18:00"},
+    {id:3,nome:"Quinta · 18h–21h",dia:4,hora:"18:00"},
+  ],
+  contatos:[
+    {id:11,nome:"Mariana",tel:"27 99243-8823",origem:"Instagram",obs:"Namorado Thiago faz junto."},
+    {id:12,nome:"Isadora",tel:"27 99622-0201",origem:"Instagram",obs:"Definir horário (qua ou qui noite)."},
+    {id:13,nome:"Fabiana",tel:"27 99799-3964",origem:"Instagram",obs:"Migrando p/ qua+qui noite."},
+    {id:14,nome:"Lívia Araújo",tel:"27 99911-7997",origem:"Instagram",obs:"Fez modelagem + pintura."},
+    {id:15,nome:"Sandra",tel:"27 98825-3590",origem:"Instagram",obs:""},
+    {id:16,nome:"Igor Junior",tel:"27 99283-6002",origem:"Indicação",obs:""},
+    {id:17,nome:"Catarina Botelho",tel:"27 99960-1910",origem:"Indicação",obs:"Terapia do Barro."},
+    {id:18,nome:"Ana Carolina",tel:"27 99725-2712",origem:"Instagram",obs:"Aluna de junho, não retoma agora."},
+    {id:19,nome:"Thiago",tel:"—",origem:"Indicação",obs:"Namorado da Mariana."},
+    {id:20,nome:"Glauciene",tel:"—",origem:"Instagram",obs:""},
+    {id:21,nome:"Milena",tel:"27 99799-3642",origem:"Workshop",obs:""},
+    {id:22,nome:"Wânia",tel:"27 99778-4004",origem:"Workshop",obs:""},
+    {id:23,nome:"Aluna nova",tel:"—",origem:"Instagram",obs:"Fechou 10/07."},
+  ],
+  matriculas:[
+    {id:1,pessoaId:11,turmaId:3,mensalidade:520,pagamento:"Cartão",status:"Ativa"},
+    {id:2,pessoaId:19,turmaId:3,mensalidade:520,pagamento:"—",status:"Ativa"},
+    {id:3,pessoaId:12,turmaId:3,mensalidade:500,pagamento:"PIX",status:"Ativa"},
+    {id:4,pessoaId:13,turmaId:2,mensalidade:520,pagamento:"—",status:"Ativa"},
+    {id:5,pessoaId:14,turmaId:1,mensalidade:520,pagamento:"—",status:"Ativa"},
+    {id:6,pessoaId:15,turmaId:1,mensalidade:520,pagamento:"—",status:"Ativa"},
+    {id:7,pessoaId:23,turmaId:1,mensalidade:520,pagamento:"A definir",status:"Nova"},
+  ],
+  workshops:[
+    {id:1,nome:"Colônia de férias (infantil)",datas:"16, 23 e 30/07 · 14h–17h30",preco:"220 / 210 / 200 por dia"},
+    {id:2,nome:"Workshop de sábado",datas:"12/07",preco:"a definir"},
+    {id:3,nome:"Workshop 08/07 (realizado)",datas:"08/07",preco:"—"},
+  ],
+  inscricoes:[
+    {id:1,pessoaId:21,workshopId:3,status:"Realizada"},
+    {id:2,pessoaId:22,workshopId:3,status:"Realizada"},
+  ],
+  avulsas:[
+    {id:1,pessoaId:20,data:"2026-07-15",turmaId:1,status:"Confirmada"},
+  ],
+  pecas:[
+    {id:1,pessoaId:18,descricao:"Peças do mês de junho",dataDeixou:"2026-06-20",estimativa:"—",status:"pronta"},
+    {id:2,pessoaId:12,descricao:"Canequinha",dataDeixou:"2026-07-09",estimativa:"~15 dias",status:"producao"},
+  ],
+  relatorios:[
+    {id:1,data:"2026-07-09",turmaId:3,autor:"Catarina",resumo:"Aula à noite. Lívia fez modelagem e pintura em aulas separadas. Isadora deixou uma canequinha para queima."},
+  ],
+};
+
+const origens=["Instagram","Indicação","Google","Passou na frente","Workshop","Outro"];
+const pagamentos=["PIX","Cartão","Débito","A definir","—"];
+const statusMat=["Ativa","Pausada","Nova","Saiu"];
+const pecaStatus={producao:["Em produção","a"],pronta:["Pronta · avisar","c"],avisado:["Aguardando retirada","b"],entregue:["Entregue","g"]};
+const pecaNext={producao:["pronta","Marcar pronta"],pronta:["avisado","Marcar avisada"],avisado:["entregue","Marcar entregue"]};
+
+/* ---------------- HELPERS ---------------- */
+const byId=(a,id)=>a.find(x=>x.id==id);
+const pessoa=id=>byId(db.contatos,id)||{nome:"?"};
+const turma=id=>byId(db.turmas,id)||{nome:"—"};
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const fmt=n=>"R$ "+Number(n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtKg=n=>Number(n).toLocaleString("pt-BR",{minimumFractionDigits:3,maximumFractionDigits:3});
+const dataBR=iso=>{if(!iso||iso==="—")return "—";const p=iso.split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:iso;};
+function opts(arr){return arr.map(o=>({value:o,label:o}));}
+function contatoOpts(){return db.contatos.map(c=>({value:c.id,label:c.nome}));}
+function turmaOpts(){return db.turmas.map(t=>({value:t.id,label:t.nome}));}
+function pessoasComVinculo(pid){
+  const v=[];
+  db.matriculas.filter(m=>m.pessoaId==pid).forEach(m=>v.push('<span class="tag c">'+esc(turma(m.turmaId).nome.split(" ·")[0])+'</span>'));
+  db.avulsas.filter(a=>a.pessoaId==pid).forEach(()=>v.push('<span class="tag g">Avulsa</span>'));
+  db.inscricoes.filter(i=>i.pessoaId==pid).forEach(()=>v.push('<span class="tag b">Workshop</span>'));
+  return v.length?'<div class="chips">'+v.join("")+'</div>':'<span class="muted">—</span>';
+}
+
+/* ---------------- MODAL / FORM ---------------- */
+let _onSave=null;
+function showModal(title,bodyHTML,onSave){
+  _onSave=onSave;
+  document.getElementById("overlay").innerHTML=
+    '<div class="modal"><h4>'+esc(title)+'</h4><div>'+bodyHTML+'</div>'+
+    '<div class="mactions"><button class="btn ghost" onclick="closeModal()">Cancelar</button>'+
+    '<button class="btn" onclick="saveModal()">Salvar</button></div></div>';
+  document.getElementById("overlay").classList.add("show");
+}
+function closeModal(){document.getElementById("overlay").classList.remove("show");_onSave=null;}
+function saveModal(){if(_onSave)_onSave();}
+document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal();});
+
+function openForm(title,fields,onSubmit){
+  const body=fields.map(f=>{
+    const id="f_"+f.key;
+    if(f.type==="select"){
+      const ph=f.placeholder?'<option value="">'+esc(f.placeholder)+'</option>':"";
+      const os=f.options.map(o=>'<option value="'+esc(o.value)+'" '+(String(o.value)===String(f.value)?"selected":"")+'>'+esc(o.label)+'</option>').join("");
+      return '<label class="f">'+esc(f.label)+'</label><select class="i" id="'+id+'">'+ph+os+'</select>';
+    }
+    if(f.type==="textarea") return '<label class="f">'+esc(f.label)+'</label><textarea class="i" id="'+id+'">'+esc(f.value)+'</textarea>';
+    return '<label class="f">'+esc(f.label)+'</label><input class="i" id="'+id+'" type="'+(f.type||"text")+'" '+(f.step?'step="'+f.step+'"':"")+' value="'+esc(f.value)+'">';
+  }).join("");
+  showModal(title,body,()=>{
+    const out={};
+    fields.forEach(f=>out[f.key]=document.getElementById("f_"+f.key).value);
+    onSubmit(out); closeModal(); render(); toast("Salvo");
+  });
+}
+
+/* ---------------- CRUD ---------------- */
+function contatoForm(id){
+  const c=id?byId(db.contatos,id):{};
+  openForm(id?"Editar contato":"Novo contato",[
+    {key:"nome",label:"Nome",value:c.nome},
+    {key:"tel",label:"WhatsApp",value:c.tel},
+    {key:"origem",label:"Origem",type:"select",options:opts(origens),value:c.origem||"Instagram"},
+    {key:"obs",label:"Observações",type:"textarea",value:c.obs},
+  ],v=>{ if(id)Object.assign(c,v); else db.contatos.push({id:uid(),...v}); });
+}
+function matriculaForm(id){
+  const m=id?byId(db.matriculas,id):{};
+  openForm(id?"Editar matrícula":"Nova matrícula",[
+    {key:"pessoaId",label:"Aluno",type:"select",options:contatoOpts(),value:m.pessoaId,placeholder:"Selecione…"},
+    {key:"turmaId",label:"Turma",type:"select",options:turmaOpts(),value:m.turmaId,placeholder:"Selecione…"},
+    {key:"mensalidade",label:"Mensalidade (R$)",type:"number",value:m.mensalidade!=null?m.mensalidade:520},
+    {key:"pagamento",label:"Forma de pagamento",type:"select",options:opts(pagamentos),value:m.pagamento||"—"},
+    {key:"status",label:"Situação",type:"select",options:opts(statusMat),value:m.status||"Ativa"},
+  ],v=>{
+    const rec={pessoaId:+v.pessoaId,turmaId:+v.turmaId,mensalidade:+v.mensalidade,pagamento:v.pagamento,status:v.status};
+    if(id)Object.assign(m,rec); else db.matriculas.push({id:uid(),...rec});
+  });
+}
+function avulsaForm(id){
+  const a=id?byId(db.avulsas,id):{};
+  openForm(id?"Editar avulsa":"Nova aula avulsa",[
+    {key:"pessoaId",label:"Aluno",type:"select",options:contatoOpts(),value:a.pessoaId,placeholder:"Selecione…"},
+    {key:"data",label:"Data",type:"date",value:a.data},
+    {key:"turmaId",label:"Encaixe na turma",type:"select",options:turmaOpts(),value:a.turmaId,placeholder:"Selecione…"},
+    {key:"status",label:"Situação",type:"select",options:opts(["Confirmada","A confirmar","Realizada"]),value:a.status||"A confirmar"},
+  ],v=>{
+    const rec={pessoaId:+v.pessoaId,data:v.data,turmaId:+v.turmaId,status:v.status};
+    if(id)Object.assign(a,rec); else db.avulsas.push({id:uid(),...rec});
+  });
+}
+function workshopForm(id){
+  const w=id?byId(db.workshops,id):{};
+  openForm(id?"Editar workshop":"Novo workshop / evento",[
+    {key:"nome",label:"Nome",value:w.nome},
+    {key:"datas",label:"Datas / horário",value:w.datas},
+    {key:"preco",label:"Preço",value:w.preco},
+  ],v=>{ if(id)Object.assign(w,v); else db.workshops.push({id:uid(),...v}); });
+}
+function inscricaoForm(){
+  openForm("Inscrever em workshop",[
+    {key:"pessoaId",label:"Pessoa",type:"select",options:contatoOpts(),placeholder:"Selecione…"},
+    {key:"workshopId",label:"Workshop",type:"select",options:db.workshops.map(w=>({value:w.id,label:w.nome})),placeholder:"Selecione…"},
+    {key:"status",label:"Situação",type:"select",options:opts(["Confirmada","A confirmar","Realizada"]),value:"Confirmada"},
+  ],v=>{ db.inscricoes.push({id:uid(),pessoaId:+v.pessoaId,workshopId:+v.workshopId,status:v.status}); });
+}
+function pecaForm(id){
+  const p=id?byId(db.pecas,id):{};
+  openForm(id?"Editar peça":"Nova peça",[
+    {key:"pessoaId",label:"Aluno",type:"select",options:contatoOpts(),value:p.pessoaId,placeholder:"Selecione…"},
+    {key:"descricao",label:"Descrição da peça",value:p.descricao},
+    {key:"dataDeixou",label:"Data que deixou",type:"date",value:p.dataDeixou},
+    {key:"estimativa",label:"Estimativa (ex.: ~15 dias)",value:p.estimativa},
+    {key:"status",label:"Status",type:"select",options:[{value:"producao",label:"Em produção"},{value:"pronta",label:"Pronta · avisar"},{value:"avisado",label:"Aguardando retirada"},{value:"entregue",label:"Entregue"}],value:p.status||"producao"},
+  ],v=>{
+    const rec={pessoaId:+v.pessoaId,descricao:v.descricao,dataDeixou:v.dataDeixou,estimativa:v.estimativa,status:v.status};
+    if(id)Object.assign(p,rec); else db.pecas.push({id:uid(),...rec});
+  });
+}
+function setPeca(id,s){byId(db.pecas,id).status=s;render();toast("Status atualizado");}
+
+function relatorioForm(id){
+  const r=id?byId(db.relatorios,id):{};
+  openForm(id?"Editar dia":"Novo dia",[
+    {key:"data",label:"Data",type:"date",value:r.data||"2026-07-11"},
+    {key:"turmaId",label:"Turma",type:"select",options:turmaOpts(),value:r.turmaId,placeholder:"Selecione…"},
+    {key:"resumo",label:"Resumo do dia",type:"textarea",value:r.resumo},
+  ],v=>{
+    if(id){r.data=v.data;r.turmaId=+v.turmaId||null;r.resumo=v.resumo;}
+    else{const nr={id:uid(),data:v.data,turmaId:+v.turmaId||null,autor:"Catarina",resumo:v.resumo};db.relatorios.push(nr);state.relSel=nr.id;}
+  });
+}
+/* --- navegação e peças do relatório diário --- */
+function openDia(id){state.relSel=id;render();}
+function voltarDias(){state.relSel=null;render();}
+function marcarProntaNoDia(pecaId,relId){const p=byId(db.pecas,pecaId),r=byId(db.relatorios,relId);p.status="pronta";p.dataPronta=r.data;render();toast("Marcada como pronta");}
+function pecaNoDia(relId){
+  const r=byId(db.relatorios,relId);
+  openForm("Registrar peça deixada",[
+    {key:"pessoaId",label:"Aluno",type:"select",options:contatoOpts(),placeholder:"Selecione…"},
+    {key:"descricao",label:"Descrição da peça",value:""},
+    {key:"estimativa",label:"Fica pronta em (ex.: ~15 dias)",value:""},
+  ],v=>{ db.pecas.push({id:uid(),pessoaId:+v.pessoaId,descricao:v.descricao,dataDeixou:r.data,estimativa:v.estimativa||"—",status:"producao"}); });
+}
+function relLista(){
+  const rs=[...db.relatorios].sort((a,b)=>b.data.localeCompare(a.data));
+  return ''+
+    '<p class="lead">Cada dia de aula vira um relatório. Clique num dia para ver o resumo e gerenciar as peças que entraram e as que ficaram prontas.</p>'+
+    '<div class="row-head"><h3 class="blk" style="margin:0">Dias</h3><button class="btn" onclick="relatorioForm()">+ Novo dia</button></div>'+
+    (rs.map(r=>{
+      const deix=db.pecas.filter(p=>p.dataDeixou===r.data).length;
+      const pron=db.pecas.filter(p=>p.dataPronta===r.data).length;
+      return '<div class="card daycard" style="margin-bottom:10px;cursor:pointer" onclick="openDia('+r.id+')">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px">'+
+          '<div><b>'+dataBR(r.data)+'</b> <span class="muted">· '+(r.turmaId?esc(turma(r.turmaId).nome):"Geral")+'</span></div>'+
+          '<div class="chips">'+
+            (deix?'<span class="tag a">'+deix+' deixada'+(deix>1?"s":"")+'</span>':"")+
+            (pron?'<span class="tag c">'+pron+' pronta'+(pron>1?"s":"")+'</span>':"")+
+            '<span class="tag n">abrir ›</span></div>'+
+        '</div><p style="margin:8px 0 0;color:#4a453e">'+(esc(r.resumo)||"—")+'</p></div>';
+    }).join("")||'<div class="card muted">Nenhum dia registrado ainda.</div>');
+}
+function relDetalhe(id){
+  const r=byId(db.relatorios,id);
+  if(!r){state.relSel=null;return relLista();}
+  const deixadas=db.pecas.filter(p=>p.dataDeixou===r.data);
+  const prontasHoje=db.pecas.filter(p=>p.dataPronta===r.data);
+  const emProducao=db.pecas.filter(p=>p.status==="producao");
+  const badge=p=>{const st=pecaStatus[p.status]||["?","n"];return '<span class="tag '+st[1]+'">'+st[0]+'</span>';};
+  return ''+
+    '<button class="btn ghost sm" onclick="voltarDias()">‹ Voltar aos dias</button>'+
+    '<div class="row-head" style="margin-top:14px"><div><h3 class="blk" style="margin:0">'+dataBR(r.data)+' · '+(r.turmaId?esc(turma(r.turmaId).nome):"Geral")+'</h3><span class="muted" style="font-size:12px">por '+esc(r.autor)+'</span></div><button class="btn ghost sm" onclick="relatorioForm('+r.id+')">Editar dia</button></div>'+
+    '<div class="card"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:650;color:var(--muted);margin-bottom:6px">Resumo do dia</div>'+(esc(r.resumo)||'<span class="muted">Sem resumo.</span>')+'</div>'+
+    '<div class="row-head" style="margin-top:22px"><h3 class="blk" style="margin:0">Peças deixadas neste dia</h3><button class="btn sm" onclick="pecaNoDia('+r.id+')">+ Registrar peça</button></div>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Peça</th><th>Estimativa</th><th>Status</th><th></th></tr></thead><tbody>'+
+      (deixadas.map(p=>'<tr><td class="name">'+esc(pessoa(p.pessoaId).nome)+'</td><td>'+esc(p.descricao)+'</td><td>'+esc(p.estimativa)+'</td><td>'+badge(p)+'</td><td style="text-align:right"><button class="btn ghost sm" onclick="pecaForm('+p.id+')">Editar</button></td></tr>').join("")||'<tr><td colspan="5" class="muted">Nenhuma peça registrada neste dia.</td></tr>')+
+    '</tbody></table></div>'+
+    '<h3 class="blk">Marcar peças como prontas hoje</h3>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Peça</th><th>Deixou</th><th></th></tr></thead><tbody>'+
+      (emProducao.map(p=>'<tr><td class="name">'+esc(pessoa(p.pessoaId).nome)+'</td><td>'+esc(p.descricao)+'</td><td>'+dataBR(p.dataDeixou)+'</td><td style="text-align:right"><button class="btn sm" onclick="marcarProntaNoDia('+p.id+','+r.id+')">Ficou pronta hoje</button></td></tr>').join("")||'<tr><td colspan="4" class="muted">Nenhuma peça em produção.</td></tr>')+
+    '</tbody></table></div>'+
+    '<h3 class="blk">Peças que ficaram prontas neste dia</h3>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Peça</th><th>Status</th></tr></thead><tbody>'+
+      (prontasHoje.map(p=>'<tr><td class="name">'+esc(pessoa(p.pessoaId).nome)+'</td><td>'+esc(p.descricao)+'</td><td>'+badge(p)+'</td></tr>').join("")||'<tr><td colspan="3" class="muted">Nenhuma peça marcada como pronta neste dia.</td></tr>')+
+    '</tbody></table></div>';
+}
+
+/* ---------------- VIEWS ---------------- */
+const VIEWS={
+  visaogeral:{title:"Visão geral",sub:"Retrato 360 do ateliê num lugar só",icon:'<rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>',render(){
+    const ativos=new Set(db.matriculas.filter(m=>m.status==="Ativa").map(m=>m.pessoaId)).size;
+    const avisar=db.pecas.filter(p=>p.status==="pronta").length;
+    const producao=db.pecas.filter(p=>p.status==="producao").length;
+    const receita=db.matriculas.filter(m=>m.status==="Ativa").reduce((s,m)=>s+m.mensalidade,0);
+    const pend=[];
+    db.pecas.filter(p=>p.status==="pronta").forEach(p=>pend.push({c:1,t:"Peça pronta de "+pessoa(p.pessoaId).nome,s:"Avisar o cliente para retirada."}));
+    db.matriculas.filter(m=>m.status==="Nova").forEach(m=>pend.push({c:0,t:"Confirmar pagamento — "+pessoa(m.pessoaId).nome,s:"Matrícula nova, pagamento antecipado."}));
+    pend.push({c:0,t:"Definir horário da Isadora",s:"Quarta ou quinta à noite."});
+    pend.push({c:0,t:"Follow-up com 2 interessadas paradas",s:"Perguntaram dias 8 e 9 e não responderam."});
+    return ''+
+      '<div class="grid kpis">'+
+        '<div class="card kpi"><div class="n">'+ativos+'</div><div class="l">Alunos ativos</div></div>'+
+        '<div class="card kpi"><div class="n">'+db.turmas.length+'</div><div class="l">Turmas semanais</div></div>'+
+        '<div class="card kpi"><div class="n">'+fmt(receita)+'</div><div class="l">Receita mensal (mensalidades)</div></div>'+
+        '<div class="card kpi"><div class="n" style="color:var(--clay)">'+avisar+'</div><div class="l">Peça(s) prontas p/ avisar</div></div>'+
+      '</div>'+
+      '<h3 class="blk">Pendências</h3><div>'+
+      pend.map(p=>'<div class="alert '+(p.c?"crit":"")+'"><span class="dot"></span><div class="txt"><b>'+esc(p.t)+'</b><small>'+esc(p.s)+'</small></div></div>').join("")+
+      '</div>'+
+      '<div class="grid two" style="margin-top:22px">'+
+        '<div class="card"><h3 class="blk" style="margin-top:0">Próximos eventos</h3><ul class="list">'+
+          '<li><span class="pill">sáb 12/07</span> Workshop de sábado</li>'+
+          '<li><span class="pill">qui 16/07</span> Colônia infantil · 14h</li>'+
+          '<li><span class="pill">qui 22/07</span> Reposição Mariana + Thiago · 15h</li>'+
+          '<li><span class="pill">qui 23/07</span> Colônia infantil · 14h</li>'+
+          '<li><span class="pill">qui 30/07</span> Colônia infantil · 14h</li>'+
+        '</ul></div>'+
+        '<div class="card"><h3 class="blk" style="margin-top:0">Produção no ateliê</h3><ul class="list">'+
+          '<li><b>'+producao+'</b> peça(s) em produção</li>'+
+          '<li><b>'+avisar+'</b> pronta(s) esperando aviso</li>'+
+          '<li><b>'+db.pecas.filter(p=>p.status==="avisado").length+'</b> aguardando retirada</li>'+
+        '</ul></div>'+
+      '</div>';
+  }},
+
+  relatorios:{title:"Relatório do dia",sub:"O que a Catarina registra no fim de cada aula",icon:'<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>',render(){
+    return state.relSel? relDetalhe(state.relSel) : relLista();
+  }},
+
+  pecas:{title:"Peças & forno",sub:"Produção, estimativas e retiradas",icon:'<path d="M8 21h8M12 21v-3M6 4h12l-1.2 7.2a5 5 0 01-9.6 0L6 4z"/>',render(){
+    return ''+
+      '<p class="lead">Controle das peças. A Catarina marca quando fica pronta; o atendimento vê o status e sabe a hora de avisar o cliente.</p>'+
+      '<div class="row-head"><h3 class="blk" style="margin:0">Peças</h3><button class="btn" onclick="pecaForm()">+ Nova peça</button></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Peça</th><th>Deixou</th><th>Estimativa</th><th>Status</th><th></th></tr></thead><tbody>'+
+      db.pecas.map(p=>{
+        const st=pecaStatus[p.status]||["?","n"]; const nx=pecaNext[p.status];
+        return '<tr><td class="name">'+esc(pessoa(p.pessoaId).nome)+'</td><td>'+esc(p.descricao)+'</td><td>'+dataBR(p.dataDeixou)+'</td><td>'+esc(p.estimativa)+'</td>'+
+          '<td><span class="tag '+st[1]+'">'+st[0]+'</span></td>'+
+          '<td style="text-align:right;white-space:nowrap">'+(nx?'<button class="btn sm" onclick="setPeca('+p.id+',\''+nx[0]+'\')">'+nx[1]+'</button> ':"")+
+          '<button class="btn ghost sm" onclick="pecaForm('+p.id+')">Editar</button></td></tr>';
+      }).join("")+'</tbody></table></div>';
+  }},
+
+  agenda:{title:"Calendário",sub:"Turmas, workshops, avulsas e eventos",icon:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',render(){return calendarHTML();}},
+
+  atendimento:{title:"Atendimento",sub:"Mensagens prontas no tom do Studio Parla",icon:'<path d="M21 11.5a8.4 8.4 0 01-11.9 7.6L3 21l1.9-6A8.4 8.4 0 1121 11.5z"/>',render(){
+    return ''+
+      '<p class="lead">Mensagens prontas pra copiar e colar. Sempre com saudação + nome e um convite no fim.</p>'+
+      '<div class="card" style="margin:12px 0 20px"><h3 class="blk" style="margin-top:0">Tom do ateliê</h3><ul class="list">'+
+        '<li><span class="chk on"></span>Saudação (bom dia/tarde/noite) <b>+ o nome</b> da pessoa</li>'+
+        '<li><span class="chk on"></span>Emojis com leveza (💗 😊 🤍), sem exagero</li>'+
+        '<li><span class="chk on"></span>Terminar com um convite (call to action)</li>'+
+        '<li><span class="chk on"></span>Separar saudação e cobrança em mensagens diferentes</li>'+
+      '</ul></div><h3 class="blk">Biblioteca de respostas</h3>'+
+      MSGS.map((m,i)=>'<div class="msgcard"><div class="h"><b>'+esc(m.t)+'</b><button class="btn ghost sm" onclick="copiarMsg('+i+')">Copiar</button></div><div class="body">'+esc(m.b)+'</div></div>').join("");
+  }},
+
+  fechamento:{title:"Fechamento",sub:"Calculadora do mês — gera a mensagem pronta",icon:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h4M7 12h2M15 8h2M13 15h4M15 13v4"/>',render(){
+    return ''+
+      '<p class="lead">Digite o peso das peças e a calculadora monta o total e a mensagem de cobrança pronta pro WhatsApp.</p>'+
+      '<div class="calc" style="margin-top:14px"><div class="card">'+
+        '<h3 class="blk" style="margin-top:0">Dados do aluno</h3>'+
+        '<label class="f">Nome</label><input class="i" id="c-nome" value="Isadora" oninput="calc()">'+
+        '<label class="f">Mensalidade (0 = só buscar peças)</label><input class="i" id="c-mens" type="number" value="500" oninput="calc()">'+
+        '<div class="row2"><div><label class="f">Peso das peças (kg)</label><input class="i" id="c-peso" type="number" step="0.001" value="0.296" oninput="calc()"></div>'+
+        '<div><label class="f">Peso esmaltado (kg)</label><input class="i" id="c-esm" type="number" step="0.001" value="0" oninput="calc()"></div></div>'+
+        '<h3 class="blk">Tarifas por kg <span class="pill" style="text-transform:none;letter-spacing:0">muda aqui, vale pra todos</span></h3>'+
+        '<div class="row2"><div><label class="f">Argila</label><input class="i" id="r-arg" type="number" value="14" oninput="calc()"></div>'+
+        '<div><label class="f">1ª queima</label><input class="i" id="r-bis" type="number" value="30" oninput="calc()"></div></div>'+
+        '<label class="f">2ª queima (esmalte)</label><input class="i" id="r-esm" type="number" value="36" oninput="calc()"></div>'+
+      '<div><div class="result">'+
+        '<div class="line"><span class="k">Mensalidade</span><span id="o-mens"></span></div>'+
+        '<div class="line"><span class="k">Argila</span><span id="o-arg"></span></div>'+
+        '<div class="line"><span class="k">1ª queima (biscoito)</span><span id="o-bis"></span></div>'+
+        '<div class="line" id="o-esm-line" style="display:none"><span class="k">2ª queima (esmalte)</span><span id="o-esm"></span></div>'+
+        '<div class="line tot"><span>Total</span><span id="o-tot"></span></div></div>'+
+        '<textarea class="msgbox" id="c-msg" readonly></textarea>'+
+        '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="copiar(\'c-msg\')">Copiar mensagem</button>'+
+        '<button class="btn ghost" onclick="preset(\'mariana\')">Ex.: Mariana</button>'+
+        '<button class="btn ghost" onclick="preset(\'isadora\')">Ex.: Isadora</button></div></div></div>';
+  },after(){calc();}},
+
+  contatos:{title:"Contatos",sub:"Todo mundo — a lista mestre de pessoas",icon:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0112 0M16 6.5a3 3 0 010 5.5M21 20a6 6 0 00-4-5.6"/>',render(){
+    return ''+
+      '<p class="lead">A entidade-mãe. Toda pessoa (aluno, avulsa, workshop) existe aqui uma vez só. Os vínculos aparecem à direita.</p>'+
+      '<div class="row-head"><h3 class="blk" style="margin:0">'+db.contatos.length+' contatos</h3><button class="btn" onclick="contatoForm()">+ Novo contato</button></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>WhatsApp</th><th>Origem</th><th>Vínculos</th><th>Obs.</th><th></th></tr></thead><tbody>'+
+      db.contatos.map(c=>'<tr><td class="name">'+esc(c.nome)+'</td><td>'+esc(c.tel)+'</td><td><span class="tag n">'+esc(c.origem)+'</span></td>'+
+        '<td>'+pessoasComVinculo(c.id)+'</td><td class="muted">'+(esc(c.obs)||"—")+'</td>'+
+        '<td style="text-align:right"><button class="btn ghost sm" onclick="contatoForm('+c.id+')">Editar</button></td></tr>').join("")+
+      '</tbody></table></div>';
+  }},
+
+  matriculas:{title:"Matrículas",sub:"Vínculo aluno ↔ turma",icon:'<path d="M12 3l9 5-9 5-9-5 9-5zM3 12l9 5 9-5"/>',render(){
+    return ''+
+      '<p class="lead">Cada linha liga uma pessoa a uma turma, com mensalidade e forma de pagamento próprios.</p>'+
+      '<div class="row-head"><h3 class="blk" style="margin:0">Matrículas</h3><button class="btn" onclick="matriculaForm()">+ Nova matrícula</button></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Turma</th><th>Mensalidade</th><th>Pagamento</th><th>Situação</th><th></th></tr></thead><tbody>'+
+      db.matriculas.map(m=>{
+        const sc={Ativa:"g",Nova:"b",Pausada:"a",Saiu:"n"}[m.status]||"n";
+        return '<tr><td class="name">'+esc(pessoa(m.pessoaId).nome)+'</td><td>'+esc(turma(m.turmaId).nome)+'</td><td>'+fmt(m.mensalidade)+'</td><td>'+esc(m.pagamento)+'</td>'+
+          '<td><span class="tag '+sc+'">'+esc(m.status)+'</span></td><td style="text-align:right"><button class="btn ghost sm" onclick="matriculaForm('+m.id+')">Editar</button></td></tr>';
+      }).join("")+'</tbody></table></div>'+
+      '<div class="row-head" style="margin-top:24px"><h3 class="blk" style="margin:0">Aulas avulsas</h3><button class="btn ghost" onclick="avulsaForm()">+ Nova avulsa</button></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Aluno</th><th>Data</th><th>Encaixe</th><th>Situação</th><th></th></tr></thead><tbody>'+
+      (db.avulsas.map(a=>'<tr><td class="name">'+esc(pessoa(a.pessoaId).nome)+'</td><td>'+dataBR(a.data)+'</td><td>'+esc(turma(a.turmaId).nome)+'</td>'+
+        '<td><span class="tag g">'+esc(a.status)+'</span></td><td style="text-align:right"><button class="btn ghost sm" onclick="avulsaForm('+a.id+')">Editar</button></td></tr>').join("")||'<tr><td colspan="5" class="muted">Nenhuma.</td></tr>')+
+      '</tbody></table></div>';
+  }},
+
+  turmas:{title:"Turmas",sub:"As turmas fixas e quem está em cada uma",icon:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/>',render(){
+    return ''+
+      '<p class="lead">Turmas semanais. A lista de alunos vem das matrículas — muda a matrícula, muda aqui.</p>'+
+      '<div class="grid two" style="margin-top:8px">'+
+      db.turmas.map(t=>{
+        const al=db.matriculas.filter(m=>m.turmaId==t.id).map(m=>pessoa(m.pessoaId).nome);
+        const av=db.avulsas.filter(a=>a.turmaId==t.id).map(a=>pessoa(a.pessoaId).nome+" (avulsa)");
+        const todos=al.concat(av);
+        return '<div class="card"><b>'+esc(t.nome)+'</b><ul class="list" style="margin-top:8px">'+(todos.length?todos.map(n=>'<li>'+esc(n)+'</li>').join(""):'<li class="muted">Sem alunos</li>')+'</ul></div>';
+      }).join("")+'</div>'+
+      '<div class="card" style="margin-top:16px"><b>Colônia de férias (infantil)</b> <span class="pill">16, 23 e 30/07 · 14h–17h30</span><p class="muted" style="margin:8px 0 0">Evento pontual — ver aba Workshops.</p></div>';
+  }},
+
+  workshops:{title:"Workshops & eventos",sub:"Eventos pontuais e inscritos",icon:'<path d="M12 2l2.5 5 5.5.8-4 3.9.9 5.5L12 20l-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/>',render(){
+    return ''+
+      '<div class="row-head"><h3 class="blk" style="margin:0">Workshops</h3><button class="btn" onclick="workshopForm()">+ Novo workshop</button></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>Datas</th><th>Preço</th><th>Inscritos</th><th></th></tr></thead><tbody>'+
+      db.workshops.map(w=>{
+        const ins=db.inscricoes.filter(i=>i.workshopId==w.id).length;
+        return '<tr><td class="name">'+esc(w.nome)+'</td><td>'+esc(w.datas)+'</td><td>'+esc(w.preco)+'</td><td>'+ins+'</td>'+
+          '<td style="text-align:right"><button class="btn ghost sm" onclick="workshopForm('+w.id+')">Editar</button></td></tr>';
+      }).join("")+'</tbody></table></div>'+
+      '<div class="row-head" style="margin-top:24px"><h3 class="blk" style="margin:0">Inscrições</h3><button class="btn ghost" onclick="inscricaoForm()">+ Inscrever pessoa</button></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Pessoa</th><th>Workshop</th><th>Situação</th></tr></thead><tbody>'+
+      (db.inscricoes.map(i=>'<tr><td class="name">'+esc(pessoa(i.pessoaId).nome)+'</td><td>'+esc((byId(db.workshops,i.workshopId)||{}).nome)+'</td><td><span class="tag b">'+esc(i.status)+'</span></td></tr>').join("")||'<tr><td colspan="3" class="muted">Nenhuma.</td></tr>')+
+      '</tbody></table></div>';
+  }},
+
+  precos:{title:"Preços & serviços",sub:"A tabela de venda do ateliê",icon:'<path d="M20 12l-8 8-9-9V3h8l9 9zM7.5 7.5h.01"/>',render(){
+    return ''+
+      '<p class="lead">O que o atendimento fala pra quem chega. O custo por peso (argila/queima) está na aba Fechamento.</p>'+
+      '<h3 class="blk">Aulas</h3><div class="tbl-wrap"><table><thead><tr><th>Serviço</th><th>Valor</th><th>Observação</th></tr></thead><tbody>'+
+      '<tr><td class="name">Mensal (4 aulas/mês)</td><td>R$ 520</td><td>Até R$ 500 no PIX se pedir desconto</td></tr>'+
+      '<tr><td class="name">Aula avulsa</td><td>R$ 180</td><td>Desconto especial se fechar mais de uma</td></tr></tbody></table></div>'+
+      '<h3 class="blk">Colônia de férias (infantil)</h3><div class="tbl-wrap"><table><thead><tr><th>Fechamento</th><th>Valor por dia</th></tr></thead><tbody>'+
+      '<tr><td class="name">1 dia</td><td>R$ 220</td></tr><tr><td class="name">2 dias</td><td>R$ 210 / dia</td></tr><tr><td class="name">3 dias</td><td>R$ 200 / dia</td></tr></tbody></table></div>'+
+      '<h3 class="blk">Custo de produção (por kg)</h3><div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Valor por kg</th></tr></thead><tbody>'+
+      '<tr><td class="name">Argila</td><td>R$ 14</td></tr><tr><td class="name">1ª queima — biscoito</td><td>R$ 30</td></tr><tr><td class="name">2ª queima — esmalte</td><td>R$ 36</td></tr></tbody></table></div>'+
+      '<h3 class="blk">Pagamento</h3><div class="card"><ul class="list">'+
+      '<li>PIX — chave 27 99879-8726 (Maria Catarina)</li>'+
+      '<li>Cartão de crédito — link InfinitePay · débito</li>'+
+      '<li>Mensalidade paga <b>antecipada</b>. Sempre pedir comprovante.</li></ul></div>';
+  }},
+};
+
+const MSGS=[
+  {t:"Primeiro contato / divulgação",b:"Bom dia [nome], tudo bem? 💗\nEstamos com um novo ateliê em Vitória, na rua Aleixo Netto, e com turmas abertas!\nHorários: quartas das 15h às 18h e das 18h às 21h, e quintas das 18h às 21h.\nEnsinamos as técnicas da cerâmica e acompanhamos sua produção de forma individual, seja qual for seu nível.\nVocê gostaria de garantir uma vaga em alguma das turmas?"},
+  {t:"Aula avulsa",b:"Que ótimo! Aqui no ateliê também trabalhamos com aulas avulsas, onde você experimenta a cerâmica e conhece a dinâmica daqui 😊\nAs avulsas estão no valor de R$180,00, e caso feche mais de uma podemos fazer um descontinho especial!\nVamos marcar uma data pra sua aula experimental?"},
+  {t:"Pedir comprovante",b:"Oi [nome], tudo bem? 😊 Quando puder, você consegue me enviar o comprovante do pagamento? É só para eu atualizar meu controle. Obrigada!"},
+  {t:"Falta / puxar de volta",b:"Bom dia [nome]! Sentimos sua falta na aula 💗 Como voltamos ao horário normal, na próxima semana você gostaria de fazer nas quartas e quintas à noite?"},
+  {t:"Cobrança da mensalidade",b:"Certinho [nome]! O valor é referente à renovação da mensalidade e ao custo da argila e queima das suas peças.\n(gerar o detalhamento na aba Fechamento)"},
+  {t:"Follow-up 1",b:"Bom dia [nome]! Como você está? 😊 Passando para saber se posso te ajudar a escolher um horário para as aulas."},
+  {t:"Follow-up 2",b:"Oi [nome]! Ainda temos turmas abertas. Se quiser mais informações ou agendar uma aula, é só me avisar. 🤍"},
+  {t:"Follow-up 3",b:"Bom dia [nome]! Só lembrando que, quando quiser começar, estaremos por aqui. Será um prazer receber você no ateliê! 💗"},
+];
+
+/* ---------------- CALENDÁRIO ---------------- */
+let calY=2026,calM=6;
+const eventosData={
+  "2026-07-12":[["Workshop de sábado","w"]],
+  "2026-07-15":[["Avulsa · Glauciene 15h","a"]],
+  "2026-07-16":[["Colônia infantil 14h","k"]],
+  "2026-07-22":[["Reposição Mariana+Thiago 15h","a"]],
+  "2026-07-23":[["Colônia infantil 14h","k"]],
+  "2026-07-30":[["Colônia infantil 14h","k"]],
+};
+function changeMonth(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}render();}
+function calendarHTML(){
+  const meses=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const first=new Date(calY,calM,1).getDay();
+  const dim=new Date(calY,calM+1,0).getDate();
+  const dowN=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  let cells="";
+  for(let i=0;i<first;i++)cells+='<div class="cal-cell out"></div>';
+  for(let d=1;d<=dim;d++){
+    const wd=new Date(calY,calM,d).getDay();
+    const iso=calY+"-"+String(calM+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    const isToday=(calY===2026&&calM===6&&d===11);
+    let evs=[];
+    if(wd===3){evs.push(["Aulas · 15h e 18h",""]);}
+    if(wd===4){evs.push(["Aula · 18h",""]);}
+    (eventosData[iso]||[]).forEach(e=>evs.push(e));
+    cells+='<div class="cal-cell '+(isToday?"today":"")+'"><div class="d">'+d+'</div>'+evs.map(e=>'<div class="ev '+e[1]+'">'+e[0]+'</div>').join("")+'</div>';
+  }
+  return ''+
+    '<p class="lead">Turmas semanais (quartas e quintas), workshops, avulsas e a colônia — tudo num mês só.</p>'+
+    '<div class="cal" style="margin-top:12px"><div class="cal-head">'+
+      '<button class="btn ghost sm" onclick="changeMonth(-1)">‹</button><b>'+meses[calM]+' '+calY+'</b>'+
+      '<button class="btn ghost sm" onclick="changeMonth(1)">›</button></div>'+
+      '<div class="cal-grid">'+dowN.map(d=>'<div class="dow">'+d+'</div>').join("")+cells+'</div></div>'+
+    '<div style="margin-top:12px;display:flex;gap:14px;flex-wrap:wrap;font-size:12px" class="muted">'+
+      '<span><span class="ev" style="display:inline-block">Aulas</span> turma regular</span>'+
+      '<span><span class="ev w" style="display:inline-block">Workshop</span></span>'+
+      '<span><span class="ev k" style="display:inline-block">Colônia</span></span>'+
+      '<span><span class="ev a" style="display:inline-block">Avulsa / reposição</span></span></div>';
+}
+
+/* ---------------- CALCULADORA ---------------- */
+function calc(){
+  const g=id=>document.getElementById(id);
+  if(!g("c-mens"))return;
+  const mens=parseFloat(g("c-mens").value)||0,peso=parseFloat(g("c-peso").value)||0,pesoE=parseFloat(g("c-esm").value)||0;
+  const rA=parseFloat(g("r-arg").value)||0,rB=parseFloat(g("r-bis").value)||0,rE=parseFloat(g("r-esm").value)||0;
+  const nome=g("c-nome").value.trim()||"aluno(a)";
+  const argila=peso*rA,bis=peso*rB,esm=pesoE*rE,tot=mens+argila+bis+esm;
+  g("o-mens").textContent=fmt(mens);g("o-arg").textContent=fmt(argila);g("o-bis").textContent=fmt(bis);
+  g("o-esm").textContent=fmt(esm);g("o-esm-line").style.display=esm>0?"flex":"none";g("o-tot").textContent=fmt(tot);
+  let m="Total geral da "+nome+":\n• Peso total: "+fmtKg(peso)+" kg\n";
+  if(mens>0)m+="• Mensalidade: "+fmt(mens)+"\n";
+  m+="• Argila: "+fmt(argila)+"\n• Queima de biscoito: "+fmt(bis)+"\n";
+  if(esm>0)m+="• Queima de esmalte: "+fmt(esm)+"\n";
+  m+="• Valor total: "+fmt(tot);
+  g("c-msg").value=m;
+}
+function preset(w){const g=id=>document.getElementById(id);
+  if(w==="mariana"){g("c-nome").value="Mariana";g("c-mens").value=520;g("c-peso").value=0.792;g("c-esm").value=0;}
+  else{g("c-nome").value="Isadora";g("c-mens").value=500;g("c-peso").value=0.296;g("c-esm").value=0;}
+  calc();}
+
+/* ---------------- COPY / TOAST ---------------- */
+function doCopy(t){const ok=()=>toast("Copiado!");if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok).catch(()=>fb(t,ok));}else fb(t,ok);}
+function fb(t,cb){const a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(a);cb&&cb();}
+function copiar(id){doCopy(document.getElementById(id).value);}
+function copiarMsg(i){doCopy(MSGS[i].b);}
+let _tt;function toast(m){const t=document.getElementById("toast");t.textContent=m||"Feito";t.classList.add("show");clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove("show"),1500);}
+
+/* ---------------- WORKSPACES / RENDER ---------------- */
+const WORKSPACES={
+  operacao:{label:"Operação",hint:"Uso diário do ateliê",views:["relatorios","pecas","agenda","atendimento","fechamento"]},
+  cadastros:{label:"Cadastros",hint:"Pessoas, turmas e serviços",views:["contatos","matriculas","turmas","workshops","precos"]},
+  tatica:{label:"Tática",hint:"Visão geral e estratégia",views:["visaogeral"]},
+};
+const state={ws:"operacao",view:"relatorios",relSel:null};
+
+function renderSidebar(){
+  document.getElementById("wsSeg").innerHTML=Object.keys(WORKSPACES).map(k=>
+    '<button class="'+(state.ws===k?"active":"")+'" onclick="setWorkspace(\''+k+'\')">'+WORKSPACES[k].label+'</button>').join("");
+  document.getElementById("wsHint").textContent=WORKSPACES[state.ws].hint;
+  document.getElementById("nav").innerHTML=WORKSPACES[state.ws].views.map(v=>{
+    const V=VIEWS[v];
+    return '<button class="'+(state.view===v?"active":"")+'" onclick="setView(\''+v+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">'+V.icon+'</svg>'+V.title+'</button>';
+  }).join("");
+}
+function setWorkspace(ws){state.ws=ws;state.view=WORKSPACES[ws].views[0];state.relSel=null;render();}
+function setView(v){state.view=v;state.relSel=null;render();}
+function render(){
+  renderSidebar();
+  const V=VIEWS[state.view];
+  document.getElementById("ttl").textContent=V.title;
+  document.getElementById("sub").textContent=V.sub;
+  document.getElementById("content").innerHTML=V.render();
+  if(V.after)V.after();
+  window.scrollTo(0,0);
+}
+render();
+</script>
+</body>
+</html>

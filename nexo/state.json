@@ -1,0 +1,12 @@
+{
+  "current_milestone_id": null,
+  "active_run": null,
+  "mode": "discuss",
+  "models": {
+    "planner": "inherit",
+    "plan_checker": "inherit",
+    "executor": "inherit",
+    "verifier": "inherit"
+  },
+  "note": "This file is a regenerable pointer cache. Milestone membership is derived from plan and run metadata. The absence of a delivery block keeps this repository in main-only mode."
+}
