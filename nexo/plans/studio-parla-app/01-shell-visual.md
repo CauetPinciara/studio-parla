@@ -1,7 +1,7 @@
 ---
 id: 01-shell-visual
 milestone: m1
-status: todo
+status: done
 depends_on: []
 files_modified:
   - .gitignore
