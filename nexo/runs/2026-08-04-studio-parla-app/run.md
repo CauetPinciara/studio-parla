@@ -15,3 +15,4 @@ Migrar o protótipo para a stack fechada, preservando dados, regras e interface,
 
 O planejamento detalhado está em `nexo/plans/studio-parla-app/`.
 
+- 01-shell-visual: PASS no teste de navegação, lint e build; commit `366081d`.

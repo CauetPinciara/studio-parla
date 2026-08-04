@@ -1,0 +1,2 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+export function ComingSoonPage() { return <Card><CardHeader><CardTitle>Studio Parla</CardTitle><CardDescription>Esta área será conectada aos dados persistidos nas próximas etapas.</CardDescription></CardHeader><CardContent className="text-sm text-muted-foreground">A navegação e a identidade visual já estão prontas.</CardContent></Card>; }

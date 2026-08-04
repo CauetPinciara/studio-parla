@@ -1,0 +1,10 @@
+{
+  "agent": "verify",
+  "slice": "01-shell-visual",
+  "status": "PASS",
+  "report": "nexo/runs/2026-08-04-studio-parla-app/verify-01-shell-visual.md",
+  "summary": "Navigation tests, lint, and production build all exited 0.",
+  "done": true,
+  "started_at": "2026-08-04T22:12:43.153Z",
+  "completed_at": "2026-08-04T22:23:50.130Z"
+}
