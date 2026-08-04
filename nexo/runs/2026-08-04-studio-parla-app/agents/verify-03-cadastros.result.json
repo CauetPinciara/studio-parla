@@ -1,0 +1,8 @@
+{
+  "task": "verify-03-cadastros",
+  "status": "PASS",
+  "done": true,
+  "summary": "Teste focado, lint e build passaram; os seis modulos de API possuem CRUD tipado, e as paginas tratam loading, erros e invalidacao de queries.",
+  "report": "nexo/runs/2026-08-04-studio-parla-app/verify-03-cadastros.md",
+  "completed_at": "2026-08-04T22:37:19Z"
+}
