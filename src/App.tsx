@@ -7,6 +7,9 @@ import ContatosPage from "@/features/contatos/ContatosPage";
 import MatriculasPage from "@/features/matriculas/MatriculasPage";
 import TurmasPage from "@/features/turmas/TurmasPage";
 import WorkshopsPage from "@/features/workshops/WorkshopsPage";
+import PecasPage from "@/features/pecas/PecasPage";
+import RelatoriosPage from "@/features/relatorios/RelatoriosPage";
+import CalendarioPage from "@/features/calendario/CalendarioPage";
 
-const pages: Record<string, React.ReactNode> = { "/contatos": <ContatosPage />, "/matriculas": <MatriculasPage />, "/turmas": <TurmasPage />, "/workshops": <WorkshopsPage /> };
+const pages: Record<string, React.ReactNode> = { "/relatorios": <RelatoriosPage />, "/pecas": <PecasPage />, "/calendario": <CalendarioPage />, "/contatos": <ContatosPage />, "/matriculas": <MatriculasPage />, "/turmas": <TurmasPage />, "/workshops": <WorkshopsPage /> };
 export default function App() { return <Protected><Routes><Route element={<Layout />}>{NAVIGATION_ITEMS.map((item) => <Route key={item.path} path={item.path} element={pages[item.path] ?? <ComingSoonPage />} />)}<Route index element={<Navigate to={DEFAULT_ROUTE} replace />} /><Route path="*" element={<Navigate to={DEFAULT_ROUTE} replace />} /></Route></Routes></Protected>; }
