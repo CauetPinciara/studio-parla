@@ -1,0 +1,7 @@
+{
+  "task": "verify-02-supabase-auth",
+  "status": "PASS",
+  "done": true,
+  "summary": "Teste focado, lint e build passaram; schema/RLS, seed, tipos, cliente anonimo, Google OAuth e gate de allowlist foram confirmados; nenhum segredo privilegiado foi encontrado.",
+  "report": "nexo/runs/2026-08-04-studio-parla-app/verify-02-supabase-auth.md"
+}
