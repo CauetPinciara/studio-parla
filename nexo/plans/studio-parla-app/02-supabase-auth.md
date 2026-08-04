@@ -1,7 +1,7 @@
 ---
 id: 02-supabase-auth
 milestone: m1
-status: todo
+status: done
 depends_on: [01-shell-visual]
 files_modified:
   - package.json
