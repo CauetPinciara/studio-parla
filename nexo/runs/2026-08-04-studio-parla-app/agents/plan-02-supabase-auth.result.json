@@ -1,0 +1,11 @@
+{
+  "agent": "plan",
+  "slice": "02-supabase-auth",
+  "status": "PASS",
+  "report": "nexo/plans/studio-parla-app/02-supabase-auth.md",
+  "summary": "Plano completo de schema, seed idempotente, tipos Supabase, cliente sem chaves e gate Google OAuth com allowlist e RLS.",
+  "done": true,
+  "started": "2026-08-04T20:34:00Z",
+  "ended": "2026-08-04T20:40:00Z",
+  "ts": "2026-08-04T20:40:00Z"
+}

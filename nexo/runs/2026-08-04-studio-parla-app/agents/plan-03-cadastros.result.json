@@ -1,0 +1,1 @@
+{"agent":"plan","slice":"03-cadastros","status":"PASS","report":"nexo/plans/studio-parla-app/03-cadastros.md","summary":"Plano completo da fatia 03 com seis APIs tipadas, CRUDs persistentes, estados assíncronos, matriz de invalidação, teste-oráculo TDD, verificação e commit.","done":true,"started":"2026-08-04T20:33:35Z","ended":"2026-08-04T20:40:05Z","ts":"2026-08-04T20:40:05Z"}

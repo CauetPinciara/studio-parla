@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "slice": "05-tatica-entrega",
+  "done": true,
+  "report": "nexo/plans/studio-parla-app/05-tatica-entrega.md",
+  "summary": "Plano completo de fechamento, atendimento, preços, KPIs, pendências derivadas, runbook, Cloudflare Pages, keep-alive e QA final."
+}
