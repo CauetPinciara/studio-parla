@@ -58,7 +58,3 @@ body { margin: 0; background: hsl(var(--background)); color: hsl(var(--foregroun
 button, a, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 svg { width: 1rem; height: 1rem; }
-
-@media (max-width: 767px) {
-  aside { position: static !important; height: auto !important; border-right: 0 !important; border-bottom: 1px solid hsl(var(--border)); }
-}

@@ -1,7 +1,7 @@
 ---
 id: 05-tatica-entrega
 milestone: m1
-status: todo
+status: done
 depends_on: [04-operacao]
 files_modified:
   - package.json

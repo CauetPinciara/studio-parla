@@ -1,0 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
+import { loadDashboard } from "@/features/visao-geral/api";
+import { deriveDashboard } from "@/features/visao-geral/domain";
+import { formatCurrency, formatDate } from "@/lib/format";
+
+export default function VisaoGeralPage() {
+  const query = useQuery({ queryKey: ["visao-geral"], queryFn: loadDashboard }); if (query.isLoading) return <LoadingState />; if (query.error) return <ErrorState error={query.error} />; if (!query.data) return null;
+  const model = deriveDashboard(query.data);
+  const kpis = [{ value: String(model.kpis.alunosAtivos), label: "Alunos ativos" }, { value: String(model.kpis.turmasSemanais), label: "Turmas semanais" }, { value: formatCurrency(model.kpis.receitaMensal), label: "Receita mensal (mensalidades)" }, { value: String(model.kpis.pecasProntas), label: "Peça(s) prontas p/ avisar" }];
+  return <div className="flex flex-col gap-6"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{kpis.map((kpi) => <Card key={kpi.label}><CardHeader><CardTitle className="text-2xl">{kpi.value}</CardTitle><CardDescription>{kpi.label}</CardDescription></CardHeader></Card>)}</div><section className="flex flex-col gap-2"><h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pendências</h2>{model.pendencias.length ? model.pendencias.map((item) => <Alert key={item.title} className={item.critical ? "border-primary/40" : undefined}><AlertTitle>{item.title}</AlertTitle><AlertDescription>{item.text}</AlertDescription></Alert>) : <Alert><AlertTitle>Tudo em dia</AlertTitle><AlertDescription>Nenhuma pendência calculada nos dados atuais.</AlertDescription></Alert>}</section><div className="grid gap-4 md:grid-cols-2"><Card><CardHeader><CardTitle className="text-xs uppercase tracking-widest text-muted-foreground">Próximos eventos</CardTitle></CardHeader><CardContent><ul className="flex flex-col gap-2 text-sm">{model.eventos.slice(0, 5).map((item) => <li key={item.id} className="border-b pb-2 last:border-0"><strong>{item.date.includes("-") ? formatDate(item.date) : item.date}</strong> · {item.title}</li>)}</ul></CardContent></Card><Card><CardHeader><CardTitle className="text-xs uppercase tracking-widest text-muted-foreground">Produção no ateliê</CardTitle></CardHeader><CardContent><ul className="flex flex-col gap-2 text-sm"><li><strong>{model.producao.producao}</strong> peça(s) em produção</li><li><strong>{model.producao.pronta}</strong> pronta(s) esperando aviso</li><li><strong>{model.producao.avisado}</strong> aguardando retirada</li></ul></CardContent></Card></div></div>;
+}
