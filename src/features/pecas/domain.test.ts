@@ -11,7 +11,7 @@ describe("fluxo de status da peça", () => {
     expect(pecaStatusLabels).toEqual({ producao: "Em produção", pronta: "Pronta · avisar", avisado: "Aguardando retirada", entregue: "Entregue" });
     expect(pecaActionLabels).toEqual({ producao: "Marcar pronta", pronta: "Marcar avisada", avisado: "Marcar entregue" });
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-08-04T14:30:00.000Z"));
+    vi.setSystemTime(new Date("2026-08-05T01:30:00.000Z"));
     expect(todayIso()).toBe("2026-08-04");
     vi.useRealTimers();
   });
