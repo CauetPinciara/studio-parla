@@ -1,0 +1,23 @@
+{
+  "slice": "05-tatica-entrega",
+  "branch": "feat/05-tatica-entrega",
+  "commit": "6d1e500",
+  "status": "PASS",
+  "previous_verification": {
+    "status": "FAIL",
+    "finding": "Desktop visual snapshot differed by 91 pixels (0.01%).",
+    "root_cause": "A dynamic current date in the snapshot header.",
+    "resolution": "Commit 6d1e500 fixes the Playwright clock at 2026-08-04 and centralizes local app dates."
+  },
+  "commands": [
+    { "command": "npm run test:e2e", "run": 1, "status": "PASS", "evidence": "3 passed" },
+    { "command": "npm run test:e2e", "run": 2, "status": "PASS", "evidence": "3 passed" },
+    { "command": "npm run test", "status": "PASS", "evidence": "6 files, 12 tests passed" },
+    { "command": "npm run lint", "status": "PASS" },
+    { "command": "npm run typecheck", "status": "PASS" },
+    { "command": "npm run build", "status": "PASS" },
+    { "command": "git diff --check", "status": "PASS" }
+  ],
+  "project_processes_remaining": false,
+  "report": "nexo/runs/2026-08-04-studio-parla-app/verify-05-tatica-entrega.md"
+}

@@ -1,6 +1,6 @@
 {
   "current_milestone_id": "m1",
-  "active_run": "2026-08-04-studio-parla-app",
+  "active_run": null,
   "mode": "autopilot",
   "models": {
     "planner": "inherit",
