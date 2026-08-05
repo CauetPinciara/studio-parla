@@ -15,6 +15,7 @@ const routes = [
 ] as const;
 
 test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date("2026-08-04T14:00:00-03:00"));
   await page.addInitScript(() => localStorage.setItem("studio-parla-shell-preview", "1"));
   await page.route("https://placeholder.supabase.co/**", async (route) => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
 });
