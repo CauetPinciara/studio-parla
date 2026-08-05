@@ -31,3 +31,8 @@ Foram mortos 145 de 145 mutantes na versão integrada final, sem sobreviventes, 
 O primeiro rerun visual encontrou uma variação de 91 pixels causada pela data corrente no cabeçalho.
 O relógio do Playwright foi fixado no teste, sem alterar a data dinâmica do produto.
 O mesmo agente Verify executou dois reruns E2E verdes e repetiu testes unitários, lint, typecheck, build e `git diff --check` com PASS.
+
+## Verificação integrada
+
+PASS em `main` no commit `6022ae8`: unitários, lint, typecheck, build, E2E, varredura de segredos e `git diff --check`.
+A árvore estava limpa antes da criação dos artefatos de evidência e não restaram processos deste projeto.

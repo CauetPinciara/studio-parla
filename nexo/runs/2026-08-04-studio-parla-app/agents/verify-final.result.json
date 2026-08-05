@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "final integrated verification on main",
+  "date": "2026-08-05",
+  "head": "6022ae8",
+  "branch": "main",
+  "evidence": {
+    "git_status_before_evidence": "clean",
+    "npm_run_test": "PASS - 6 files, 12 tests",
+    "npm_run_lint": "PASS - exit 0",
+    "npm_run_typecheck": "PASS - exit 0",
+    "npm_run_build": "PASS - exit 0",
+    "npm_run_test_e2e": "PASS - 3 Chromium tests",
+    "git_diff_check": "PASS - exit 0",
+    "secret_scan": "PASS - no matches (rg exit 1)",
+    "project_processes_after": "PASS - none"
+  },
+  "notes": [
+    "Processes found for other project directories were excluded from the project-process check.",
+    "The verification evidence files themselves are intentionally uncommitted."
+  ]
+}
