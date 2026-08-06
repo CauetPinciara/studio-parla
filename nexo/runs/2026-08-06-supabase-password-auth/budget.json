@@ -2,7 +2,7 @@
   "active_accumulated_seconds": 0,
   "active_since": 1786031212,
   "counters": {
-    "agent_dispatches": 0,
+    "agent_dispatches": 2,
     "initial_slices": 1,
     "replans": 0,
     "total_slices": 1,
@@ -21,7 +21,9 @@
   },
   "paused": false,
   "scoped_counters": {
-    "verify_attempts": {}
+    "verify_attempts": {
+      "supabase-password-auth": 1
+    }
   },
   "version": 1
 }
