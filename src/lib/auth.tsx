@@ -10,7 +10,7 @@ interface AuthContextValue {
   loading: boolean;
   membershipChecked: boolean;
   accessError: string | null;
-  signInWithGoogle: () => Promise<void>;
+  signInWithPassword: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const membershipChecked = !session?.user.email || membership?.email === session.user.email;
   const value = useMemo<AuthContextValue>(() => ({
     session, member, loading, membershipChecked, accessError,
-    signInWithGoogle: async () => { const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } }); if (error) throw error; },
+    signInWithPassword: async (email: string, password: string) => { const { error } = await supabase.auth.signInWithPassword({ email, password }); if (error) throw error; },
     signOut: async () => { const { error } = await supabase.auth.signOut(); if (error) throw error; },
   }), [accessError, loading, member, membershipChecked, session]);
 

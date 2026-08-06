@@ -63,20 +63,20 @@ VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
 ```
 
-### B. Login com Google
+### B. Contas de acesso
 
-5. Em **Google Cloud Console**, abra ou crie um projeto, entre em **APIs & Services > OAuth consent screen**, escolha External e adicione seu e-mail como test user.
-Depois entre em **Credentials > Create credentials > OAuth client ID > Web application**.
-6. Em **Authorized redirect URIs**, adicione `https://<REF>.supabase.co/auth/v1/callback`, onde `<REF>` é o subdomínio da Project URL.
-Copie **Client ID** e **Secret**.
-7. No Supabase, entre em **Authentication > Providers > Google**, cole Client ID e Secret e clique em **Save**.
-8. No Supabase, entre em **Authentication > URL Configuration** e adicione `http://localhost:5173` em **Redirect URLs**.
+5. No Supabase, entre em **Authentication > Sign In / Providers > Email** e mantenha o login por e-mail habilitado.
+Desative **Allow new users to sign up** para impedir cadastros públicos.
+6. Entre em **Authentication > Users > Add user > Create new user**.
+Crie um usuário confirmado para cada e-mail presente em `app_members` e atribua uma senha inicial forte a cada pessoa.
+7. O aplicativo não envia e-mails nem oferece recuperação de senha.
+Se alguém esquecer a senha, redefina ou recrie a conta em **Authentication > Users**.
 
 ### C. Rodar local e validar
 
-9. Rode `npm install` e `npm run dev`.
+8. Rode `npm install` e `npm run dev`.
 Faça login com um dos e-mails da allowlist e confirme que os dados persistem.
-10. Opcionalmente, sincronize os tipos com o banco real:
+9. Opcionalmente, sincronize os tipos com o banco real:
 
 ```bash
 npx supabase login
@@ -85,12 +85,10 @@ npx supabase gen types typescript --project-id <REF> --schema public > src/lib/d
 
 ### D. Deploy no Cloudflare Pages
 
-11. Suba o repositório no **GitHub**.
-12. Em **Cloudflare > Workers & Pages > Create > Pages > Connect to Git**, selecione o repositório.
+10. Suba o repositório no **GitHub**.
+11. Em **Cloudflare > Workers & Pages > Create > Pages > Connect to Git**, selecione o repositório.
 Use o preset **Vite**, build `npm run build` e output `dist`.
-13. Em **Settings > Environment variables** do Pages, adicione `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
-14. Após o deploy, copie a URL `<URL_PAGES>` com domínio `*.pages.dev`.
-No Supabase, em **Authentication > URL Configuration**, defina **Site URL** como `<URL_PAGES>` e adicione a mesma URL em **Redirect URLs**.
-No Google Cloud, em **Credentials**, adicione `<URL_PAGES>` em **Authorized JavaScript origins**.
+12. Em **Settings > Environment variables** do Pages, adicione `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
+13. Após o deploy, abra a URL `<URL_PAGES>` com domínio `*.pages.dev` e entre com uma das contas criadas no Supabase.
 
-Os valores que precisam ser colados manualmente são os e-mails reais, `<REF>`, `<URL_PAGES>`, Project URL, chave pública `anon`, Google Client ID e Google Secret.
+Os valores que precisam ser colados manualmente são os e-mails reais, `<REF>`, `<URL_PAGES>`, Project URL e chave pública `anon`.
