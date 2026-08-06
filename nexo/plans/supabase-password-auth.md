@@ -1,7 +1,7 @@
 ---
 id: supabase-password-auth
 milestone: m1
-status: verifying
+status: done
 acceptance: "Um membro entra com e-mail e senha pelo Supabase, Google OAuth desaparece do produto e do runbook, credenciais inválidas recebem feedback seguro, e a allowlist com RLS permanece inalterada; o teste de Protected, a suíte, lint, typecheck, build, E2E e a varredura de segurança passam."
 ---
 
