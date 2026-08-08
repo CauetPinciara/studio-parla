@@ -7,9 +7,9 @@ create table if not exists app_members (
   created_at timestamptz not null default now()
 );
 insert into app_members (email, nome) values
-  ('voce@gmail.com',     'Cauet'),
-  ('catarina@gmail.com', 'Catarina'),
-  ('isabela@gmail.com',  'Isabela')
+  ('cauetpinciara@gmail.com',     'Cauet'),
+  ('catarinamosc@gmail.com', 'Catarina'),
+  ('isabelachmatalik@gmail.com',  'Isabela')
 on conflict (email) do nothing;
 
 create or replace function public.is_member()
