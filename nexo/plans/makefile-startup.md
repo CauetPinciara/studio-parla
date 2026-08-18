@@ -1,7 +1,7 @@
 ---
 id: makefile-startup
 milestone: m1
-status: doing
+status: done
 depends_on: []
 files_modified:
   - Makefile
