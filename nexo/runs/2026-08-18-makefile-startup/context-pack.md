@@ -78,7 +78,7 @@ Convention files detected (existence only — not content):
   AGENTS.md present
   README.md present
   package.json present
-  package.json scripts present: build dev lint test 
+  package.json scripts present: build dev lint test
   vitest.config.ts present
 
 ## Entry points / key files
@@ -91,4 +91,3 @@ Convention files detected (existence only — not content):
   nexo/knowledge/ — 2 item(s)
   nexo/plans/ — 3 item(s)
   nexo/runs/ — 7 item(s)
-
