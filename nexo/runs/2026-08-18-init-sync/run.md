@@ -48,3 +48,7 @@ The retry strengthens the security oracle from high-severity-only to a zero-vuln
 Final Gate 2 status is PASS after the locked verification retry passed all rail, dependency, audit, unit, lint, build, and browser E2E checks.
 Capture uses one atomic dependency-remediation commit for `package.json` and `package-lock.json`, followed by one atomic Nexo-rails commit for `.gitignore`, `AGENTS.md`, `CLAUDE.md`, and the `nexo/runs/2026-08-18-init-sync/` record.
 Commit creation, merge, and push remain owned by the Nexo orchestrator.
+
+## Committed-state verification
+
+Gate 2 passed again against committed branch state `00e689d` using the full rail, dependency, unit, lint, build, zero-vulnerability audit, and browser E2E command.
