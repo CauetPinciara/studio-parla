@@ -6,6 +6,7 @@ import {
   ContactRound,
   Flame,
   GraduationCap,
+  ListTodo,
   MessageCircle,
   PanelsTopLeft,
   Sparkles,
@@ -29,6 +30,7 @@ export const DEFAULT_ROUTE = "/relatorios";
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   { workspace: "operacao", path: "/relatorios", title: "Relatório do dia", subtitle: "O que a Catarina registra no fim de cada aula", icon: ClipboardList },
+  { workspace: "operacao", path: "/tarefas", title: "Tarefas", subtitle: "Pendências e responsáveis do dia a dia", icon: ListTodo },
   { workspace: "operacao", path: "/pecas", title: "Peças & forno", subtitle: "Produção, estimativas e retiradas", icon: Flame },
   { workspace: "operacao", path: "/calendario", title: "Calendário", subtitle: "Turmas, workshops, avulsas e eventos", icon: CalendarDays },
   { workspace: "operacao", path: "/atendimento", title: "Atendimento", subtitle: "Mensagens prontas no tom do Studio Parla", icon: MessageCircle },
