@@ -47,9 +47,9 @@ export interface Database {
         { id?: string; contato_id?: string; descricao?: string | null; data_deixou?: string | null; estimativa?: string | null; data_pronta?: string | null; status?: string; created_at?: string }
       >;
       relatorios: Table<
-        { id: string; data: string; turma_id: string | null; autor: string | null; resumo: string | null; created_at: string },
-        { id?: string; data: string; turma_id?: string | null; autor?: string | null; resumo?: string | null; created_at?: string },
-        { id?: string; data?: string; turma_id?: string | null; autor?: string | null; resumo?: string | null; created_at?: string }
+        { id: string; data: string; turma_id: string | null; autor: string | null; resumo: string | null; concluido_em: string | null; created_at: string },
+        { id?: string; data: string; turma_id?: string | null; autor?: string | null; resumo?: string | null; concluido_em?: string | null; created_at?: string },
+        { id?: string; data?: string; turma_id?: string | null; autor?: string | null; resumo?: string | null; concluido_em?: string | null; created_at?: string }
       >;
     };
     Views: { [_ in never]: never };
