@@ -17,7 +17,7 @@ const routes = [
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date("2026-08-04T14:00:00-03:00"));
   await page.addInitScript(() => localStorage.setItem("studio-parla-shell-preview", "1"));
-  await page.route("https://placeholder.supabase.co/**", async (route) => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
+  await page.route(/https:\/\/[^/]+\.supabase\.co\/.*/, async (route) => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
 });
 
 test("mantém os três workspaces e a rota ativa após recarregar", async ({ page }) => {
@@ -71,11 +71,15 @@ test("oferece navegação móvel sem perder contexto", async ({ page }) => {
 test("preserva o shell visual em desktop e mobile", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/relatorios");
-  await expect(page.getByText("Nenhum dia registrado ainda.")).toBeVisible();
+  await expect(page).toHaveURL(/\/relatorios\?data=2026-08-04$/);
+  await expect(page.getByText("Sem resumo.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tudo anotado!" })).toHaveAttribute("aria-pressed", "false");
   await expect(page).toHaveScreenshot("shell-desktop.png", { animations: "disabled" });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/relatorios");
-  await expect(page.getByText("Nenhum dia registrado ainda.")).toBeVisible();
+  await expect(page).toHaveURL(/\/relatorios\?data=2026-08-04$/);
+  await expect(page.getByText("Sem resumo.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tudo anotado!" })).toHaveAttribute("aria-pressed", "false");
   await expect(page).toHaveScreenshot("shell-mobile.png", { animations: "disabled" });
 });
