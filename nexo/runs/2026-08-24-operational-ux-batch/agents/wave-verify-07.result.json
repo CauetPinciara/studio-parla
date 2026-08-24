@@ -1,0 +1,1 @@
+{"agent":"verify","slice":"wave-07","status":"FAIL","report":"nexo/runs/2026-08-24-operational-ux-batch/wave-verify-07.md","summary":"Full gate failed because tarefas-desktop.png still expects the old workspace tabs instead of the integrated selector.","done":true,"ts":"2026-08-24T16:44:41Z"}

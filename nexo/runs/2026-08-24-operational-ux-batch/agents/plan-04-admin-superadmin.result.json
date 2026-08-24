@@ -1,0 +1,1 @@
+{"agent":"plan","slice":"04-admin-superadmin","status":"PASS","report":"nexo/plans/operational-ux-batch/04-admin-superadmin.md","summary":"Plano test-first para workspace Admin estatico, menu filtrado e rota restrita ao member superadmin, sem migracao Supabase.","done":true,"started":"2026-08-24T14:08:10Z","ended":"2026-08-24T14:09:31Z","ts":"2026-08-24T14:09:31Z"}

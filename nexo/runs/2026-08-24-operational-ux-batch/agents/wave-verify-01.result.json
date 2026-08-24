@@ -1,0 +1,1 @@
+{"agent":"verify","slice":"wave-01","status":"FAIL","report":"nexo/runs/2026-08-24-operational-ux-batch/wave-verify-01.md","summary":"Gate failed at npm test because Vitest collected a Playwright spec from the retained slice worktree.","done":true,"started":"2026-08-24T14:49:28Z","ended":"2026-08-24T14:50:05Z","ts":"2026-08-24T14:50:05Z"}

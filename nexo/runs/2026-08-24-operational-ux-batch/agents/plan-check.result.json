@@ -1,0 +1,1 @@
+{"agent":"plan-check","slice":"plan-set","status":"FAIL","report":"nexo/runs/2026-08-24-operational-ux-batch/plan-check.md","summary":"Plan set fails on slice size, unsafe ordering, non-additive task policy migration, and incomplete Admin route guarding.","done":true,"started":"2026-08-24T14:16:25Z","ended":"2026-08-24T14:17:29Z","ts":"2026-08-24T14:17:29Z"}
