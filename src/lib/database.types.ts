@@ -51,6 +51,11 @@ export interface Database {
         { id?: string; data: string; turma_id?: string | null; autor?: string | null; resumo?: string | null; concluido_em?: string | null; created_at?: string },
         { id?: string; data?: string; turma_id?: string | null; autor?: string | null; resumo?: string | null; concluido_em?: string | null; created_at?: string }
       >;
+      tarefas: Table<
+        { id: string; status: "a_fazer" | "em_andamento" | "concluida"; data_abertura: string; data_conclusao: string | null; responsavel: string; titulo: string; descricao: string | null; created_at: string },
+        { id?: string; status?: "a_fazer" | "em_andamento" | "concluida"; data_abertura?: string; data_conclusao?: string | null; responsavel: string; titulo: string; descricao?: string | null; created_at?: string },
+        { id?: string; status?: "a_fazer" | "em_andamento" | "concluida"; data_abertura?: string; data_conclusao?: string | null; responsavel?: string; titulo?: string; descricao?: string | null; created_at?: string }
+      >;
     };
     Views: { [_ in never]: never };
     Functions: { is_member: { Args: Record<PropertyKey, never>; Returns: boolean } };

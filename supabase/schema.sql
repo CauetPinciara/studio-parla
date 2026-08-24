@@ -63,6 +63,21 @@ create table if not exists relatorios (
   data date not null, turma_id uuid references turmas(id) on delete set null,
   autor text, resumo text, concluido_em timestamptz, created_at timestamptz not null default now()
 );
+create table if not exists tarefas (
+  id uuid primary key default gen_random_uuid(),
+  status text not null default 'a_fazer' check (status in ('a_fazer','em_andamento','concluida')),
+  data_abertura date not null default current_date,
+  data_conclusao date,
+  responsavel text not null check (btrim(responsavel) <> ''),
+  titulo text not null check (btrim(titulo) <> ''),
+  descricao text,
+  created_at timestamptz not null default now(),
+  check (
+    (status = 'concluida' and data_conclusao is not null)
+    or (status <> 'concluida' and data_conclusao is null)
+  ),
+  check (data_conclusao is null or data_conclusao >= data_abertura)
+);
 insert into turmas (nome, dia, hora) values
   ('Quarta · 15h–18h', 3, '15:00'),
   ('Quarta · 18h–21h', 3, '18:00'),
@@ -78,6 +93,7 @@ alter table inscricoes enable row level security;
 alter table avulsas enable row level security;
 alter table pecas enable row level security;
 alter table relatorios enable row level security;
+alter table tarefas enable row level security;
 
 create policy "membros leem allowlist" on app_members for select using (is_member());
 create policy "membros full" on contatos   for all using (is_member()) with check (is_member());
@@ -88,3 +104,4 @@ create policy "membros full" on inscricoes  for all using (is_member()) with che
 create policy "membros full" on avulsas     for all using (is_member()) with check (is_member());
 create policy "membros full" on pecas       for all using (is_member()) with check (is_member());
 create policy "membros full" on relatorios  for all using (is_member()) with check (is_member());
+create policy "membros full" on tarefas     for all using (is_member()) with check (is_member());
