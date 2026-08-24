@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Pencil, Plus } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Plus } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Insert, Row } from "@/lib/database.types";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Insert } from "@/lib/database.types";
 import { formatDate } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { listContatos } from "@/features/contatos/api";
@@ -14,19 +14,174 @@ import { PecaForm } from "@/features/pecas/PecaForm";
 import { createPeca, listPecas, setPecaStatus } from "@/features/pecas/api";
 import { PecaBadge } from "@/features/pecas/PecasPage";
 import { RelatorioForm } from "@/features/relatorios/RelatorioForm";
-import { createRelatorio, listRelatorios, updateRelatorio } from "@/features/relatorios/api";
+import { createRelatorio, listRelatorios, relatoriosQueryKey, setRelatorioCompletion, updateRelatorio } from "@/features/relatorios/api";
+import { normalizeReportDate, reportTodayIso, shiftReportDate } from "@/features/relatorios/date-navigation";
 import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
 import { listTurmas } from "@/features/turmas/api";
 
+const longDateFormatter = new Intl.DateTimeFormat("pt-BR", {
+  weekday: "long",
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+function formatLongDate(date: string) {
+  const formatted = longDateFormatter.format(new Date(`${date}T00:00:00.000Z`));
+  return `${formatted.charAt(0).toUpperCase()}${formatted.slice(1)}`;
+}
+
 export default function RelatoriosPage() {
-  const client = useQueryClient(); const { member } = useAuth(); const [selected, setSelected] = useState<string | null>(null); const [editing, setEditing] = useState<Row<"relatorios"> | undefined>(); const [reportOpen, setReportOpen] = useState(false); const [pieceOpen, setPieceOpen] = useState(false);
-  const relatorios = useQuery({ queryKey: ["relatorios"], queryFn: listRelatorios }); const pecas = useQuery({ queryKey: ["pecas"], queryFn: listPecas }); const contatos = useQuery({ queryKey: ["contatos"], queryFn: listContatos }); const turmas = useQuery({ queryKey: ["turmas"], queryFn: listTurmas });
-  const refreshReports = () => client.invalidateQueries({ queryKey: ["relatorios"] }); const refreshPieces = () => client.invalidateQueries({ queryKey: ["pecas"] });
-  const saveReport = useMutation({ mutationFn: (value: Insert<"relatorios">) => editing ? updateRelatorio(editing.id, value) : createRelatorio(value), onSuccess: (data) => { void refreshReports(); setReportOpen(false); if (!editing && data) setSelected(data.id); toast.success("Salvo"); }, onError: (e: Error) => toast.error(e.message) });
-  const savePiece = useMutation({ mutationFn: createPeca, onSuccess: () => { void refreshPieces(); setPieceOpen(false); toast.success("Peça registrada"); }, onError: (e: Error) => toast.error(e.message) });
-  const ready = useMutation({ mutationFn: ({ id, date }: { id: string; date: string }) => setPecaStatus(id, "pronta", date), onSuccess: () => { void refreshPieces(); toast.success("Marcada como pronta"); }, onError: (e: Error) => toast.error(e.message) });
-  if (relatorios.isLoading || pecas.isLoading || contatos.isLoading || turmas.isLoading) return <LoadingState />; const error = relatorios.error ?? pecas.error ?? contatos.error ?? turmas.error; if (error) return <ErrorState error={error} />;
-  const pessoa = (id: string) => contatos.data?.find((item) => item.id === id)?.nome ?? "?"; const turma = (id: string | null) => turmas.data?.find((item) => item.id === id)?.nome ?? "Geral"; const report = relatorios.data?.find((item) => item.id === selected);
-  if (report) { const left = pecas.data?.filter((item) => item.data_deixou === report.data) ?? []; const done = pecas.data?.filter((item) => item.data_pronta === report.data) ?? []; const production = pecas.data?.filter((item) => item.status === "producao") ?? []; return <div className="flex flex-col gap-6"><Button className="self-start" variant="outline" size="sm" onClick={() => setSelected(null)}><ArrowLeft data-icon="inline-start" />Voltar aos dias</Button><div className="flex items-start justify-between gap-3"><div><h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{formatDate(report.data)} · {turma(report.turma_id)}</h2><p className="mt-1 text-xs text-muted-foreground">por {report.autor}</p></div><Button variant="outline" size="sm" onClick={() => { setEditing(report); setReportOpen(true); }}><Pencil data-icon="inline-start" />Editar dia</Button></div><Card><CardHeader><CardTitle className="text-xs uppercase tracking-widest text-muted-foreground">Resumo do dia</CardTitle></CardHeader><CardContent>{report.resumo || <span className="text-muted-foreground">Sem resumo.</span>}</CardContent></Card><section className="flex flex-col gap-3"><div className="flex items-center justify-between"><h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Peças deixadas neste dia</h3><Button size="sm" onClick={() => setPieceOpen(true)}><Plus data-icon="inline-start" />Registrar peça</Button></div><DataTable rows={left} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça registrada neste dia." columns={[{ key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> }, { key: "peca", header: "Peça", cell: (row) => row.descricao }, { key: "estimativa", header: "Estimativa", cell: (row) => row.estimativa }, { key: "status", header: "Status", cell: (row) => <PecaBadge status={row.status} /> }]} /></section><section className="flex flex-col gap-3"><h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Marcar peças como prontas hoje</h3><DataTable rows={production} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça em produção." columns={[{ key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> }, { key: "peca", header: "Peça", cell: (row) => row.descricao }, { key: "deixou", header: "Deixou", cell: (row) => formatDate(row.data_deixou) }, { key: "acao", header: "", cell: (row) => <div className="text-right"><Button size="sm" onClick={() => ready.mutate({ id: row.id, date: report.data })}>Ficou pronta hoje</Button></div> }]} /></section><section className="flex flex-col gap-3"><h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Peças que ficaram prontas neste dia</h3><DataTable rows={done} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça marcada como pronta neste dia." columns={[{ key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> }, { key: "peca", header: "Peça", cell: (row) => row.descricao }, { key: "status", header: "Status", cell: (row) => <PecaBadge status={row.status} /> }]} /></section><RelatorioForm key={editing?.id} open={reportOpen} onOpenChange={setReportOpen} relatorio={editing} turmas={turmas.data ?? []} author={member?.nome ?? "Catarina"} pending={saveReport.isPending} onSubmit={(value) => saveReport.mutate(value)} /><PecaForm key={`piece-${report.id}`} open={pieceOpen} onOpenChange={setPieceOpen} contatos={contatos.data ?? []} date={report.data} pending={savePiece.isPending} onSubmit={(value) => savePiece.mutate(value)} /></div>; }
-  return <div className="flex flex-col gap-4"><p className="max-w-2xl text-sm text-muted-foreground">Cada dia de aula vira um relatório. Clique num dia para ver o resumo e gerenciar as peças que entraram e as que ficaram prontas.</p><div className="flex items-center justify-between"><h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Dias</h2><Button onClick={() => { setEditing(undefined); setReportOpen(true); }}><Plus data-icon="inline-start" />Novo dia</Button></div><div className="flex flex-col gap-3">{relatorios.data?.length ? relatorios.data.map((item) => { const left = pecas.data?.filter((piece) => piece.data_deixou === item.data).length ?? 0; const done = pecas.data?.filter((piece) => piece.data_pronta === item.data).length ?? 0; return <button key={item.id} className="text-left" onClick={() => setSelected(item.id)}><Card className="transition hover:border-primary hover:shadow-md"><CardHeader><div className="flex justify-between gap-3"><div><CardTitle>{formatDate(item.data)} <span className="font-normal text-muted-foreground">· {turma(item.turma_id)}</span></CardTitle><CardDescription className="mt-2">{item.resumo || "—"}</CardDescription></div><div className="flex flex-wrap items-start justify-end gap-1">{left > 0 && <Badge variant="warning">{left} deixada{left > 1 ? "s" : ""}</Badge>}{done > 0 && <Badge>{done} pronta{done > 1 ? "s" : ""}</Badge>}<Badge variant="secondary">abrir ›</Badge></div></div></CardHeader></Card></button>; }) : <Card><CardContent className="p-6 text-muted-foreground">Nenhum dia registrado ainda.</CardContent></Card>}</div><RelatorioForm key={editing?.id ?? "novo"} open={reportOpen} onOpenChange={setReportOpen} relatorio={editing} turmas={turmas.data ?? []} author={member?.nome ?? "Catarina"} pending={saveReport.isPending} onSubmit={(value) => saveReport.mutate(value)} /></div>;
+  const client = useQueryClient();
+  const { member } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [reportOpen, setReportOpen] = useState(false);
+  const [pieceOpen, setPieceOpen] = useState(false);
+  const today = reportTodayIso();
+  const candidate = searchParams.get("data");
+  const selectedDate = normalizeReportDate(candidate, today);
+
+  useEffect(() => {
+    if (candidate !== selectedDate) {
+      setSearchParams({ data: selectedDate }, { replace: true });
+    }
+  }, [candidate, selectedDate, setSearchParams]);
+
+  const relatorios = useQuery({ queryKey: relatoriosQueryKey, queryFn: listRelatorios });
+  const pecas = useQuery({ queryKey: ["pecas"], queryFn: listPecas });
+  const contatos = useQuery({ queryKey: ["contatos"], queryFn: listContatos });
+  const turmas = useQuery({ queryKey: ["turmas"], queryFn: listTurmas });
+  const report = relatorios.data?.find((item) => item.data === selectedDate);
+  const goToDate = (date: string) => setSearchParams({ data: date });
+  const refreshReports = () => client.invalidateQueries({ queryKey: relatoriosQueryKey });
+  const refreshPieces = () => client.invalidateQueries({ queryKey: ["pecas"] });
+
+  const saveReport = useMutation({
+    mutationFn: (value: Insert<"relatorios">) => report
+      ? updateRelatorio(report.id, value)
+      : createRelatorio(value),
+    onSuccess: (saved) => {
+      void refreshReports();
+      setReportOpen(false);
+      if (saved) goToDate(saved.data);
+      toast.success("Dia salvo");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const completion = useMutation({
+    mutationFn: () => {
+      const completedAt = report?.concluido_em ? null : new Date().toISOString();
+      return report
+        ? setRelatorioCompletion(report.id, completedAt)
+        : createRelatorio({
+            data: selectedDate,
+            turma_id: null,
+            autor: member?.nome ?? "Catarina",
+            resumo: null,
+            concluido_em: completedAt,
+          });
+    },
+    onSuccess: () => {
+      void refreshReports();
+      toast.success(report?.concluido_em ? "Dia reaberto" : "Tudo anotado");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const savePiece = useMutation({
+    mutationFn: createPeca,
+    onSuccess: () => {
+      void refreshPieces();
+      setPieceOpen(false);
+      toast.success("Peça registrada");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const ready = useMutation({
+    mutationFn: ({ id, date }: { id: string; date: string }) => setPecaStatus(id, "pronta", date),
+    onSuccess: () => {
+      void refreshPieces();
+      toast.success("Marcada como pronta");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  if (relatorios.isLoading || pecas.isLoading || contatos.isLoading || turmas.isLoading) {
+    return <LoadingState />;
+  }
+  const error = relatorios.error ?? pecas.error ?? contatos.error ?? turmas.error;
+  if (error) return <ErrorState error={error} />;
+
+  const pessoa = (id: string) => contatos.data?.find((item) => item.id === id)?.nome ?? "?";
+  const turma = (id: string | null) => turmas.data?.find((item) => item.id === id)?.nome ?? "Geral";
+  const left = pecas.data?.filter((item) => item.data_deixou === selectedDate) ?? [];
+  const done = pecas.data?.filter((item) => item.data_pronta === selectedDate) ?? [];
+  const production = pecas.data?.filter((item) => item.status === "producao") ?? [];
+  const isCompleted = Boolean(report?.concluido_em);
+
+  return <div className="flex flex-col gap-6">
+    <Card>
+      <CardHeader className="gap-4">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+          <Button size="icon" variant="outline" aria-label="Dia anterior" onClick={() => goToDate(shiftReportDate(selectedDate, -1))}><ChevronLeft /></Button>
+          <div className="min-w-0 text-center" aria-live="polite">
+            <CardDescription>Dia selecionado</CardDescription>
+            <time className="mt-1 block text-lg font-semibold tracking-tight" dateTime={selectedDate}>{formatLongDate(selectedDate)}</time>
+          </div>
+          <Button size="icon" variant="outline" aria-label="Próximo dia" onClick={() => goToDate(shiftReportDate(selectedDate, 1))}><ChevronRight /></Button>
+        </div>
+      </CardHeader>
+      <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+        <Button className="w-full sm:w-auto" variant="ghost" onClick={() => goToDate(today)}><CalendarDays data-icon="inline-start" />Hoje</Button>
+        <Button className="w-full sm:w-auto" variant={isCompleted ? "default" : "outline"} aria-pressed={isCompleted} disabled={completion.isPending} onClick={() => completion.mutate()}><CheckCircle2 data-icon="inline-start" />Tudo anotado!</Button>
+      </CardFooter>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Resumo do dia</CardTitle>
+        <CardDescription>{report ? `${turma(report.turma_id)} · por ${report.autor ?? "Catarina"}` : "Nenhum registro salvo para esta data."}</CardDescription>
+      </CardHeader>
+      <CardContent><p className={report?.resumo ? undefined : "text-muted-foreground"}>{report?.resumo || "Sem resumo."}</p></CardContent>
+      <CardFooter><Button variant="outline" onClick={() => setReportOpen(true)}>{report ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{report ? "Editar dia" : "Anotar este dia"}</Button></CardFooter>
+    </Card>
+
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Peças deixadas neste dia</h2>
+        <Button className="w-full sm:w-auto" size="sm" onClick={() => setPieceOpen(true)}><Plus data-icon="inline-start" />Registrar peça</Button>
+      </div>
+      <DataTable rows={left} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça registrada neste dia." columns={[
+        { key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> },
+        { key: "peca", header: "Peça", cell: (row) => row.descricao },
+        { key: "estimativa", header: "Estimativa", cell: (row) => row.estimativa },
+        { key: "status", header: "Status", cell: (row) => <PecaBadge status={row.status} /> },
+      ]} />
+    </section>
+
+    <section className="flex flex-col gap-3">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Marcar peças como prontas hoje</h2>
+      <DataTable rows={production} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça em produção." columns={[
+        { key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> },
+        { key: "peca", header: "Peça", cell: (row) => row.descricao },
+        { key: "deixou", header: "Deixou", cell: (row) => formatDate(row.data_deixou) },
+        { key: "acao", header: "", cell: (row) => <div className="text-right"><Button size="sm" disabled={ready.isPending} onClick={() => ready.mutate({ id: row.id, date: selectedDate })}>Ficou pronta hoje</Button></div> },
+      ]} />
+    </section>
+
+    <section className="flex flex-col gap-3">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Peças que ficaram prontas neste dia</h2>
+      <DataTable rows={done} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça marcada como pronta neste dia." columns={[
+        { key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> },
+        { key: "peca", header: "Peça", cell: (row) => row.descricao },
+        { key: "status", header: "Status", cell: (row) => <PecaBadge status={row.status} /> },
+      ]} />
+    </section>
+
+    <RelatorioForm key={report?.id ?? selectedDate} open={reportOpen} onOpenChange={setReportOpen} relatorio={report} selectedDate={selectedDate} turmas={turmas.data ?? []} author={member?.nome ?? "Catarina"} pending={saveReport.isPending} onSubmit={(value) => saveReport.mutate(value)} />
+    <PecaForm key={`piece-${selectedDate}`} open={pieceOpen} onOpenChange={setPieceOpen} contatos={contatos.data ?? []} date={selectedDate} pending={savePiece.isPending} onSubmit={(value) => savePiece.mutate(value)} />
+  </div>;
 }
