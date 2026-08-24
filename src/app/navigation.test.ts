@@ -7,11 +7,12 @@ import {
 } from "@/app/navigation";
 
 describe("navegação do Studio Parla", () => {
-  it("mantém as 11 rotas na ordem e nos workspaces definidos", () => {
+  it("mantém as 12 rotas na ordem e nos workspaces definidos", () => {
     expect(
       NAVIGATION_ITEMS.map(({ workspace, path, title }) => [workspace, path, title]),
     ).toEqual([
       ["operacao", "/relatorios", "Relatório do dia"],
+      ["operacao", "/tarefas", "Tarefas"],
       ["operacao", "/pecas", "Peças & forno"],
       ["operacao", "/calendario", "Calendário"],
       ["operacao", "/atendimento", "Atendimento"],
@@ -35,10 +36,11 @@ describe("navegação do Studio Parla", () => {
   });
 
   it("normaliza a barra final e usa Relatório do dia como fallback", () => {
+    expect(getNavigationItem("/tarefas/").path).toBe("/tarefas");
+    expect(getWorkspaceForPath("/tarefas/").id).toBe("operacao");
     expect(getNavigationItem("/pecas/").path).toBe("/pecas");
     expect(getWorkspaceForPath("/precos/").id).toBe("cadastros");
     expect(getNavigationItem("/rota-inexistente").path).toBe(DEFAULT_ROUTE);
     expect(getWorkspaceForPath("/rota-inexistente").id).toBe("operacao");
   });
 });
-
