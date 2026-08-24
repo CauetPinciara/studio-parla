@@ -61,7 +61,7 @@ create table if not exists pecas (
 create table if not exists relatorios (
   id uuid primary key default gen_random_uuid(),
   data date not null, turma_id uuid references turmas(id) on delete set null,
-  autor text, resumo text, created_at timestamptz not null default now()
+  autor text, resumo text, concluido_em timestamptz, created_at timestamptz not null default now()
 );
 insert into turmas (nome, dia, hora) values
   ('Quarta · 15h–18h', 3, '15:00'),
