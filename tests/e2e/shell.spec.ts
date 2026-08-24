@@ -26,19 +26,16 @@ test("mantém os três workspaces e a rota ativa após recarregar", async ({ pag
   await page.goto("/relatorios");
 
   await expect(page.getByRole("heading", { name: "Studio Parla" })).toBeVisible();
-  const workspace = page.getByLabel("Workspace");
-  await expect(workspace).toHaveValue("operacao");
-  await expect(page.getByRole("tablist")).toHaveCount(0);
-  await expect(page.getByRole("tab")).toHaveCount(0);
+  await expect(page.getByRole("tab", { name: "Operação" })).toHaveAttribute("aria-selected", "true");
 
-  await workspace.selectOption("cadastros");
+  await page.getByRole("tab", { name: "Cadastros" }).click();
   await expect(page).toHaveURL(/\/contatos$/);
   await expect(page.getByRole("link", { name: "Contatos" })).toHaveAttribute("aria-current", "page");
 
-  await workspace.selectOption("tatica");
+  await page.getByRole("tab", { name: "Tática" }).click();
   await expect(page).toHaveURL(/\/visao-geral$/);
   await page.reload();
-  await expect(workspace).toHaveValue("tatica");
+  await expect(page.getByRole("tab", { name: "Tática" })).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("heading", { name: "Visão geral", exact: true })).toBeVisible();
 
   for (const [path, title] of routes) {
@@ -60,11 +57,10 @@ test("oferece navegação móvel sem perder contexto", async ({ page }) => {
   await menuButton.focus();
   await expect(menuButton).toBeFocused();
   await menuButton.click();
-  const drawer = page.getByRole("dialog", { name: "Navegação principal" });
-  await expect(drawer).toBeVisible();
-  await drawer.getByLabel("Workspace").selectOption("cadastros");
+  await expect(page.getByRole("dialog", { name: "Navegação principal" })).toBeVisible();
+  await page.getByRole("tab", { name: "Cadastros" }).click();
   await expect(page).toHaveURL(/\/contatos$/);
-  await expect(drawer).toBeHidden();
+  await expect(page.getByRole("dialog", { name: "Navegação principal" })).toBeHidden();
 
   await menuButton.click();
   await page.getByRole("link", { name: "Preços & serviços" }).click();
