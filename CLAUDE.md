@@ -31,3 +31,10 @@ A blocker or exhausted budget is recorded in `AUDIT.md`, unfinished work is park
 ## Commit convention
 
 Use Conventional Commits such as `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, and `chore:` so Nexo can derive release versions from commit history.
+
+## Execution performance
+
+The user explicitly authorizes agents to choose the most performant in-scope execution strategy for each task.
+Prefer direct single-agent execution when delegation, extra worktrees, or orchestration overhead would not reduce wall-clock time.
+Use parallel agents only for genuinely independent workstreams, reuse valid plans and verification evidence, and avoid redundant planning or test runs.
+When a Nexo flow is explicitly active, apply this performance priority within its mandatory safety and verification gates.
