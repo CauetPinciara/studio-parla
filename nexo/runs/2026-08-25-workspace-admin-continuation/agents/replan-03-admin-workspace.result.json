@@ -1,0 +1,1 @@
+{"agent":"planner","slice":"03-admin-workspace","status":"PASS","report":"nexo/plans/workspace-admin-continuation/03-admin-workspace.md","summary":"Red agora fixa comandos run-once, falhas esperadas e separa os gates funcional, visual e pós-Green.","done":true,"started":"2026-08-25T21:12:22Z","ended":"2026-08-25T21:14:06Z","ts":"2026-08-25T21:14:06Z"}

@@ -1,0 +1,1 @@
+01-workspace-selector-contract feat/2026-08--01-workspace-selector-contract src/components/Sidebar.tsx src/components/Sidebar.test.tsx tests/e2e/shell.spec.ts tests/e2e/tarefas.spec.ts tests/e2e/__screenshots__/shell.spec.ts/shell-desktop.png tests/e2e/__screenshots__/tarefas.spec.ts/tarefas-desktop.png
