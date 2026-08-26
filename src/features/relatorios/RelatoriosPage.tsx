@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
@@ -14,23 +14,10 @@ import { PecaForm } from "@/features/pecas/PecaForm";
 import { createPeca, listPecas, setPecaStatus } from "@/features/pecas/api";
 import { PecaBadge } from "@/features/pecas/PecasPage";
 import { RelatorioForm } from "@/features/relatorios/RelatorioForm";
-import { createRelatorio, listRelatorios, relatoriosQueryKey, setRelatorioCompletion, updateRelatorio } from "@/features/relatorios/api";
-import { normalizeReportDate, reportTodayIso, shiftReportDate } from "@/features/relatorios/date-navigation";
+import { createRelatorio, listRelatorios, relatoriosQueryKey, updateRelatorio } from "@/features/relatorios/api";
+import { normalizeReportDate, reportTodayIso } from "@/features/relatorios/date-navigation";
 import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
 import { listTurmas } from "@/features/turmas/api";
-
-const longDateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  weekday: "long",
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-function formatLongDate(date: string) {
-  const formatted = longDateFormatter.format(new Date(`${date}T00:00:00.000Z`));
-  return `${formatted.charAt(0).toUpperCase()}${formatted.slice(1)}`;
-}
 
 export default function RelatoriosPage() {
   const client = useQueryClient();
@@ -70,26 +57,6 @@ export default function RelatoriosPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const completion = useMutation({
-    mutationFn: () => {
-      const completedAt = report?.concluido_em ? null : new Date().toISOString();
-      return report
-        ? setRelatorioCompletion(report.id, completedAt)
-        : createRelatorio({
-            data: selectedDate,
-            turma_id: null,
-            autor: member?.nome ?? "Catarina",
-            resumo: null,
-            concluido_em: completedAt,
-          });
-    },
-    onSuccess: () => {
-      void refreshReports();
-      toast.success(report?.concluido_em ? "Dia reaberto" : "Tudo anotado");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
   const savePiece = useMutation({
     mutationFn: createPeca,
     onSuccess: () => {
@@ -120,26 +87,8 @@ export default function RelatoriosPage() {
   const left = pecas.data?.filter((item) => item.data_deixou === selectedDate) ?? [];
   const done = pecas.data?.filter((item) => item.data_pronta === selectedDate) ?? [];
   const production = pecas.data?.filter((item) => item.status === "producao") ?? [];
-  const isCompleted = Boolean(report?.concluido_em);
 
   return <div className="flex flex-col gap-6">
-    <Card>
-      <CardHeader className="gap-4">
-        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-          <Button size="icon" variant="outline" aria-label="Dia anterior" onClick={() => goToDate(shiftReportDate(selectedDate, -1))}><ChevronLeft /></Button>
-          <div className="min-w-0 text-center" aria-live="polite">
-            <CardDescription>Dia selecionado</CardDescription>
-            <time className="mt-1 block text-lg font-semibold tracking-tight" dateTime={selectedDate}>{formatLongDate(selectedDate)}</time>
-          </div>
-          <Button size="icon" variant="outline" aria-label="Próximo dia" onClick={() => goToDate(shiftReportDate(selectedDate, 1))}><ChevronRight /></Button>
-        </div>
-      </CardHeader>
-      <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
-        <Button className="w-full sm:w-auto" variant="ghost" onClick={() => goToDate(today)}><CalendarDays data-icon="inline-start" />Hoje</Button>
-        <Button className="w-full sm:w-auto" variant={isCompleted ? "default" : "outline"} aria-pressed={isCompleted} disabled={completion.isPending} onClick={() => completion.mutate()}><CheckCircle2 data-icon="inline-start" />Tudo anotado!</Button>
-      </CardFooter>
-    </Card>
-
     <Card>
       <CardHeader>
         <CardTitle>Resumo do dia</CardTitle>
