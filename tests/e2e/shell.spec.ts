@@ -34,8 +34,9 @@ test("mantém os três workspaces e a rota ativa após recarregar", async ({ pag
   await expect(workspace).toContainText("Operação");
   await expect(page.getByRole("tablist")).toHaveCount(0);
   await expect(page.getByRole("tab")).toHaveCount(0);
-  await expect(page.getByText("Dia selecionado")).toBeVisible();
+  await expect(page.getByText("Dia selecionado")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Selecionar data" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Ir para hoje" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Relatório do dia", exact: true })).toHaveCount(0);
 
   await chooseWorkspace(page, workspace, "Cadastros");
@@ -82,8 +83,12 @@ test("oferece navegação móvel sem perder contexto", async ({ page }) => {
 
 test("preserva o shell visual em desktop e mobile", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("/relatorios");
-  await expect(page).toHaveURL(/\/relatorios\?data=2026-08-04$/);
+  await page.goto("/relatorios?data=2026-08-26");
+  await expect(page).toHaveURL(/\/relatorios\?data=2026-08-26$/);
+  await expect(
+    page.getByText("Quarta Feira, 26/08/2026", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Ir para hoje" })).toBeVisible();
   await expect(page.getByText("Sem resumo.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Tudo anotado!" })).toHaveAttribute("aria-pressed", "false");
   await expect(page).toHaveScreenshot("shell-desktop.png", { animations: "disabled" });
@@ -114,9 +119,19 @@ test("preserva o shell visual em desktop e mobile", async ({ page }) => {
   await expect(workspaceListbox).toBeHidden();
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/relatorios");
-  await expect(page).toHaveURL(/\/relatorios\?data=2026-08-04$/);
+  await page.goto("/relatorios?data=2026-08-26");
+  await expect(page).toHaveURL(/\/relatorios\?data=2026-08-26$/);
   await expect(page.getByText("Sem resumo.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tudo anotado!" })).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("button", { name: "Ir para hoje" })).toBeVisible();
+  const completion = page.getByRole("button", { name: "Tudo anotado!" });
+  await expect(completion).toBeVisible();
+  await expect(completion).toHaveAttribute("aria-pressed", "false");
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
   await expect(page).toHaveScreenshot("shell-mobile.png", { animations: "disabled" });
 });

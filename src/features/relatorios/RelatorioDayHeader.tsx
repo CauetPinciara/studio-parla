@@ -9,15 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/lib/auth";
 import { createRelatorio, listRelatorios, relatoriosQueryKey, setRelatorioCompletion } from "@/features/relatorios/api";
-import { normalizeReportDate, reportTodayIso, shiftReportDate } from "@/features/relatorios/date-navigation";
-
-const longDateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  weekday: "long",
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
+import { formatReportHeaderDate, normalizeReportDate, reportTodayIso, shiftReportDate } from "@/features/relatorios/date-navigation";
 
 const shortMonths = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
@@ -30,10 +22,6 @@ function dateToIso(value: Date) {
   const month = String(value.getMonth() + 1).padStart(2, "0");
   const day = String(value.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-function sentenceCase(value: string) {
-  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
 function formatShortDate(value: string) {
@@ -52,6 +40,7 @@ export function RelatorioDayHeader() {
   const relatorios = useQuery({ queryKey: relatoriosQueryKey, queryFn: listRelatorios });
   const report = relatorios.data?.find((item) => item.data === selectedDate);
   const isCompleted = Boolean(report?.concluido_em);
+  const isToday = selectedDate === today;
   const goToDate = (date: string) => setSearchParams({ data: date });
 
   const completion = useMutation({
@@ -75,72 +64,75 @@ export function RelatorioDayHeader() {
   });
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
-      <span className="hidden shrink-0 text-xs font-medium text-muted-foreground xl:inline">
-        Dia selecionado
-      </span>
-      <Button
-        className="shrink-0"
-        size="icon"
-        variant="outline"
-        aria-label="Dia anterior"
-        onClick={() => goToDate(shiftReportDate(selectedDate, -1))}
+    <div className="flex min-w-0 flex-1 items-center gap-1 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-0">
+      <div
+        className="flex min-w-0 flex-1 items-center justify-center gap-1 sm:gap-2 lg:col-start-2 lg:flex-none"
+        role="group"
+        aria-label="Navegação da data"
       >
-        <ChevronLeft />
-      </Button>
-      <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-        <PopoverTrigger asChild>
+        <Button
+          className="shrink-0"
+          size="icon"
+          variant="outline"
+          aria-label="Dia anterior"
+          onClick={() => goToDate(shiftReportDate(selectedDate, -1))}
+        >
+          <ChevronLeft />
+        </Button>
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              className="min-w-0 flex-1 justify-start sm:w-[180px] sm:flex-none lg:w-[250px] xl:w-[300px]"
+              variant="outline"
+              aria-label="Selecionar data"
+            >
+              <CalendarDays className="hidden sm:block" data-icon="inline-start" />
+              <span className="truncate sm:hidden" aria-hidden="true">
+                {formatShortDate(selectedDate)}
+              </span>
+              <span className="hidden truncate sm:inline" aria-hidden="true">
+                {formatReportHeaderDate(selectedDate)}
+              </span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={selected}
+              defaultMonth={selected}
+              locale={ptBR}
+              timeZone="America/Sao_Paulo"
+              autoFocus
+              onSelect={(date) => {
+                if (!date) return;
+                goToDate(dateToIso(date));
+                setCalendarOpen(false);
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+        <Button
+          className="shrink-0"
+          size="icon"
+          variant="outline"
+          aria-label="Próximo dia"
+          onClick={() => goToDate(shiftReportDate(selectedDate, 1))}
+        >
+          <ChevronRight />
+        </Button>
+        {!isToday && (
           <Button
-            className="min-w-0 flex-1 justify-start sm:w-[180px] sm:flex-none lg:w-[250px] xl:w-[300px]"
-            variant="outline"
-            aria-label="Selecionar data"
+            className="shrink-0"
+            size="sm"
+            variant="ghost"
+            onClick={() => goToDate(today)}
           >
-            <CalendarDays data-icon="inline-start" />
-            <span className="truncate sm:hidden" aria-hidden="true">
-              {formatShortDate(selectedDate)}
-            </span>
-            <span className="hidden truncate sm:inline" aria-hidden="true">
-              {sentenceCase(longDateFormatter.format(new Date(`${selectedDate}T00:00:00.000Z`)))}
-            </span>
+            Ir para hoje
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={selected}
-            defaultMonth={selected}
-            locale={ptBR}
-            timeZone="America/Sao_Paulo"
-            autoFocus
-            onSelect={(date) => {
-              if (!date) return;
-              goToDate(dateToIso(date));
-              setCalendarOpen(false);
-            }}
-          />
-        </PopoverContent>
-      </Popover>
+        )}
+      </div>
       <Button
-        className="shrink-0"
-        size="icon"
-        variant="outline"
-        aria-label="Próximo dia"
-        onClick={() => goToDate(shiftReportDate(selectedDate, 1))}
-      >
-        <ChevronRight />
-      </Button>
-      <Button
-        className="shrink-0 lg:w-auto lg:px-3"
-        size="icon"
-        variant="ghost"
-        aria-label="Hoje"
-        onClick={() => goToDate(today)}
-      >
-        <CalendarDays data-icon="inline-start" />
-        <span className="hidden lg:inline">Hoje</span>
-      </Button>
-      <Button
-        className="ml-auto shrink-0 lg:w-auto lg:px-3"
+        className="shrink-0 lg:col-start-3 lg:row-start-1 lg:w-auto lg:justify-self-end lg:px-3"
         size="icon"
         variant={isCompleted ? "default" : "outline"}
         aria-label="Tudo anotado!"
