@@ -1,0 +1,11 @@
+{
+  "agent": "plan-check",
+  "slice": "plan-set",
+  "status": "PASS",
+  "report": "nexo/runs/2026-08-26-attendance-by-class/plan-check.md",
+  "summary": "Plan-set corrigido e validado com WHAT completo, contratos idênticos, waves corretas, ownership canônico, oráculos bloqueados, shadcn Radix e migration somente local.",
+  "done": true,
+  "started_at": "2026-08-26T22:24:00Z",
+  "completed_at": "2026-08-26T22:34:10Z",
+  "ts": "2026-08-26T22:34:10Z"
+}

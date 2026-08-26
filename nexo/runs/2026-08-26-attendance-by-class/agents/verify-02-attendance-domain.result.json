@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "02-attendance-domain",
+  "status": "PASS",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-02-attendance-domain.md",
+  "summary": "Gate 2 passou na única execução; ambos os oráculos SQL chegaram a ROLLBACK, 33 testes passaram, typecheck, ESLint e diff-check ficaram verdes, com HEAD e worktree preservados e sem operação remota.",
+  "done": true,
+  "started": "2026-08-26T22:57:37Z",
+  "ended": "2026-08-26T23:00:44Z",
+  "ts": "2026-08-26T23:00:44Z"
+}

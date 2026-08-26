@@ -1,6 +1,6 @@
 {
   "current_milestone_id": "m1",
-  "active_run": null,
+  "active_run": "2026-08-26-attendance-by-class",
   "mode": "autopilot",
   "models": {
     "planner": "inherit",

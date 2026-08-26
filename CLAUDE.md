@@ -38,6 +38,9 @@ The user explicitly authorizes agents to choose the most performant in-scope exe
 Prefer direct single-agent execution when delegation, extra worktrees, or orchestration overhead would not reduce wall-clock time.
 Use parallel agents only for genuinely independent workstreams, reuse valid plans and verification evidence, and avoid redundant planning or test runs.
 When a Nexo flow is explicitly active, apply this performance priority within its mandatory safety and verification gates.
+Wall-clock duration alone is not evidence that an agent is looping or blocked.
+Never interrupt an active agent merely because a wait timeout elapsed.
+Interrupt only when there is concrete evidence of repeated non-progress or a hard block, or when the user explicitly asks to stop.
 
 ## Frontend component policy
 

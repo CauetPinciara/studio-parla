@@ -1,0 +1,11 @@
+{
+  "agent": "plan",
+  "slice": "01-report-header-refinement",
+  "status": "PASS",
+  "report": "nexo/plans/2026-08-26-attendance-by-class/01-report-header-refinement.md",
+  "summary": "Plano completo do header diário com formatter determinístico, navegação central, retorno condicional a hoje, completion preservada, TDD E2E, responsividade e quatro baselines visuais.",
+  "done": true,
+  "started": "2026-08-26T21:31:00Z",
+  "ended": "2026-08-26T21:50:00Z",
+  "ts": "2026-08-26T21:50:00Z"
+}

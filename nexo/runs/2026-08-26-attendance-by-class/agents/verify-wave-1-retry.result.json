@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "wave-1",
+  "status": "PASS",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-wave-1-retry.md",
+  "summary": "Wave 1 passou na cadeia bloqueada completa, nos contratos integrados e na inspeção visual original dos quatro baselines.",
+  "done": true,
+  "started": "2026-08-26T23:11:53Z",
+  "ended": "2026-08-26T23:16:55Z",
+  "ts": "2026-08-26T23:16:55Z"
+}

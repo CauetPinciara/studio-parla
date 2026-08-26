@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "wave-1",
+  "status": "FAIL",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-wave-1.md",
+  "summary": "Gate 2 failed because Vitest collected Playwright suites from two residual Nexo worktrees; the four visual baselines were clean, but E2E, lint, build and audit did not run.",
+  "done": true,
+  "started": "2026-08-26T23:03:34Z",
+  "ended": "2026-08-26T23:08:40Z",
+  "ts": "2026-08-26T23:08:40Z"
+}

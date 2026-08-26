@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "01-report-header-refinement",
+  "status": "PASS",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-01-report-header-refinement.md",
+  "summary": "Gate 2 passou na única execução; critérios de desktop e mobile, Calendar Radix/shadcn, URL sem writes e preservação de shell/workspace foram verificados.",
+  "done": true,
+  "started": "2026-08-26T22:45:00Z",
+  "ended": "2026-08-26T22:49:20Z",
+  "ts": "2026-08-26T22:49:20Z"
+}
