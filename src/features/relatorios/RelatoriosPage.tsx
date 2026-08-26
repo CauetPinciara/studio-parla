@@ -13,10 +13,8 @@ import { listContatos } from "@/features/contatos/api";
 import { PecaForm } from "@/features/pecas/PecaForm";
 import { createPeca, listPecas, setPecaStatus } from "@/features/pecas/api";
 import { PecaBadge } from "@/features/pecas/PecasPage";
-import { AttendanceBlocks } from "@/features/relatorios/AttendanceBlocks";
 import { RelatorioForm } from "@/features/relatorios/RelatorioForm";
 import { createRelatorio, listRelatorios, relatoriosQueryKey, updateRelatorio } from "@/features/relatorios/api";
-import { attendanceDayQueryKey, loadAttendanceDay, upsertAttendance } from "@/features/relatorios/attendance-api";
 import { normalizeReportDate, reportTodayIso } from "@/features/relatorios/date-navigation";
 import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
 import { listTurmas } from "@/features/turmas/api";
@@ -41,10 +39,6 @@ export default function RelatoriosPage() {
   const pecas = useQuery({ queryKey: ["pecas"], queryFn: listPecas });
   const contatos = useQuery({ queryKey: ["contatos"], queryFn: listContatos });
   const turmas = useQuery({ queryKey: ["turmas"], queryFn: listTurmas });
-  const attendanceDay = useQuery({
-    queryKey: attendanceDayQueryKey(selectedDate),
-    queryFn: () => loadAttendanceDay(selectedDate),
-  });
   const report = relatorios.data?.find((item) => item.data === selectedDate);
   const goToDate = (date: string) => setSearchParams({ data: date });
   const refreshReports = () => client.invalidateQueries({ queryKey: relatoriosQueryKey });
@@ -82,25 +76,10 @@ export default function RelatoriosPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const attendance = useMutation({
-    mutationFn: upsertAttendance,
-    onSuccess: (_saved, variables) => {
-      void client.invalidateQueries({
-        queryKey: attendanceDayQueryKey(variables.data),
-      });
-      toast.success(
-        variables.status === "presente"
-          ? "Presença registrada"
-          : "Falta registrada",
-      );
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  if (relatorios.isLoading || pecas.isLoading || contatos.isLoading || turmas.isLoading || attendanceDay.isLoading) {
+  if (relatorios.isLoading || pecas.isLoading || contatos.isLoading || turmas.isLoading) {
     return <LoadingState />;
   }
-  const error = relatorios.error ?? attendanceDay.error ?? pecas.error ?? contatos.error ?? turmas.error;
+  const error = relatorios.error ?? pecas.error ?? contatos.error ?? turmas.error;
   if (error) return <ErrorState error={error} />;
 
   const pessoa = (id: string) => contatos.data?.find((item) => item.id === id)?.nome ?? "?";
@@ -110,12 +89,6 @@ export default function RelatoriosPage() {
   const production = pecas.data?.filter((item) => item.status === "producao") ?? [];
 
   return <div className="flex flex-col gap-6">
-    <AttendanceBlocks
-      day={attendanceDay.data!}
-      pending={attendance.isPending}
-      onMark={attendance.mutate}
-    />
-
     <Card>
       <CardHeader>
         <CardTitle>Resumo do dia</CardTitle>

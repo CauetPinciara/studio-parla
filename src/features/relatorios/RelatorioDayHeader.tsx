@@ -9,8 +9,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/lib/auth";
 import { createRelatorio, listRelatorios, relatoriosQueryKey, setRelatorioCompletion } from "@/features/relatorios/api";
-import { attendanceDayQueryKey, loadAttendanceDay } from "@/features/relatorios/attendance-api";
-import { isAttendanceDayReady } from "@/features/relatorios/attendance-domain";
 import { formatReportHeaderDate, normalizeReportDate, reportTodayIso, shiftReportDate } from "@/features/relatorios/date-navigation";
 
 const shortMonths = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -40,15 +38,8 @@ export function RelatorioDayHeader() {
   const selectedDate = normalizeReportDate(searchParams.get("data"), today);
   const selected = dateFromIso(selectedDate);
   const relatorios = useQuery({ queryKey: relatoriosQueryKey, queryFn: listRelatorios });
-  const attendanceDay = useQuery({
-    queryKey: attendanceDayQueryKey(selectedDate),
-    queryFn: () => loadAttendanceDay(selectedDate),
-  });
   const report = relatorios.data?.find((item) => item.data === selectedDate);
   const isCompleted = Boolean(report?.concluido_em);
-  const attendanceReady = attendanceDay.data
-    ? isAttendanceDayReady(attendanceDay.data)
-    : false;
   const isToday = selectedDate === today;
   const goToDate = (date: string) => setSearchParams({ data: date });
 
@@ -71,10 +62,6 @@ export function RelatorioDayHeader() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
-  const completionDisabled =
-    relatorios.isLoading ||
-    completion.isPending ||
-    (!isCompleted && !attendanceReady);
 
   return (
     <div className="flex min-w-0 flex-1 items-center gap-1 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-0">
@@ -150,7 +137,7 @@ export function RelatorioDayHeader() {
         variant={isCompleted ? "default" : "outline"}
         aria-label="Tudo anotado!"
         aria-pressed={isCompleted}
-        disabled={completionDisabled}
+        disabled={relatorios.isLoading || completion.isPending}
         onClick={() => completion.mutate()}
       >
         <CheckCircle2 data-icon="inline-start" />
