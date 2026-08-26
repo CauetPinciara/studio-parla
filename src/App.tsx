@@ -27,6 +27,8 @@ const pages: Record<string, LazyExoticComponent<ComponentType>> = {
   "/visao-geral": lazy(() => import("@/features/visao-geral/VisaoGeralPage")),
 };
 
+const AdminPage = lazy(() => import("@/features/admin/AdminPage"));
+
 function OrdinaryShell() {
   const shellPreview = import.meta.env.DEV &&
     localStorage.getItem("studio-parla-shell-preview") === "1";
@@ -42,12 +44,21 @@ export default function App() {
         path="/admin"
         element={(
           <AdminAccessBoundary>
-            <Navigate to={DEFAULT_ROUTE} replace />
+            <Layout />
           </AdminAccessBoundary>
         )}
-      />
+      >
+        <Route
+          index
+          element={(
+            <Suspense fallback={<LoadingState />}>
+              <AdminPage />
+            </Suspense>
+          )}
+        />
+      </Route>
       <Route element={<OrdinaryShell />}>
-        {NAVIGATION_ITEMS.map((item) => {
+        {NAVIGATION_ITEMS.filter((item) => item.workspace !== "admin").map((item) => {
           const Page = pages[item.path];
           return (
             <Route

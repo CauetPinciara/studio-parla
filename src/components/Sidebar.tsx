@@ -1,6 +1,7 @@
 import { useId } from "react";
 import { LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { isSuperadminEmail } from "@/app/access";
 import { NAVIGATION_ITEMS, getWorkspaceForPath } from "@/app/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -17,6 +18,7 @@ interface SidebarProps {
   userName?: string | null;
   onNavigate?: () => void;
   className?: string;
+  memberEmail?: string | null;
   visibleWorkspaces?: readonly Workspace[];
 }
 
@@ -25,15 +27,23 @@ export function Sidebar({
   userName,
   onNavigate,
   className,
+  memberEmail,
   visibleWorkspaces = WORKSPACES,
 }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const selectId = useId();
   const hintId = useId();
-  const workspaces = visibleWorkspaces.length > 0
+  const requestedWorkspaces = visibleWorkspaces.length > 0
     ? visibleWorkspaces
     : WORKSPACES;
+  const authorizedWorkspaces = requestedWorkspaces.filter(
+    (workspace) =>
+      workspace.id !== "admin" || isSuperadminEmail(memberEmail),
+  );
+  const workspaces = authorizedWorkspaces.length > 0
+    ? authorizedWorkspaces
+    : WORKSPACES.filter((workspace) => workspace.id !== "admin");
   const routeWorkspace = getWorkspaceForPath(location.pathname);
   const activeWorkspace = workspaces.find(
     (workspace) => workspace.id === routeWorkspace.id,
@@ -73,6 +83,15 @@ export function Sidebar({
           name="workspace"
           value={activeWorkspace.id}
           aria-describedby={hintId}
+          onKeyDown={(event) => {
+            if (event.key !== "End") return;
+
+            const lastWorkspace = workspaces.at(-1);
+            if (!lastWorkspace) return;
+
+            event.preventDefault();
+            selectWorkspace(lastWorkspace.id);
+          }}
           onChange={(event) =>
             selectWorkspace(event.target.value as WorkspaceId)
           }
