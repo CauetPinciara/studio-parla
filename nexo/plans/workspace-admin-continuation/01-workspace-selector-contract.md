@@ -1,7 +1,7 @@
 ---
 id: 01-workspace-selector-contract
 milestone: m1
-status: parked
+status: done
 depends_on: []
 files_modified: [src/components/Sidebar.tsx, src/components/Sidebar.test.tsx, tests/e2e/shell.spec.ts, tests/e2e/tarefas.spec.ts, tests/e2e/__screenshots__/shell.spec.ts/shell-desktop.png, tests/e2e/__screenshots__/tarefas.spec.ts/tarefas-desktop.png]
 acceptance: "Dado qualquer deep link comum no desktop ou no drawer movel, quando a Sidebar aparece, entao existe um unico select nativo acessivel chamado Workspace que reflete a rota; selecionar Operacao, Cadastros ou Tatica navega ao defaultPath correspondente e depois fecha o drawer; uma rota pertencente a workspace oculto usa a primeira opcao visivel sem navegar sozinha; os contratos funcionais e visuais de shell e Tarefas usam a nova semantica, somente os baselines desktop realmente afetados mudam e todos os oraculos passam sem update de snapshots."

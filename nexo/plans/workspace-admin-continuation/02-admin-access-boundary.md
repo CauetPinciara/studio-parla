@@ -1,7 +1,7 @@
 ---
 id: 02-admin-access-boundary
 milestone: m1
-status: parked
+status: done
 depends_on: [01-workspace-selector-contract]
 files_modified: [src/app/access.ts, src/app/access.test.ts, src/components/AdminAccessBoundary.tsx, src/components/AdminAccessBoundary.test.tsx, src/App.tsx, src/App.test.tsx]
 acceptance: "Given a direct visit to /admin, while authentication or allowlist membership is pending no Admin child, Layout, or metadata renders; after confirmation, absent and ordinary identities redirect to DEFAULT_ROUTE without a flash, and only a member.email that normalizes to cauetpinciara@gmail.com can render the authorized placeholder."

@@ -1,0 +1,1 @@
+02-admin-access-boundary feat/2026-08--02-admin-access-boundary src/app/access.ts src/app/access.test.ts src/components/AdminAccessBoundary.tsx src/components/AdminAccessBoundary.test.tsx src/App.tsx src/App.test.tsx

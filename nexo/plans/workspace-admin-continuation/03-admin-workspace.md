@@ -1,7 +1,7 @@
 ---
 id: 03-admin-workspace
 milestone: m1
-status: parked
+status: done
 depends_on: [02-admin-access-boundary]
 files_modified: [src/workspaces/index.ts, src/app/navigation.ts, src/app/navigation.test.ts, src/components/Layout.tsx, src/components/Sidebar.tsx, src/components/Sidebar.test.tsx, src/App.tsx, src/features/admin/AdminPage.tsx, tests/e2e/admin.spec.ts, tests/e2e/__screenshots__/admin.spec.ts/admin-desktop.png, tests/e2e/__screenshots__/admin.spec.ts/admin-mobile.png]
 acceptance: "Dado o member confirmado cauetpinciara@gmail.com, quando ele usa o seletor ou abre /admin, então vê o workspace Admin, a navegação Administração e a página estática autorizada; identidades pendentes, ausentes ou comuns nunca veem metadados ou conteúdo Admin e o acesso direto redireciona para /relatorios sem flash."

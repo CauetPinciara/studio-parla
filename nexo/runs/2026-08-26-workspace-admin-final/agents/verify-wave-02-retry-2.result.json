@@ -1,0 +1,1 @@
+{"agent":"verify","slice":"wave-02","status":"PASS","report":"nexo/runs/2026-08-26-workspace-admin-final/verify-wave-02-retry-2.md","summary":"All integrated unit, E2E, lint, build, audit, namespace, product-cleanliness, and cleanup checks passed.","done":true,"started":"2026-08-26T17:35:20Z","ended":"2026-08-26T17:36:59Z","ts":"2026-08-26T17:36:59Z"}
