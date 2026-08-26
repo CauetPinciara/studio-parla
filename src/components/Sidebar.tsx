@@ -67,11 +67,11 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-screen w-full shrink-0 flex-col border-r bg-card px-3 py-5 md:w-[242px]",
+        "sticky top-0 flex h-screen w-full shrink-0 flex-col border-r bg-card md:w-[242px]",
         className,
       )}
     >
-      <div className="flex items-center gap-2 px-2 pb-5">
+      <header className="flex h-20 shrink-0 items-center gap-2 border-b px-5">
         <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           ◡
         </div>
@@ -81,73 +81,75 @@ export function Sidebar({
             Painel interno
           </div>
         </div>
-      </div>
+      </header>
 
-      <Field className="px-2">
-        <FieldLabel htmlFor={selectId}>Workspace</FieldLabel>
-        <Select
-          value={activeWorkspace.id}
-          onValueChange={(value) => selectWorkspace(value as WorkspaceId)}
-        >
-          <SelectTrigger
-            id={selectId}
-            className="w-full"
-            aria-describedby={hintId}
+      <div className="flex min-h-0 flex-1 flex-col px-3 py-5">
+        <Field className="px-2">
+          <FieldLabel htmlFor={selectId}>Workspace</FieldLabel>
+          <Select
+            value={activeWorkspace.id}
+            onValueChange={(value) => selectWorkspace(value as WorkspaceId)}
           >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {workspaces.map((workspace) => (
-                <SelectItem key={workspace.id} value={workspace.id}>
-                  {workspace.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </Field>
-      <div
-        id={hintId}
-        className="px-2 py-2 text-[11px] text-muted-foreground"
-      >
-        {activeWorkspace.hint}
-      </div>
-
-      <nav className="flex flex-col gap-1">
-        {NAVIGATION_ITEMS.filter(
-          (item) => item.workspace === activeWorkspace.id,
-        ).map((item) => {
-          const Icon = item.icon;
-          const active = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              aria-current={active ? "page" : undefined}
-              onClick={onNavigate}
-              className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground",
-                active && "bg-primary/10 text-primary",
-              )}
+            <SelectTrigger
+              id={selectId}
+              className="w-full"
+              aria-describedby={hintId}
             >
-              <Icon />
-              {item.title}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="mt-auto flex flex-col gap-2 border-t pt-3">
-        <div className="truncate px-2 text-xs text-muted-foreground">
-          {userName ?? "Dados persistidos no Supabase"}
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {workspaces.map((workspace) => (
+                  <SelectItem key={workspace.id} value={workspace.id}>
+                    {workspace.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
+        <div
+          id={hintId}
+          className="px-2 py-2 text-[11px] text-muted-foreground"
+        >
+          {activeWorkspace.hint}
         </div>
-        {onSignOut && (
-          <Button variant="ghost" size="sm" onClick={onSignOut}>
-            <LogOut data-icon="inline-start" />
-            Sair
-          </Button>
-        )}
+
+        <nav className="flex flex-col gap-1">
+          {NAVIGATION_ITEMS.filter(
+            (item) => item.workspace === activeWorkspace.id,
+          ).map((item) => {
+            const Icon = item.icon;
+            const active = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                aria-current={active ? "page" : undefined}
+                onClick={onNavigate}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground",
+                  active && "bg-primary/10 text-primary",
+                )}
+              >
+                <Icon />
+                {item.title}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="mt-auto flex flex-col gap-2 border-t pt-3">
+          <div className="truncate px-2 text-xs text-muted-foreground">
+            {userName ?? "Dados persistidos no Supabase"}
+          </div>
+          {onSignOut && (
+            <Button variant="ghost" size="sm" onClick={onSignOut}>
+              <LogOut data-icon="inline-start" />
+              Sair
+            </Button>
+          )}
+        </div>
       </div>
     </aside>
   );

@@ -168,6 +168,70 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
+test("alinha os headers e concentra os controles do dia em uma linha", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await installStudioApi(page);
+  await page.goto("/relatorios");
+
+  const sidebarHeader = page.locator("aside > header");
+  const contentHeader = page.locator("main > header");
+  const previous = contentHeader.getByRole("button", { name: "Dia anterior" });
+  const datePicker = contentHeader.getByRole("button", {
+    name: "Selecionar data",
+  });
+  const next = contentHeader.getByRole("button", { name: "Próximo dia" });
+  const today = contentHeader.getByRole("button", { name: "Hoje" });
+  const completion = contentHeader.getByRole("button", {
+    name: "Tudo anotado!",
+  });
+
+  await expect(sidebarHeader).toBeVisible();
+  await expect(contentHeader.getByText("Dia selecionado")).toBeVisible();
+  await expect(
+    page.getByText("O que a Catarina registra no fim de cada aula"),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Relatório do dia", exact: true }),
+  ).toHaveCount(0);
+
+  for (const control of [previous, datePicker, next, today, completion]) {
+    await expect(control).toBeVisible();
+  }
+
+  const [sidebarBox, contentBox, labelBox, previousBox, pickerBox, nextBox, todayBox, completionBox] =
+    await Promise.all([
+      sidebarHeader.boundingBox(),
+      contentHeader.boundingBox(),
+      contentHeader.getByText("Dia selecionado").boundingBox(),
+      previous.boundingBox(),
+      datePicker.boundingBox(),
+      next.boundingBox(),
+      today.boundingBox(),
+      completion.boundingBox(),
+    ]);
+
+  expect(sidebarBox?.height).toBe(80);
+  expect(contentBox?.height).toBe(80);
+  const centers = [labelBox, previousBox, pickerBox, nextBox, todayBox, completionBox]
+    .map((box) => (box ? box.y + box.height / 2 : Number.NaN));
+  expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(1);
+  expect(
+    await contentHeader.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ),
+  ).toBe("rgb(255, 255, 255)");
+
+  await datePicker.click();
+  const calendar = page.getByRole("grid", { name: /agosto 2026/i });
+  await expect(calendar).toBeVisible();
+  await page
+    .getByRole("button", { name: /quarta-feira, 5 de agosto de 2026/i })
+    .click();
+  await expect(page).toHaveURL(/data=2026-08-05$/);
+});
+
 test("abre hoje e navega sem criar dias vazios", async ({ page }) => {
   const state = await installStudioApi(page);
 

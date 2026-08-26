@@ -146,7 +146,7 @@ async function expectAdminPage(page: Page) {
   ).toBeVisible();
   await expect(
     page.getByText("Configurações e acesso do sistema", { exact: true }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: "Área administrativa", exact: true }),
   ).toBeVisible();

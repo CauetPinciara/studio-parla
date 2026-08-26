@@ -1,7 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const routes = [
-  ["/relatorios", "Relatório do dia"],
   ["/tarefas", "Tarefas"],
   ["/pecas", "Peças & forno"],
   ["/calendario", "Calendário"],
@@ -35,6 +34,9 @@ test("mantém os três workspaces e a rota ativa após recarregar", async ({ pag
   await expect(workspace).toContainText("Operação");
   await expect(page.getByRole("tablist")).toHaveCount(0);
   await expect(page.getByRole("tab")).toHaveCount(0);
+  await expect(page.getByText("Dia selecionado")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Selecionar data" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Relatório do dia", exact: true })).toHaveCount(0);
 
   await chooseWorkspace(page, workspace, "Cadastros");
   await expect(page).toHaveURL(/\/contatos$/);
@@ -85,6 +87,18 @@ test("preserva o shell visual em desktop e mobile", async ({ page }) => {
   await expect(page.getByText("Sem resumo.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Tudo anotado!" })).toHaveAttribute("aria-pressed", "false");
   await expect(page).toHaveScreenshot("shell-desktop.png", { animations: "disabled" });
+
+  await page.getByRole("button", { name: "Selecionar data" }).click();
+  const calendarPopover = page.locator('[data-slot="popover-content"]');
+  await expect(calendarPopover).toBeVisible();
+  expect(
+    await calendarPopover.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ),
+  ).not.toBe("rgba(0, 0, 0, 0)");
+  await expect(page).toHaveScreenshot("shell-report-calendar-open.png", { animations: "disabled" });
+  await page.keyboard.press("Escape");
+  await expect(calendarPopover).toBeHidden();
 
   await page.getByLabel("Workspace").click();
   const workspaceListbox = page.getByRole("listbox");
