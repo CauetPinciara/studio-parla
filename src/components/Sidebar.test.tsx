@@ -3,7 +3,14 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
-import { WORKSPACES } from "@/workspaces";
+import { WORKSPACES, type Workspace } from "@/workspaces";
+
+const adminWorkspace: Workspace = {
+  id: "admin",
+  label: "Admin",
+  hint: "Configurações do sistema",
+  defaultPath: "/admin",
+};
 
 function LocationProbe() {
   const location = useLocation();
@@ -112,6 +119,80 @@ describe("seletor acessível de workspace", () => {
     expect(screen.getByLabelText("Caminho atual")).toHaveTextContent(
       "/precos",
     );
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  it("mostra Admin somente para o member superadmin", async () => {
+    const user = userEvent.setup();
+    renderSidebar(
+      "/admin",
+      <Sidebar memberEmail="  CauetPinciara@GMAIL.COM  " />,
+    );
+
+    const selector = screen.getByLabelText("Workspace");
+    expect(selector).toHaveValue("admin");
+    expect(screen.getAllByRole("option")).toHaveLength(4);
+    expect(screen.getByRole("option", { name: "Admin" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Administração" }),
+    ).toHaveAttribute("aria-current", "page");
+
+    await user.selectOptions(selector, "operacao");
+    await user.selectOptions(selector, "admin");
+    await waitFor(() =>
+      expect(screen.getByLabelText("Caminho atual")).toHaveTextContent(
+        "/admin",
+      ),
+    );
+  });
+
+  it("omite Admin para member comum ou ausente", () => {
+    const absentView = renderSidebar("/admin", <Sidebar />);
+
+    expect(screen.getAllByRole("option")).toHaveLength(3);
+    expect(
+      screen.queryByRole("option", { name: "Admin" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Administração" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Configurações do sistema")).not.toBeInTheDocument();
+    absentView.unmount();
+
+    renderSidebar(
+      "/admin",
+      <Sidebar memberEmail="catarina@example.com" />,
+    );
+    expect(screen.getAllByRole("option")).toHaveLength(3);
+    expect(
+      screen.queryByRole("option", { name: "Admin" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Administração" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Configurações do sistema")).not.toBeInTheDocument();
+  });
+
+  it("recupera uma lista somente Admin para member comum sem navegar", () => {
+    const onNavigate = vi.fn();
+    renderSidebar(
+      "/admin",
+      <Sidebar
+        memberEmail="catarina@example.com"
+        visibleWorkspaces={[adminWorkspace]}
+        onNavigate={onNavigate}
+      />,
+    );
+
+    expect(screen.getByLabelText("Workspace")).toHaveValue("operacao");
+    expect(screen.getAllByRole("option")).toHaveLength(3);
+    expect(
+      screen.getByRole("link", { name: "Relatório do dia" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "Admin" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Caminho atual")).toHaveTextContent("/admin");
     expect(onNavigate).not.toHaveBeenCalled();
   });
 });

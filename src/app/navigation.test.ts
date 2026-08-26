@@ -7,7 +7,7 @@ import {
 } from "@/app/navigation";
 
 describe("navegação do Studio Parla", () => {
-  it("mantém as 12 rotas na ordem e nos workspaces definidos", () => {
+  it("mantém as 13 rotas na ordem e nos workspaces definidos", () => {
     expect(
       NAVIGATION_ITEMS.map(({ workspace, path, title }) => [workspace, path, title]),
     ).toEqual([
@@ -23,6 +23,7 @@ describe("navegação do Studio Parla", () => {
       ["cadastros", "/workshops", "Workshops & eventos"],
       ["cadastros", "/precos", "Preços & serviços"],
       ["tatica", "/visao-geral", "Visão geral"],
+      ["admin", "/admin", "Administração"],
     ]);
   });
 
@@ -32,6 +33,7 @@ describe("navegação do Studio Parla", () => {
       ["operacao", "/relatorios"],
       ["cadastros", "/contatos"],
       ["tatica", "/visao-geral"],
+      ["admin", "/admin"],
     ]);
   });
 
@@ -40,6 +42,8 @@ describe("navegação do Studio Parla", () => {
     expect(getWorkspaceForPath("/tarefas/").id).toBe("operacao");
     expect(getNavigationItem("/pecas/").path).toBe("/pecas");
     expect(getWorkspaceForPath("/precos/").id).toBe("cadastros");
+    expect(getNavigationItem("/admin/").path).toBe("/admin");
+    expect(getWorkspaceForPath("/admin/").id).toBe("admin");
     expect(getNavigationItem("/rota-inexistente").path).toBe(DEFAULT_ROUTE);
     expect(getWorkspaceForPath("/rota-inexistente").id).toBe("operacao");
   });

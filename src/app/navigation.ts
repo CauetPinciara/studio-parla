@@ -9,6 +9,7 @@ import {
   ListTodo,
   MessageCircle,
   PanelsTopLeft,
+  ShieldCheck,
   Sparkles,
   Tags,
   type LucideIcon,
@@ -41,6 +42,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   { workspace: "cadastros", path: "/workshops", title: "Workshops & eventos", subtitle: "Eventos pontuais e inscritos", icon: Sparkles },
   { workspace: "cadastros", path: "/precos", title: "Preços & serviços", subtitle: "A tabela de venda do ateliê", icon: Tags },
   { workspace: "tatica", path: "/visao-geral", title: "Visão geral", subtitle: "Retrato 360 do ateliê num lugar só", icon: CircleGauge },
+  { workspace: "admin", path: "/admin", title: "Administração", subtitle: "Configurações e acesso do sistema", icon: ShieldCheck },
 ];
 
 function normalizePath(pathname: string) {
