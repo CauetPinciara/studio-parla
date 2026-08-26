@@ -5,7 +5,14 @@ import { isSuperadminEmail } from "@/app/access";
 import { NAVIGATION_ITEMS, getWorkspaceForPath } from "@/app/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { NativeSelect } from "@/features/shared/FormParts";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   WORKSPACES,
@@ -78,30 +85,27 @@ export function Sidebar({
 
       <Field className="px-2">
         <FieldLabel htmlFor={selectId}>Workspace</FieldLabel>
-        <NativeSelect
-          id={selectId}
-          name="workspace"
+        <Select
           value={activeWorkspace.id}
-          aria-describedby={hintId}
-          onKeyDown={(event) => {
-            if (event.key !== "End") return;
-
-            const lastWorkspace = workspaces.at(-1);
-            if (!lastWorkspace) return;
-
-            event.preventDefault();
-            selectWorkspace(lastWorkspace.id);
-          }}
-          onChange={(event) =>
-            selectWorkspace(event.target.value as WorkspaceId)
-          }
+          onValueChange={(value) => selectWorkspace(value as WorkspaceId)}
         >
-          {workspaces.map((workspace) => (
-            <option key={workspace.id} value={workspace.id}>
-              {workspace.label}
-            </option>
-          ))}
-        </NativeSelect>
+          <SelectTrigger
+            id={selectId}
+            className="w-full"
+            aria-describedby={hintId}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {workspaces.map((workspace) => (
+                <SelectItem key={workspace.id} value={workspace.id}>
+                  {workspace.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </Field>
       <div
         id={hintId}
