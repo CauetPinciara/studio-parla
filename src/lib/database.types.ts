@@ -41,6 +41,16 @@ export interface Database {
         { id?: string; contato_id: string; turma_id?: string | null; data?: string | null; status?: string | null },
         { id?: string; contato_id?: string; turma_id?: string | null; data?: string | null; status?: string | null }
       >;
+      aulas: Table<
+        { id: string; data: string; turma_id: string | null; turma_nome: string; created_at: string; updated_at: string },
+        { id?: string; data: string; turma_id?: string | null; turma_nome: string; created_at?: string; updated_at?: string },
+        { id?: string; data?: string; turma_id?: string | null; turma_nome?: string; created_at?: string; updated_at?: string }
+      >;
+      presencas: Table<
+        { id: string; aula_id: string; contato_id: string | null; contato_nome: string; status: "presente" | "faltou"; origem: "matricula" | "avulsa"; matricula_id: string | null; avulsa_id: string | null; created_at: string; updated_at: string },
+        { id?: string; aula_id: string; contato_id?: string | null; contato_nome: string; status: "presente" | "faltou"; origem: "matricula" | "avulsa"; matricula_id?: string | null; avulsa_id?: string | null; created_at?: string; updated_at?: string },
+        { id?: string; aula_id?: string; contato_id?: string | null; contato_nome?: string; status?: "presente" | "faltou"; origem?: "matricula" | "avulsa"; matricula_id?: string | null; avulsa_id?: string | null; created_at?: string; updated_at?: string }
+      >;
       pecas: Table<
         { id: string; contato_id: string; descricao: string | null; data_deixou: string | null; estimativa: string | null; data_pronta: string | null; status: string; created_at: string },
         { id?: string; contato_id: string; descricao?: string | null; data_deixou?: string | null; estimativa?: string | null; data_pronta?: string | null; status?: string; created_at?: string },
