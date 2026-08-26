@@ -134,6 +134,12 @@ async function expectNoAdmin(page: Page) {
   }
 }
 
+async function expectNoAdminWorkspaceOption(page: Page) {
+  await page.getByLabel("Workspace").click();
+  await expect(page.getByRole("option", { name: "Admin", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+}
+
 async function expectAdminPage(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Administração", exact: true }),
@@ -181,7 +187,7 @@ test("não expõe Admin para identidade pendente, ausente ou comum", async ({
 
     await app.page.goto("/admin");
     await expect(app.page).toHaveURL(/\/relatorios/);
-    await expect(app.page.getByLabel("Workspace")).not.toContainText("Admin");
+    await expectNoAdminWorkspaceOption(app.page);
     await expectNoAdmin(app.page);
     await app.context.close();
   });
@@ -194,7 +200,7 @@ test("não expõe Admin para identidade pendente, ausente ou comum", async ({
 
     await app.page.goto("/admin");
     await expect(app.page).toHaveURL(/\/relatorios/);
-    await expect(app.page.getByLabel("Workspace")).not.toContainText("Admin");
+    await expectNoAdminWorkspaceOption(app.page);
     await expectNoAdmin(app.page);
     await app.context.close();
   });
@@ -210,7 +216,7 @@ test("abre Admin somente para o superadmin pelo seletor, rota direta e reload", 
 
   await app.page.goto("/admin");
   await expectAdminPage(app.page);
-  await expect(app.page.getByLabel("Workspace")).toHaveValue("admin");
+  await expect(app.page.getByLabel("Workspace")).toContainText("Admin");
   await expect(
     app.page.getByRole("link", { name: "Administração", exact: true }),
   ).toHaveAttribute("aria-current", "page");
@@ -219,13 +225,18 @@ test("abre Admin somente para o superadmin pelo seletor, rota direta e reload", 
   const workspace = app.page.getByLabel("Workspace");
   await workspace.focus();
   await expect(workspace).toBeFocused();
+  await app.page.keyboard.press("Enter");
   await app.page.keyboard.press("End");
+  await expect(
+    app.page.getByRole("option", { name: "Admin", exact: true }),
+  ).toBeFocused();
+  await app.page.keyboard.press("Enter");
   await expect(app.page).toHaveURL(/\/admin$/);
-  await expect(app.page.getByLabel("Workspace")).toHaveValue("admin");
+  await expect(app.page.getByLabel("Workspace")).toContainText("Admin");
 
   await app.page.reload();
   await expectAdminPage(app.page);
-  await expect(app.page.getByLabel("Workspace")).toHaveValue("admin");
+  await expect(app.page.getByLabel("Workspace")).toContainText("Admin");
   await expect(
     app.page.getByRole("link", { name: "Administração", exact: true }),
   ).toHaveAttribute("aria-current", "page");
@@ -250,10 +261,15 @@ test("mantém Admin contido no celular e fecha o drawer", async ({ browser }) =>
   const workspace = drawer.getByLabel("Workspace");
   await workspace.focus();
   await expect(workspace).toBeFocused();
+  await app.page.keyboard.press("Enter");
   await app.page.keyboard.press("End");
+  await expect(
+    app.page.getByRole("option", { name: "Admin", exact: true }),
+  ).toBeFocused();
+  await app.page.keyboard.press("Enter");
 
   await expect(app.page).toHaveURL(/\/admin$/);
-  await expect(app.page.getByLabel("Workspace")).toHaveValue("admin");
+  await expect(app.page.getByLabel("Workspace")).toContainText("Admin");
   await expect(drawer).toBeHidden();
   await expectAdminPage(app.page);
   expect(

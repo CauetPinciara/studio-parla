@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const routes = [
   ["/relatorios", "Relatório do dia"],
@@ -15,6 +15,11 @@ const routes = [
   ["/visao-geral", "Visão geral"],
 ] as const;
 
+async function chooseWorkspace(page: Page, trigger: Locator, label: string) {
+  await trigger.click();
+  await page.getByRole("option", { name: label, exact: true }).click();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date("2026-08-04T14:00:00-03:00"));
   await page.addInitScript(() => localStorage.setItem("studio-parla-shell-preview", "1"));
@@ -27,18 +32,18 @@ test("mantém os três workspaces e a rota ativa após recarregar", async ({ pag
 
   await expect(page.getByRole("heading", { name: "Studio Parla" })).toBeVisible();
   const workspace = page.getByLabel("Workspace");
-  await expect(workspace).toHaveValue("operacao");
+  await expect(workspace).toContainText("Operação");
   await expect(page.getByRole("tablist")).toHaveCount(0);
   await expect(page.getByRole("tab")).toHaveCount(0);
 
-  await workspace.selectOption("cadastros");
+  await chooseWorkspace(page, workspace, "Cadastros");
   await expect(page).toHaveURL(/\/contatos$/);
   await expect(page.getByRole("link", { name: "Contatos" })).toHaveAttribute("aria-current", "page");
 
-  await workspace.selectOption("tatica");
+  await chooseWorkspace(page, workspace, "Tática");
   await expect(page).toHaveURL(/\/visao-geral$/);
   await page.reload();
-  await expect(workspace).toHaveValue("tatica");
+  await expect(workspace).toContainText("Tática");
   await expect(page.getByRole("heading", { name: "Visão geral", exact: true })).toBeVisible();
 
   for (const [path, title] of routes) {
@@ -62,7 +67,7 @@ test("oferece navegação móvel sem perder contexto", async ({ page }) => {
   await menuButton.click();
   const drawer = page.getByRole("dialog", { name: "Navegação principal" });
   await expect(drawer).toBeVisible();
-  await drawer.getByLabel("Workspace").selectOption("cadastros");
+  await chooseWorkspace(page, drawer.getByLabel("Workspace"), "Cadastros");
   await expect(page).toHaveURL(/\/contatos$/);
   await expect(drawer).toBeHidden();
 
@@ -80,6 +85,19 @@ test("preserva o shell visual em desktop e mobile", async ({ page }) => {
   await expect(page.getByText("Sem resumo.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Tudo anotado!" })).toHaveAttribute("aria-pressed", "false");
   await expect(page).toHaveScreenshot("shell-desktop.png", { animations: "disabled" });
+
+  await page.getByLabel("Workspace").click();
+  const workspaceListbox = page.getByRole("listbox");
+  await expect(workspaceListbox).toBeVisible();
+  expect(
+    await workspaceListbox.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ),
+  ).not.toBe("rgba(0, 0, 0, 0)");
+  await expect(page.getByRole("option", { name: "Operação" })).toBeVisible();
+  await expect(page).toHaveScreenshot("shell-workspace-select-open.png", { animations: "disabled" });
+  await page.keyboard.press("Escape");
+  await expect(workspaceListbox).toBeHidden();
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/relatorios");

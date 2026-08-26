@@ -226,8 +226,9 @@ test("mantém Tarefas legível em desktop e mobile", async ({ page }) => {
   const drawer = page.getByRole("dialog", { name: "Navegação principal" });
   await expect(drawer).toBeVisible();
   const workspace = drawer.getByLabel("Workspace");
-  await expect(workspace).toHaveValue("cadastros");
-  await workspace.selectOption("operacao");
+  await expect(workspace).toContainText("Cadastros");
+  await workspace.click();
+  await page.getByRole("option", { name: "Operação", exact: true }).click();
   await expect(page).toHaveURL(/\/relatorios$/);
   await expect(drawer).toBeHidden();
 

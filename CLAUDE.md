@@ -38,3 +38,10 @@ The user explicitly authorizes agents to choose the most performant in-scope exe
 Prefer direct single-agent execution when delegation, extra worktrees, or orchestration overhead would not reduce wall-clock time.
 Use parallel agents only for genuinely independent workstreams, reuse valid plans and verification evidence, and avoid redundant planning or test runs.
 When a Nexo flow is explicitly active, apply this performance priority within its mandatory safety and verification gates.
+
+## Frontend component policy
+
+For every task that changes frontend code, invoke and follow the project-local `shadcn` skill before planning or editing.
+Prefer existing shadcn/ui components and compose them according to the installed project base.
+Install missing official components through the shadcn CLI after consulting their current documentation.
+Do not introduce a raw browser-native control when shadcn/ui provides the requested interaction, unless the user explicitly asks for native behavior.
