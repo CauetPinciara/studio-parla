@@ -1,4 +1,5 @@
 import {
+  formatReportHeaderDate,
   normalizeReportDate,
   reportTodayIso,
   shiftReportDate,
@@ -22,5 +23,17 @@ describe("regras de data do relatório diário", () => {
     expect(shiftReportDate("2026-03-01", -1)).toBe("2026-02-28");
     expect(shiftReportDate("2024-02-28", 1)).toBe("2024-02-29");
     expect(shiftReportDate("2026-12-31", 1)).toBe("2027-01-01");
+  });
+
+  it("formata o rótulo desktop exato do header", () => {
+    expect(formatReportHeaderDate("2026-08-26")).toBe(
+      "Quarta Feira, 26/08/2026",
+    );
+    expect(formatReportHeaderDate("2026-08-04")).toBe(
+      "Terça Feira, 04/08/2026",
+    );
+    expect(() => formatReportHeaderDate("2026-02-30")).toThrow(
+      "Invalid report date: 2026-02-30",
+    );
   });
 });

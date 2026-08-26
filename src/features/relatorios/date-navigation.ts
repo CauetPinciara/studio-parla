@@ -7,6 +7,15 @@ interface ReportDateParts {
 }
 
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+const REPORT_WEEKDAY_LABELS = [
+  "Domingo",
+  "Segunda Feira",
+  "Terça Feira",
+  "Quarta Feira",
+  "Quinta Feira",
+  "Sexta Feira",
+  "Sábado",
+] as const;
 
 function parseReportDate(candidate: string): ReportDateParts | null {
   const match = ISO_DATE_PATTERN.exec(candidate);
@@ -66,4 +75,19 @@ export function shiftReportDate(date: string, days: number): string {
   return formatUtcDate(
     new Date(Date.UTC(parsed.year, parsed.month - 1, parsed.day + days)),
   );
+}
+
+export function formatReportHeaderDate(date: string): string {
+  const parsed = parseReportDate(date);
+
+  if (!parsed) throw new RangeError(`Invalid report date: ${date}`);
+
+  const weekday = new Date(
+    Date.UTC(parsed.year, parsed.month - 1, parsed.day),
+  ).getUTCDay();
+  const day = String(parsed.day).padStart(2, "0");
+  const month = String(parsed.month).padStart(2, "0");
+  const year = String(parsed.year).padStart(4, "0");
+
+  return `${REPORT_WEEKDAY_LABELS[weekday]}, ${day}/${month}/${year}`;
 }
