@@ -223,13 +223,9 @@ test("mantém Tarefas legível em desktop e mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/contatos");
   await page.getByRole("button", { name: "Abrir menu" }).click();
-  const drawer = page.getByRole("dialog", { name: "Navegação principal" });
-  await expect(drawer).toBeVisible();
-  const workspace = drawer.getByLabel("Workspace");
-  await expect(workspace).toHaveValue("cadastros");
-  await workspace.selectOption("operacao");
+  await page.getByRole("tab", { name: "Operação" }).click();
   await expect(page).toHaveURL(/\/relatorios$/);
-  await expect(drawer).toBeHidden();
+  await expect(page.getByRole("dialog", { name: "Navegação principal" })).toBeHidden();
 
   await page.getByRole("button", { name: "Abrir menu" }).click();
   await page.getByRole("link", { name: "Tarefas", exact: true }).click();
