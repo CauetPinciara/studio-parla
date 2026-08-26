@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "2026-08-26-compact-report-header",
+  "status": "PASS",
+  "report": "nexo/runs/2026-08-26-compact-report-header/verify.md",
+  "summary": "PASS: cadeia completa, 12 E2E, baselines e critérios visuais aprovados; HEAD e porta 4173 preservados.",
+  "done": true,
+  "started": "2026-08-26T21:07:09Z",
+  "ended": "2026-08-26T21:11:42Z",
+  "ts": "2026-08-26T21:11:42Z"
+}
