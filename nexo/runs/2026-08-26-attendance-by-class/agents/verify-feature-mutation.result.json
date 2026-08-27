@@ -1,0 +1,13 @@
+{
+  "agent": "verify",
+  "slice": "feature-mutation",
+  "status": "FAIL",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-feature-mutation.md",
+  "summary": "npm run test:mutation ran exactly once and exited 1 after instrumenting 5 files with 502 mutants; Stryker crashed during sandbox setup with ENOTSUP before mutant evaluation, so overall and per-file scores are unavailable.",
+  "done": true,
+  "timestamps": {
+    "started_at": "2026-08-26T21:37:51-03:00",
+    "finished_at": "2026-08-26T21:37:52-03:00",
+    "recorded_at": "2026-08-26T21:38:18-03:00"
+  }
+}

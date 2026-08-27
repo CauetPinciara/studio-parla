@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "03-attendance-blocks",
+  "status": "PASS",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-recover-03-attendance-blocks.md",
+  "summary": "PASS: 3 contrast samples meet WCAG AA, 11 E2E and 41 unit tests pass, 6 PNGs are visually clean, and exactly 13 declared paths changed.",
+  "done": true,
+  "started": "2026-08-26T21:13:00-03:00",
+  "ended": "2026-08-26T21:22:47-03:00",
+  "ts": "2026-08-26T21:22:47-03:00"
+}

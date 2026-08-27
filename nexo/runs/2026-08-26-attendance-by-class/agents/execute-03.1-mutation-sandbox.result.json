@@ -1,0 +1,11 @@
+{
+  "agent": "execute",
+  "slice": "03.1-mutation-sandbox",
+  "status": "PASS",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/execute-03.1-mutation-sandbox.md",
+  "summary": "Excluiu somente os mirrors /.agents e /.claude do sandbox Stryker, preservou os cinco alvos e todas as opções existentes, e passou Red, Green, Refactor, ESLint e protected diff.",
+  "done": true,
+  "commit": "ab050ceceff8020bbc348cee9517f41c9bdbcc66",
+  "started_at": "2026-08-27T00:50:57Z",
+  "completed_at": "2026-08-27T00:51:31Z"
+}

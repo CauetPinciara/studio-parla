@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "03.1-mutation-sandbox",
+  "status": "FAIL",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-03.1-mutation-sandbox.md",
+  "summary": "Gate 2 returned exit code 1; the residual-process predicate likely self-matched the inline shell, although no live Stryker or Vitest process remained.",
+  "done": true,
+  "started": "2026-08-27T00:52:00Z",
+  "ended": "2026-08-27T00:55:37Z",
+  "ts": "2026-08-27T00:55:37Z"
+}

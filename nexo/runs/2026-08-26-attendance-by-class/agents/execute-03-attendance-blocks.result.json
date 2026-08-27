@@ -1,0 +1,11 @@
+{
+  "agent": "execute",
+  "slice": "03-attendance-blocks",
+  "status": "PASS",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/execute-03-attendance-blocks.md",
+  "summary": "Blocos de presença por turma implementados com shadcn, persistência, gating seguro, histórico órfão, Empty, Sonner, acessibilidade e seis baselines verificados.",
+  "done": true,
+  "commit": "a820655cdfb054c463ed7d6f0b789db3e0e5a571",
+  "started_at": "2026-08-26T23:20:00Z",
+  "completed_at": "2026-08-26T23:43:10Z"
+}

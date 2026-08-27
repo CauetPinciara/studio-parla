@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "wave-2",
+  "status": "FAIL",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-wave-2.md",
+  "summary": "FAIL: pipeline verde, mas o novo texto pequeno muted tem contraste de 3,57:1 a 3,71:1, abaixo do mínimo de 4,5:1.",
+  "done": true,
+  "started": "2026-08-26T23:52:47Z",
+  "ended": "2026-08-26T23:56:21Z",
+  "ts": "2026-08-26T23:56:21Z"
+}

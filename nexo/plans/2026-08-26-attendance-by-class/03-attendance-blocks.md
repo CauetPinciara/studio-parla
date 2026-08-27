@@ -1,7 +1,7 @@
 ---
 id: 03-attendance-blocks
 milestone: m1
-status: todo
+status: done
 depends_on: [01-report-header-refinement, 02-attendance-domain]
 files_modified: [src/components/ui/empty.tsx, src/components/ui/toggle.tsx, src/components/ui/toggle-group.tsx, src/features/relatorios/AttendanceBlocks.tsx, src/features/relatorios/RelatoriosPage.tsx, src/features/relatorios/RelatorioDayHeader.tsx, tests/e2e/relatorios.spec.ts, tests/e2e/__screenshots__/relatorios.spec.ts/relatorios-attendance-desktop.png, tests/e2e/__screenshots__/relatorios.spec.ts/relatorios-attendance-mobile.png, tests/e2e/__screenshots__/shell.spec.ts/shell-desktop.png, tests/e2e/__screenshots__/shell.spec.ts/shell-mobile.png, tests/e2e/__screenshots__/shell.spec.ts/shell-report-calendar-open.png, tests/e2e/__screenshots__/shell.spec.ts/shell-workspace-select-open.png]
 acceptance: >-

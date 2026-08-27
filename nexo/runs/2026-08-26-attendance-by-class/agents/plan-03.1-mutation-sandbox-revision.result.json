@@ -1,0 +1,11 @@
+{
+  "agent": "plan",
+  "slice": "03.1-mutation-sandbox-revision",
+  "status": "PASS",
+  "report": "nexo/runs/2026-08-26-attendance-by-class/plan-03.1-mutation-sandbox.md",
+  "summary": "Revisão mínima substituiu o predicado autocontaminado por um filtro de processos Node com args de Stryker ou Vitest, validado na raiz e no worktree sem capturar Vite.",
+  "done": true,
+  "started_at": "2026-08-27T00:57:00Z",
+  "completed_at": "2026-08-27T01:00:14Z",
+  "ts": "2026-08-27T01:00:14Z"
+}

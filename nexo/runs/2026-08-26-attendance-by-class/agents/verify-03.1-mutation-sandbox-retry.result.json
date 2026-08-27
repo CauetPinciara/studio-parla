@@ -1,0 +1,11 @@
+{
+  "agent": "verify",
+  "slice": "03.1-mutation-sandbox",
+  "status": "PASS",
+  "report": "/Users/cauetpinciara/Documents/studio-parla/sistema/nexo/runs/2026-08-26-attendance-by-class/verify-03.1-mutation-sandbox-retry.md",
+  "summary": "Gate revisado executado uma vez: configuração, lint, diff, worktree e processo residual verificados com sucesso.",
+  "done": true,
+  "started": "2026-08-27T01:05:03Z",
+  "ended": "2026-08-27T01:06:01Z",
+  "ts": "2026-08-27T01:06:01Z"
+}

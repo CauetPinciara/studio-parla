@@ -1,7 +1,7 @@
 ---
 feature: attendance-by-class
 milestone: m1
-status: doing
+status: done
 ---
 
 # Attendance by class
@@ -31,11 +31,14 @@ Gate 1 is skipped for this run.
 | `01-report-header-refinement` | Apply the exact conditional and centered date-header behavior. | None |
 | `02-attendance-domain` | Add dated class occurrences, attendance persistence, and roster derivation. | None |
 | `03-attendance-blocks` | Compose automatic shadcn class cards, marking controls, and completion gating. | `01`, `02` |
+| `03.1-mutation-sandbox` | Exclude repository skill mirrors from the Stryker sandbox without changing the five mutation targets. | `03` |
 
 ## Execution waves
 
 - Wave 1 runs `01-report-header-refinement` and `02-attendance-domain` in parallel because their canonical `files_modified` sets do not overlap.
 - Wave 2 runs `03-attendance-blocks` only after both Wave 1 slices are green and integrated.
+- Wave 3 runs `03.1-mutation-sandbox` only after Wave 2 is green and integrated.
+- One completed mutation evaluation runs after Wave 3 is green and integrated.
 
 ## Scope limits
 
@@ -48,5 +51,7 @@ The approved design is in `docs/superpowers/specs/2026-08-26-attendance-by-class
 
 ## Feature boundary
 
-After both waves pass their integrated verification, run `npm run test:mutation` exactly once.
+After all three waves pass their integrated verification, run one completed `npm run test:mutation` evaluation.
 The slice 02 plan extends `stryker.config.mjs` without removing existing targets so this command includes `attendance-domain.ts` and `attendance-api.ts`.
+The first boundary attempt failed during sandbox setup before evaluating any mutant.
+The Wave 3 adaptation excluded only the two local skill mirrors, and the completed retry evaluated all 502 mutants with an overall score of 83.27%.

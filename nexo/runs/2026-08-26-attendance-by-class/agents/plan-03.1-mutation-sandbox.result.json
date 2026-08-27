@@ -1,0 +1,11 @@
+{
+  "agent": "plan",
+  "slice": "03.1-mutation-sandbox",
+  "status": "PASS",
+  "report": "nexo/runs/2026-08-26-attendance-by-class/plan-03.1-mutation-sandbox.md",
+  "summary": "Plano TDD mecânico para excluir /.agents e /.claude do sandbox Stryker, preservar exatamente os cinco alvos e reservar mutation testing para uma única repetição após a Wave 3 integrada.",
+  "done": true,
+  "started_at": "2026-08-27T00:45:00Z",
+  "completed_at": "2026-08-27T00:47:34Z",
+  "ts": "2026-08-27T00:47:34Z"
+}
