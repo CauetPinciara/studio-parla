@@ -7,6 +7,7 @@ export default {
     "src/features/relatorios/attendance-domain.ts",
     "src/features/relatorios/attendance-api.ts",
   ],
+  ignorePatterns: ["/.agents", "/.claude"],
   testRunner: "vitest",
   reporters: ["clear-text", "progress"],
   concurrency: 2,
