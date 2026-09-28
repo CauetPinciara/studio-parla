@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Insert } from "@/lib/database.types";
+import type { Insert } from "@/lib/database.helpers";
 import { formatDate } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { listContatos } from "@/features/contatos/api";

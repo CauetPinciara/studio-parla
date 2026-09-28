@@ -5,7 +5,7 @@ import {
   type BrowserContext,
   type Page,
 } from "@playwright/test";
-import type { Row } from "../../src/lib/database.types";
+import type { Row } from "../../src/lib/database.helpers";
 
 const desktop = { width: 1440, height: 900 };
 const mobile = { width: 390, height: 844 };
@@ -27,6 +27,7 @@ function testMember(email: string): Row<"app_members"> {
   return {
     email,
     nome: "Catarina",
+    papel: email.trim().toLowerCase() === "cauetpinciara@gmail.com" ? "admin" : "atendimento",
     created_at: "2026-08-26T12:00:00.000Z",
   };
 }

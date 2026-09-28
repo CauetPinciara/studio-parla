@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { Row } from "@/lib/database.types";
+import type { Row } from "@/lib/database.helpers";
 import { deriveDashboard } from "@/features/visao-geral/domain";
 
 const contato = (id: string, nome: string): Row<"contatos"> => ({ id, nome, tel: null, origem: null, obs: null, created_at: "2026-07-01T00:00:00Z" });
-const matricula = (id: string, contato_id: string, status: string, mensalidade: number | null): Row<"matriculas"> => ({ id, contato_id, turma_id: null, mensalidade, pagamento: null, status, created_at: "2026-07-01T00:00:00Z" });
-const peca = (id: string, contato_id: string, status: string): Row<"pecas"> => ({ id, contato_id, status, descricao: null, data_deixou: null, estimativa: null, data_pronta: null, created_at: "2026-07-01T00:00:00Z" });
+const matricula = (id: string, contato_id: string, status: string, mensalidade: number | null): Row<"matriculas"> => ({ id, contato_id, turma_id: null, mensalidade, pagamento: null, status, created_at: "2026-07-01T00:00:00Z", desde: "2026-07-01" });
+const peca = (id: string, contato_id: string, status: string): Row<"pecas"> => ({ id, contato_id, status, descricao: null, data_deixou: null, estimativa: null, data_pronta: null, prazo: null, etapa: null, created_at: "2026-07-01T00:00:00Z" });
 
 describe("painel tático derivado dos dados persistidos", () => {
   it("calcula KPIs distintos, produção e pendências sem nomes fixos", () => {
     const model = deriveDashboard({
       contatos: [contato("c1", "Ana"), contato("c2", "Bia"), contato("c3", "Caio")],
-      turmas: [{ id: "t1", nome: "Quarta", dia: 3, hora: "15:00" }],
+      turmas: [{ id: "t1", nome: "Quarta", dia: 3, hora: "15:00", fim: "18:00:00", capacidade: 6 }],
       matriculas: [
         matricula("m1", "c1", "Ativa", 520),
         matricula("m2", "c1", "Ativa", 500),

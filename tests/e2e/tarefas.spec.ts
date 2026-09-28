@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import type { Insert, Row, Update } from "../../src/lib/database.types";
+import type { Insert, Row, Update } from "../../src/lib/database.helpers";
 
 interface TarefaWrite {
   method: "POST" | "PATCH" | "DELETE";

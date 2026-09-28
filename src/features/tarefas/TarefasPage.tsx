@@ -32,7 +32,7 @@ import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
 import { NativeSelect } from "@/features/shared/FormParts";
 import { useAuth } from "@/lib/auth";
 import { localDateIso } from "@/lib/date";
-import type { Insert, Row } from "@/lib/database.types";
+import type { Insert, Row } from "@/lib/database.helpers";
 import { formatDate } from "@/lib/format";
 
 type View = "lista" | "kanban";
@@ -142,7 +142,7 @@ function TaskCard({ tarefa, prefix, ...actions }: TaskCardProps) {
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <CardTitle>{tarefa.titulo}</CardTitle>
-          <StatusBadge status={tarefa.status} />
+          <StatusBadge status={tarefa.status as TarefaStatus} />
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -254,7 +254,7 @@ export default function TarefasPage() {
                 header: "Status",
                 cell: (tarefa) => (
                   <div className="flex flex-col gap-2">
-                    <StatusBadge status={tarefa.status} />
+                    <StatusBadge status={tarefa.status as TarefaStatus} />
                     <TaskActions
                       tarefa={tarefa}
                       controlId={`desktop-${tarefa.id}`}

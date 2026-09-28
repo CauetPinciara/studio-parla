@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Insert, Row } from "@/lib/database.types";
+import type { Insert, Row } from "@/lib/database.helpers";
 import { AvulsaForm } from "@/features/avulsas/AvulsaForm";
 import { createAvulsa, deleteAvulsa, listAvulsas, updateAvulsa } from "@/features/avulsas/api";
 import { listContatos } from "@/features/contatos/api";

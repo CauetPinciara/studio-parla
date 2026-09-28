@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { DEFAULT_ROUTE } from "@/app/navigation";
 import { AdminAccessBoundary } from "@/components/AdminAccessBoundary";
-import type { Row } from "@/lib/database.types";
+import type { Row } from "@/lib/database.helpers";
 
 interface AuthState {
   loading: boolean;
@@ -31,6 +31,7 @@ function member(email: string, nome: string | null = null): Row<"app_members"> {
   return {
     email,
     nome,
+    papel: email.trim().toLowerCase() === "cauetpinciara@gmail.com" ? "admin" : "atendimento",
     created_at: "2026-08-26T12:00:00.000Z",
   };
 }

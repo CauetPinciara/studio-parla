@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
-import type { Row } from "@/lib/database.types";
+import type { Row } from "@/lib/database.helpers";
 import { supabase } from "@/lib/supabase";
 import type { MemberRole } from "@/app/access";
 

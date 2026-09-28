@@ -1,5 +1,5 @@
 import { ensureNoError } from "@/features/shared/api";
-import type { Insert, Row, Update } from "@/lib/database.types";
+import type { Insert, Row, Update } from "@/lib/database.helpers";
 import { supabase } from "@/lib/supabase";
 
 export const tarefasQueryKey = ["tarefas"] as const;

@@ -3,7 +3,7 @@ import { Modal } from "@/components/Modal";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { Insert, Row } from "@/lib/database.types";
+import type { Insert, Row } from "@/lib/database.helpers";
 import { formValue } from "@/lib/forms";
 import { FormActions, NativeSelect } from "@/features/shared/FormParts";
 

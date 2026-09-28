@@ -1,4 +1,4 @@
-import type { Insert, Update } from "@/lib/database.types";
+import type { Insert, Update } from "@/lib/database.helpers";
 import { supabase } from "@/lib/supabase";
 import { ensureNoError } from "@/features/shared/api";
 export async function listAvulsas() { const { data, error } = await supabase.from("avulsas").select("*").order("data", { ascending: false }); ensureNoError(error); return data ?? []; }

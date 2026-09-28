@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import { Modal } from "@/components/Modal";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { Insert, Row } from "@/lib/database.types";
+import type { Insert, Row } from "@/lib/database.helpers";
 import { FormActions } from "@/features/shared/FormParts";
 import { formValue } from "@/lib/forms";
 export function TurmaForm({ open, onOpenChange, turma, pending, onSubmit }: { open: boolean; onOpenChange: (open: boolean) => void; turma?: Row<"turmas">; pending: boolean; onSubmit: (value: Insert<"turmas">) => void }) {

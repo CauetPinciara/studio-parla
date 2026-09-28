@@ -1,4 +1,4 @@
-import type { Insert, Row, Update } from "@/lib/database.types";
+import type { Insert, Row, Update } from "@/lib/database.helpers";
 import { supabase } from "@/lib/supabase";
 import { ensureNoError } from "@/features/shared/api";
 

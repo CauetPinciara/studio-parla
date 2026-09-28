@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import { Modal } from "@/components/Modal";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import type { Insert, Row } from "@/lib/database.types";
+import type { Insert, Row } from "@/lib/database.helpers";
 import { FormActions, NativeSelect } from "@/features/shared/FormParts";
 import { formValue } from "@/lib/forms";
 export function InscricaoForm({ open, onOpenChange, inscricao, contatos, workshops, pending, onSubmit }: { open: boolean; onOpenChange: (open: boolean) => void; inscricao?: Row<"inscricoes">; contatos: Row<"contatos">[]; workshops: Row<"workshops">[]; pending: boolean; onSubmit: (value: Insert<"inscricoes">) => void }) {

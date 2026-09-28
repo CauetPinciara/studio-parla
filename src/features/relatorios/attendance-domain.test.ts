@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Row } from "@/lib/database.types";
+import type { Row } from "@/lib/database.helpers";
 import {
   deriveAttendanceDay,
   isAttendanceDayReady,
@@ -41,6 +41,8 @@ const turmaFixture = {
   nome: "Quarta Cerâmica",
   dia: 3,
   hora: "15:00",
+  fim: "18:00:00",
+  capacidade: 6,
 } satisfies Row<"turmas">;
 
 const matriculaFixture = {
@@ -51,6 +53,7 @@ const matriculaFixture = {
   pagamento: "Pix",
   status: "Ativa",
   created_at: "2026-01-01T00:00:00.000Z",
+  desde: "2026-01-01",
 } satisfies Row<"matriculas">;
 
 const avulsaFixture = {

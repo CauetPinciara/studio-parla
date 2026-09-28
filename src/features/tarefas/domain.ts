@@ -1,4 +1,4 @@
-import type { Insert, Row, Update } from "@/lib/database.types";
+import type { Insert, Row, Update } from "@/lib/database.helpers";
 
 export const TAREFA_STATUS = ["a_fazer", "em_andamento", "concluida"] as const;
 export type TarefaStatus = (typeof TAREFA_STATUS)[number];

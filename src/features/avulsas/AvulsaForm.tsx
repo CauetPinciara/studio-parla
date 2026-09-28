@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import { Modal } from "@/components/Modal";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { Insert, Row } from "@/lib/database.types";
+import type { Insert, Row } from "@/lib/database.helpers";
 import { FormActions, NativeSelect } from "@/features/shared/FormParts";
 import { formValue } from "@/lib/forms";
 export function AvulsaForm({ open, onOpenChange, avulsa, contatos, turmas, pending, onSubmit }: { open: boolean; onOpenChange: (open: boolean) => void; avulsa?: Row<"avulsas">; contatos: Row<"contatos">[]; turmas: Row<"turmas">[]; pending: boolean; onSubmit: (value: Insert<"avulsas">) => void }) {

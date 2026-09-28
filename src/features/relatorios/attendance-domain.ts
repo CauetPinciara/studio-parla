@@ -1,4 +1,4 @@
-import type { Row } from "@/lib/database.types";
+import type { Row } from "@/lib/database.helpers";
 
 export type AttendanceStatus = "presente" | "faltou";
 export type AttendanceOrigin = "matricula" | "avulsa";
@@ -180,11 +180,11 @@ function mergeSavedAttendance(
           ...current,
           presencaId: saved.id,
           nome: saved.contato_nome,
-          status: saved.status,
+          status: saved.status as AttendanceStatus,
           ...(current.origem === "matricula"
             ? {}
             : {
-                origem: saved.origem,
+                origem: saved.origem as AttendanceOrigin,
                 matriculaId: saved.matricula_id,
                 avulsaId: saved.avulsa_id,
               }),
@@ -197,10 +197,10 @@ function mergeSavedAttendance(
         presencaId: saved.id,
         contatoId: saved.contato_id,
         nome: saved.contato_nome,
-        origem: saved.origem,
+        origem: saved.origem as AttendanceOrigin,
         matriculaId: saved.matricula_id,
         avulsaId: saved.avulsa_id,
-        status: saved.status,
+        status: saved.status as AttendanceStatus,
       });
     });
 }

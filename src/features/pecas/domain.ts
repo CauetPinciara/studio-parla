@@ -1,4 +1,4 @@
-import type { Update } from "@/lib/database.types";
+import type { Update } from "@/lib/database.helpers";
 import { localDateIso } from "@/lib/date";
 export type PecaStatus = "producao" | "pronta" | "avisado" | "entregue";
 const next: Record<PecaStatus, PecaStatus | null> = { producao: "pronta", pronta: "avisado", avisado: "entregue", entregue: null };

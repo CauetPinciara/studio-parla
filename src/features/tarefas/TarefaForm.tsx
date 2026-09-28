@@ -11,7 +11,7 @@ import {
   tarefaStatusLabels,
   type TarefaStatus,
 } from "@/features/tarefas/domain";
-import type { Insert, Row } from "@/lib/database.types";
+import type { Insert, Row } from "@/lib/database.helpers";
 import { localDateIso } from "@/lib/date";
 import { formValue } from "@/lib/forms";
 
@@ -35,7 +35,7 @@ export function TarefaForm({
   onSubmit,
 }: TarefaFormProps) {
   const [status, setStatus] = useState<TarefaStatus>(
-    tarefa?.status ?? "a_fazer",
+    (tarefa?.status as TarefaStatus | undefined) ?? "a_fazer",
   );
   const [dataAbertura, setDataAbertura] = useState(
     tarefa?.data_abertura ?? localDateIso(),

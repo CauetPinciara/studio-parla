@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import type { Insert, Row, Update } from "../../src/lib/database.types";
+import type { Insert, Row, Update } from "../../src/lib/database.helpers";
 
 interface RestWrite {
   table: "relatorios" | "pecas" | "aulas" | "presencas";
@@ -155,6 +155,8 @@ const turma: Row<"turmas"> = {
   nome: "Quarta · 15h–18h",
   dia: 3,
   hora: "15:00",
+  fim: "18:00:00",
+  capacidade: 6,
 };
 
 const productionPiece: Row<"pecas"> = {
@@ -164,6 +166,8 @@ const productionPiece: Row<"pecas"> = {
   data_deixou: "2026-08-01",
   estimativa: "15 dias",
   data_pronta: null,
+  prazo: "2026-08-16",
+  etapa: "1ª queima",
   status: "producao",
   created_at: "2026-08-01T12:00:00.000Z",
 };
@@ -218,12 +222,16 @@ function attendanceSeed(): StudioSeed {
         nome: "Modelagem livre",
         dia: 3,
         hora: "15:00",
+        fim: "18:00:00",
+        capacidade: 6,
       },
       {
         id: attendanceIds.turmaTorno,
         nome: "Torno iniciante",
         dia: 3,
         hora: "18:00",
+        fim: "21:00:00",
+        capacidade: 6,
       },
     ],
     matriculas: [
@@ -235,6 +243,7 @@ function attendanceSeed(): StudioSeed {
         pagamento: "Pix",
         status: "Ativa",
         created_at: "2026-01-01T00:00:00.000Z",
+        desde: "2026-01-01",
       },
       {
         id: attendanceIds.matriculaBeatriz,
@@ -244,6 +253,7 @@ function attendanceSeed(): StudioSeed {
         pagamento: "Pix",
         status: "Nova",
         created_at: "2026-01-01T00:00:00.000Z",
+        desde: "2026-01-01",
       },
       {
         id: attendanceIds.matriculaDiego,
@@ -253,6 +263,7 @@ function attendanceSeed(): StudioSeed {
         pagamento: "Pix",
         status: "Ativa",
         created_at: "2026-01-01T00:00:00.000Z",
+        desde: "2026-01-01",
       },
       {
         id: attendanceIds.matriculaPausada,
@@ -262,6 +273,7 @@ function attendanceSeed(): StudioSeed {
         pagamento: "Pix",
         status: "Pausada",
         created_at: "2026-01-01T00:00:00.000Z",
+        desde: "2026-01-01",
       },
     ],
     avulsas: [
@@ -445,6 +457,8 @@ async function installStudioApi(
           data_deixou: input.data_deixou ?? null,
           estimativa: input.estimativa ?? null,
           data_pronta: input.data_pronta ?? null,
+          prazo: input.prazo ?? null,
+          etapa: input.etapa ?? null,
           status: input.status ?? "producao",
           created_at: "2026-08-04T17:00:00.000Z",
         };

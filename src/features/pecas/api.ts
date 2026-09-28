@@ -1,4 +1,4 @@
-import type { Insert, Update } from "@/lib/database.types";
+import type { Insert, Update } from "@/lib/database.helpers";
 import { supabase } from "@/lib/supabase";
 import { ensureNoError } from "@/features/shared/api";
 import { pecaStatusPatch, type PecaStatus } from "@/features/pecas/domain";

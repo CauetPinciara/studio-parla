@@ -1,4 +1,4 @@
-import type { Row } from "@/lib/database.types";
+import type { Row } from "@/lib/database.helpers";
 
 export interface DashboardInput {
   contatos: Row<"contatos">[];

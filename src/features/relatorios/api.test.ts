@@ -1,4 +1,4 @@
-import type { Insert, Row, Update } from "@/lib/database.types";
+import type { Insert, Row, Update } from "@/lib/database.helpers";
 import {
   listRelatorios,
   setRelatorioCompletion,

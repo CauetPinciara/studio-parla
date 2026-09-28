@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Row } from "@/lib/database.types";
+import type { Row } from "@/lib/database.helpers";
 import {
   attendanceDayQueryKey,
   loadAttendanceDay,
@@ -52,6 +52,8 @@ const turmaRow = {
   nome: "Quarta Cerâmica",
   dia: 3,
   hora: "15:00",
+  fim: "18:00:00",
+  capacidade: 6,
 } satisfies Row<"turmas">;
 
 const matriculaRow = {
@@ -62,6 +64,7 @@ const matriculaRow = {
   pagamento: "Pix",
   status: "Ativa",
   created_at: "2026-01-01T00:00:00.000Z",
+  desde: "2026-01-01",
 } satisfies Row<"matriculas">;
 
 const avulsaAnaRow = {
