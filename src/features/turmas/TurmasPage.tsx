@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeaderAction } from "@/components/PageHeaderAction";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { studioDataQueryKey } from "@/features/app-enxuto/api";
 import { useStudioData } from "@/features/app-enxuto/useStudioData";
@@ -41,7 +42,7 @@ export default function TurmasPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-end"><Button type="button" onClick={() => { setEditing(undefined); setOpen(true); }}><Plus data-icon="inline-start" />Nova turma</Button></div>
+      <PageHeaderAction><Button type="button" onClick={() => { setEditing(undefined); setOpen(true); }}><Plus data-icon="inline-start" />Nova turma</Button></PageHeaderAction>
       {DAYS.map((day, weekday) => {
         const classes = sorted.filter(({ dia }) => dia === weekday);
         if (classes.length === 0) return null;

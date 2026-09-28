@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { getNavigationItem } from "@/app/navigation";
 import { Sidebar } from "@/components/Sidebar";
+import { PageHeaderActionProvider } from "@/components/PageHeaderAction";
 import { Button } from "@/components/ui/button";
 import { RelatorioDayHeader } from "@/features/relatorios/RelatorioDayHeader";
 import { useAuth } from "@/lib/auth";
@@ -11,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 export function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [headerActionTarget, setHeaderActionTarget] = useState<HTMLDivElement | null>(null);
   const { member, session, signOut } = useAuth();
   const page = getNavigationItem(location.pathname);
   const today = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "short", year: "numeric" }).format(new Date());
@@ -19,6 +21,7 @@ export function Layout() {
   const sidebar = <Sidebar memberRole={member?.papel} onSignOut={() => void signOut()} userName={member?.nome ?? session?.user.email} />;
 
   return (
+    <PageHeaderActionProvider target={headerActionTarget}>
     <div className="min-h-screen bg-background text-foreground md:flex">
       <div className="hidden md:block">{sidebar}</div>
       <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -36,11 +39,12 @@ export function Layout() {
         <div className="min-h-[calc(100vh-0.5rem)] overflow-hidden rounded-t-2xl border bg-card">
           <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-card/95 px-4 backdrop-blur md:px-6">
             <Button className="shrink-0 md:hidden" size="icon" variant="outline" aria-label="Abrir menu" onClick={() => setMobileOpen(true)}><Menu /></Button>
-            {isDailyReport ? <RelatorioDayHeader /> : <><span className="flex text-muted-foreground"><PageIcon /></span><h1 className="min-w-0 truncate text-[17px] font-semibold tracking-tight">{page.title}</h1><div className="ml-auto hidden text-xs capitalize text-muted-foreground sm:block">{today} · Vitória/ES</div></>}
+            {isDailyReport ? <><RelatorioDayHeader /><div ref={setHeaderActionTarget} className="hidden shrink-0 items-center border-l pl-3 md:flex" /></> : <><span className="flex text-muted-foreground"><PageIcon /></span><h1 className="min-w-0 truncate text-[17px] font-semibold tracking-tight">{page.title}</h1><div className="ml-auto flex items-center gap-3"><span className="hidden text-xs capitalize text-muted-foreground lg:block">{today} · Vitória/ES</span><div ref={setHeaderActionTarget} className="flex shrink-0 items-center" /></div></>}
           </header>
           <div className="mx-auto max-w-[1080px] p-5 pb-20 md:p-7 md:pb-20"><Outlet /></div>
         </div>
       </main>
     </div>
+    </PageHeaderActionProvider>
   );
 }

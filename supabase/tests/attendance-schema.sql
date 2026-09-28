@@ -482,6 +482,7 @@ $$;
 
 create role attendance_schema_nonmember nologin;
 create role attendance_schema_member nologin;
+grant attendance_schema_nonmember, attendance_schema_member to current_user;
 
 grant usage on schema public to attendance_schema_nonmember, attendance_schema_member;
 grant select, insert on public.aulas, public.presencas

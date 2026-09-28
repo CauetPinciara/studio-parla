@@ -59,7 +59,7 @@ export function ConfirmacoesPage({ startDate, embedded = false }: ConfirmacoesPa
 
   const classes = useMemo(() => {
     if (!studio.data) return [];
-    return occurrencesForRange(studio.data.turmas, today, 8).map((occurrence) => {
+    return occurrencesForRange(studio.data.turmas, today, 56).slice(0, 8).map((occurrence) => {
       const students = studio.data.matriculas
         .filter(({ turma_id, status }) =>
           turma_id === occurrence.turma.id && ["Ativa", "Nova"].includes(status))
@@ -147,6 +147,22 @@ export function ConfirmacoesPage({ startDate, embedded = false }: ConfirmacoesPa
                         <ToggleGroupItem value="confirmou">Confirmou</ToggleGroupItem>
                         <ToggleGroupItem value="nao_vem">Não vem</ToggleGroupItem>
                       </ToggleGroup>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={saveStatus.isPending || status === "sem_resposta"}
+                        onClick={() => saveStatus.mutate({
+                          data,
+                          turmaId: turma.id,
+                          contatoId: contact.id,
+                          por: member?.nome ?? "Usuário",
+                          status: null,
+                          today,
+                        })}
+                      >
+                        Limpar
+                      </Button>
                     </div>
                     {status === "nao_vem" && (
                       <div className="flex flex-col gap-2 sm:flex-row">

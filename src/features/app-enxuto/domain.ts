@@ -27,6 +27,11 @@ export function addIsoDays(value: string, amount: number) {
   return isoDate(date);
 }
 
+export function replacementStartDate(originDate: string, today: string) {
+  const dayAfterAbsence = addIsoDays(originDate, 1);
+  return dayAfterAbsence > today ? dayAfterAbsence : today;
+}
+
 export function shiftIsoMonth(value: string, amount: number) {
   const date = dateAtNoon(`${value.slice(0, 7)}-01`);
   date.setMonth(date.getMonth() + amount);

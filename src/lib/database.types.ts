@@ -265,7 +265,7 @@ export type Database = {
       }
       lancamentos: {
         Row: {
-          categoria_id: string
+          categoria_id: string | null
           contato: string | null
           descricao: string
           id: string
@@ -276,7 +276,7 @@ export type Database = {
           vencimento: string
         }
         Insert: {
-          categoria_id: string
+          categoria_id?: string | null
           contato?: string | null
           descricao: string
           id?: string
@@ -287,7 +287,7 @@ export type Database = {
           vencimento: string
         }
         Update: {
-          categoria_id?: string
+          categoria_id?: string | null
           contato?: string | null
           descricao?: string
           id?: string

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Modal } from "@/components/Modal";
+import { PageHeaderAction } from "@/components/PageHeaderAction";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,12 +130,12 @@ export default function PlanoContasPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <PageHeaderAction><Button type="button" onClick={() => setEditor({ kind: "group" })}><Plus data-icon="inline-start" />Novo grupo</Button></PageHeaderAction>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <ToggleGroup type="single" variant="outline" value={type} onValueChange={(value) => value && setType(value as PlanType)}>
           <ToggleGroupItem value="despesa">Despesa</ToggleGroupItem>
           <ToggleGroupItem value="receita">Receita</ToggleGroupItem>
         </ToggleGroup>
-        <Button type="button" onClick={() => setEditor({ kind: "group" })}><Plus data-icon="inline-start" />Novo grupo</Button>
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-2.5 text-muted-foreground" />

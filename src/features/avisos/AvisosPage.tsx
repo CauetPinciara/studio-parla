@@ -139,7 +139,8 @@ export default function AvisosPage() {
                 value={occurrenceKey}
                 options={occurrences.map(({ data, turma, capacity }) => ({
                   value: `${data}|${turma.id}`,
-                  label: `${formatDate(data)} · ${turma.nome} · ${capacity.ocupados}/${turma.capacidade} ocupados · ${capacity.avisaram} avisaram`,
+                  group: formatDate(data),
+                  label: `${turma.nome} · ${capacity.ocupados}/${turma.capacidade} ocupados · ${capacity.avisaram} avisaram`,
                 }))}
                 onValueChange={setOccurrenceKey}
               />

@@ -7,6 +7,7 @@ import {
   generateClassName,
   monthsStudying,
   occurrencesForRange,
+  replacementStartDate,
   reportStepsForRole,
   shiftIsoMonth,
 } from "@/features/app-enxuto/domain";
@@ -43,6 +44,11 @@ describe("regras integradas do app enxuto", () => {
         { contato_id: "c5", destino_turma_id: "t1", destino_data: "2026-07-15" },
       ],
     })).toEqual({ matriculados: 2, avisaram: 1, reposicoes: 2, ocupados: 3, vagas: 1 });
+  });
+
+  it("nunca oferece reposição antes de hoje", () => {
+    expect(replacementStartDate("2026-07-01", "2026-07-09")).toBe("2026-07-09");
+    expect(replacementStartDate("2026-07-10", "2026-07-09")).toBe("2026-07-11");
   });
 
   it("deriva sem resposta de confirmações e usa aviso como não vem", () => {

@@ -197,7 +197,7 @@ create table if not exists lancamentos (
   id uuid primary key default gen_random_uuid(),
   tipo text not null check (tipo in ('despesa','receita')),
   descricao text not null,
-  categoria_id uuid not null references plano_categorias(id),
+  categoria_id uuid references plano_categorias(id) on delete set null,
   contato text,
   vencimento date not null,
   valor numeric(10,2) not null check (valor >= 0),

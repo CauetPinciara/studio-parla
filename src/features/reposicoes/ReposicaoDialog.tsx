@@ -8,13 +8,10 @@ import {
   saveReposicao,
   studioDataQueryKey,
 } from "@/features/app-enxuto/api";
-import {
-  addIsoDays,
-  classCapacity,
-  occurrencesForRange,
-} from "@/features/app-enxuto/domain";
+import { classCapacity, occurrencesForRange, replacementStartDate } from "@/features/app-enxuto/domain";
 import { useStudioData } from "@/features/app-enxuto/useStudioData";
 import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
+import { localDateIso } from "@/lib/date";
 import { formatDate } from "@/lib/format";
 
 interface ReposicaoDialogProps {
@@ -48,7 +45,7 @@ export function ReposicaoDialog({
     if (!studio.data) return [];
     return occurrencesForRange(
       studio.data.turmas,
-      addIsoDays(origemData, 1),
+      replacementStartDate(origemData, localDateIso()),
       35,
     )
       .map((occurrence) => ({

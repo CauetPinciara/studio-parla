@@ -14,4 +14,12 @@ describe("DatePickerField", () => {
     await user.click(screen.getByRole("button", { name: "Data: 09/07/2026" }));
     expect(screen.getByRole("grid")).toBeInTheDocument();
   });
+
+  it("mantém validação nativa quando a data é obrigatória", () => {
+    const { container } = render(<DatePickerField label="Data" name="data" required />);
+
+    expect(container.querySelector('input[type="date"]')).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Data selecionada" })).toBeRequired();
+    expect(screen.getByRole("textbox", { name: "Data selecionada" })).toBeInvalid();
+  });
 });

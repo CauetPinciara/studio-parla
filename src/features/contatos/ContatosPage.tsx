@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
+import { PageHeaderAction } from "@/components/PageHeaderAction";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { studioDataQueryKey } from "@/features/app-enxuto/api";
@@ -26,7 +27,8 @@ export default function ContatosPage() {
   if (studio.error || !studio.data) return <ErrorState error={studio.error ?? new Error("Dados indisponíveis")} />;
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3"><span className="text-sm text-muted-foreground">{studio.data.contatos.length} contatos</span><Button type="button" onClick={() => { setEditing(undefined); setOpen(true); }}><Plus data-icon="inline-start" />Novo contato</Button></div>
+      <PageHeaderAction><Button type="button" onClick={() => { setEditing(undefined); setOpen(true); }}><Plus data-icon="inline-start" />Novo contato</Button></PageHeaderAction>
+      <span className="text-sm text-muted-foreground">{studio.data.contatos.length} contatos</span>
       <DataTable
         rows={studio.data.contatos}
         getRowKey={({ id }) => id}

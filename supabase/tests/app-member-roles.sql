@@ -4,7 +4,7 @@ select plan(7);
 
 select has_column('public', 'app_members', 'papel', 'app_members has papel');
 select col_not_null('public', 'app_members', 'papel', 'papel is required');
-select col_default_is('public', 'app_members', 'papel', '''atendimento''::text', 'papel defaults to atendimento');
+select col_default_is('public', 'app_members', 'papel', 'atendimento', 'papel defaults to atendimento');
 select results_eq(
   $$ select papel from public.app_members where email = 'catarinamosc@gmail.com' $$,
   array['professora'::text],

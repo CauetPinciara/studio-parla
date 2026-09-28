@@ -28,11 +28,12 @@ export function LancamentosPage({ type }: { type: "despesa" | "receita" }) {
   const overdue = open.filter(({ vencimento }) => vencimento < today);
   const paid = rows.filter(({ pago }) => pago);
   const sum = (items: typeof rows) => items.reduce((total, item) => total + item.valor, 0);
-  const categoryPath = (categoryId: string) => {
+  const categoryPath = (categoryId: string | null) => {
+    if (!categoryId) return "Categoria removida";
     const category = studio.data.planoCategorias.find(({ id }) => id === categoryId);
     const group = studio.data.planoGrupos.find(({ id }) => id === category?.grupo_id);
     const subgroup = studio.data.planoSubgrupos.find(({ id }) => id === category?.subgrupo_id);
-    return [group?.nome, subgroup?.nome, category?.nome].filter(Boolean).join(" › ");
+    return [group?.nome, subgroup?.nome, category?.nome].filter(Boolean).join(" › ") || "Categoria removida";
   };
 
   return (

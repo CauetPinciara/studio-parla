@@ -56,7 +56,20 @@ export function DatePickerField({
   return (
     <Field className={className}>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <input type="hidden" name={name} value={current} />
+      {required ? (
+        <input
+          type="text"
+          name={name}
+          value={current}
+          required
+          onChange={() => undefined}
+          tabIndex={-1}
+          aria-label={`${label} selecionada`}
+          className="pointer-events-none absolute size-px opacity-0"
+        />
+      ) : (
+        <input type="hidden" name={name} value={current} />
+      )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

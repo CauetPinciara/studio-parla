@@ -1,6 +1,6 @@
 begin;
 
-select plan(34);
+select plan(37);
 
 select has_column('public', 'turmas', 'fim', 'turmas has fim');
 select has_column('public', 'turmas', 'capacidade', 'turmas has capacidade');
@@ -32,6 +32,7 @@ select fk_ok('public', 'pagamentos', 'contato_id', 'public', 'contatos', 'id', '
 select fk_ok('public', 'plano_subgrupos', 'grupo_id', 'public', 'plano_grupos', 'id', 'subgroup references group');
 select fk_ok('public', 'plano_categorias', 'subgrupo_id', 'public', 'plano_subgrupos', 'id', 'category references subgroup');
 select fk_ok('public', 'lancamentos', 'categoria_id', 'public', 'plano_categorias', 'id', 'entry references category');
+select col_is_null('public', 'lancamentos', 'categoria_id', 'entry category can be cleared');
 
 select policies_are('public', 'avisos_falta', array['membros full'], 'absence notices use member policy');
 select policies_are('public', 'plano_grupos', array['financeiro full'], 'chart groups use finance policy');
@@ -44,6 +45,23 @@ set local request.jwt.claims = '{"email":"cauetpinciara@gmail.com"}';
 select is(public.is_finance_member(), true, 'admin can access finance');
 set local request.jwt.claims = '{"email":"catarinamosc@gmail.com"}';
 select is(public.is_finance_member(), true, 'professora can access finance');
+
+insert into public.plano_grupos (id, tipo, nome, classificacao)
+values ('00000000-0000-0000-0000-000000009001', 'despesa', 'Grupo removível', 'Custo Fixo');
+insert into public.plano_categorias (id, grupo_id, nome)
+values ('00000000-0000-0000-0000-000000009002', '00000000-0000-0000-0000-000000009001', 'Categoria removível');
+insert into public.lancamentos (id, tipo, descricao, categoria_id, vencimento, valor)
+values ('00000000-0000-0000-0000-000000009003', 'despesa', 'Lançamento preservado', '00000000-0000-0000-0000-000000009002', current_date, 100);
+
+select lives_ok(
+  $$ delete from public.plano_grupos where id = '00000000-0000-0000-0000-000000009001' $$,
+  'plan group with entries can be removed'
+);
+select is(
+  (select categoria_id from public.lancamentos where id = '00000000-0000-0000-0000-000000009003'),
+  null::uuid,
+  'removing a plan category preserves the entry without a category'
+);
 
 select * from finish();
 rollback;

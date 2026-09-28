@@ -4,6 +4,7 @@ import { CheckCircle2, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
+import { PageHeaderAction } from "@/components/PageHeaderAction";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -88,13 +89,13 @@ export default function RelatoriosPage() {
     onError: (error: Error) => toast.error(error.message),
   });
   const saveObservation = useMutation({
-    mutationFn: () => saveDailyReport({ data: selectedDate, autor: author, resumo: observation, turma_id: null }),
+    mutationFn: () => saveDailyReport({ data: selectedDate, autor: author, resumo: observation, turma_id: null, concluido_em: currentReport?.concluido_em ?? null }),
     onSuccess: () => { void refreshStudio(); toast.success("Observação salva"); },
     onError: (error: Error) => toast.error(error.message),
   });
   const closeDay = useMutation({
     mutationFn: async () => {
-      const saved = await saveDailyReport({ data: selectedDate, autor: author, resumo: observation, turma_id: null });
+      const saved = await saveDailyReport({ data: selectedDate, autor: author, resumo: observation, turma_id: null, concluido_em: currentReport?.concluido_em ?? null });
       if (!saved) throw new Error("Não foi possível salvar o relatório do dia.");
       const toggled = await toggleDailyReport({ id: saved.id, concluido_em: saved.concluido_em });
       if (!toggled) throw new Error("Não foi possível atualizar o fechamento do dia.");
@@ -107,7 +108,7 @@ export default function RelatoriosPage() {
   const allPieces = studio.data?.pecas ?? [];
   const pieces = {
     left: allPieces.filter((item) => item.data_deixou === selectedDate),
-    kiln: allPieces.filter((item) => item.status === "producao" || (item.status === "pronta" && item.data_pronta === selectedDate)),
+    kiln: allPieces.filter((item) => item.status !== "entregue"),
   };
 
   if (studio.isLoading || attendanceDay.isLoading || (role === "atendimento" && previousDay.isLoading)) return <LoadingState />;
@@ -116,17 +117,21 @@ export default function RelatoriosPage() {
 
   const contactName = (id: string) => studio.data.contatos.find((item) => item.id === id)?.nome ?? "Contato";
   const isLast = stepIndex === steps.length - 1;
+  const stepNavigation = (className?: string) => (
+    <nav className={`flex gap-2 ${className ?? ""}`} aria-label="Etapas do relatório">
+      {steps.map((step, index) => (
+        <Button key={step} type="button" size="sm" variant={index === stepIndex ? "default" : "outline"} className="rounded-full" aria-label={step} aria-current={index === stepIndex ? "step" : undefined} onClick={() => setStepIndex(index)}>
+          <span className="flex size-5 items-center justify-center rounded-full bg-current/10 text-[11px]">{role === "atendimento" ? index : index + 1}</span>
+          <span className={index === stepIndex ? "inline" : "hidden lg:inline"}>{step}</span>
+        </Button>
+      ))}
+    </nav>
+  );
 
   return (
     <div className="flex flex-col gap-5">
-      <nav className="flex flex-wrap gap-2" aria-label="Etapas do relatório">
-        {steps.map((step, index) => (
-          <Button key={step} type="button" size="sm" variant={index === stepIndex ? "default" : "outline"} className="rounded-full" onClick={() => setStepIndex(index)}>
-            <span className="flex size-5 items-center justify-center rounded-full bg-current/10 text-[11px]">{role === "atendimento" ? index : index + 1}</span>
-            {index === stepIndex && step}
-          </Button>
-        ))}
-      </nav>
+      <PageHeaderAction>{stepNavigation()}</PageHeaderAction>
+      {stepNavigation("flex-wrap md:hidden")}
 
       {activeStep === "Chamada" && (
         <AttendanceBlocks day={attendanceDay.data} pending={attendance.isPending} onMark={attendance.mutate} avisos={studio.data.avisos} reposicoes={studio.data.reposicoes} onReplacement={setReplacement} />
