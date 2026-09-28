@@ -14,11 +14,17 @@ import { ComingSoonPage } from "@/features/shared/ComingSoonPage";
 
 const pages: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   "/relatorios": lazy(() => import("@/features/relatorios/RelatoriosPage")),
+  "/confirmacoes": lazy(() => import("@/features/confirmacoes/ConfirmacoesPage")),
+  "/avisos": lazy(() => import("@/features/avisos/AvisosPage")),
   "/fechamento": lazy(() => import("@/features/fechamento/FechamentoPage")),
   "/contatos": lazy(() => import("@/features/contatos/ContatosPage")),
   "/matriculas": lazy(() => import("@/features/matriculas/MatriculasPage")),
   "/turmas": lazy(() => import("@/features/turmas/TurmasPage")),
+  "/promocoes": lazy(() => import("@/features/promocoes/PromocoesPage")),
   "/precos": lazy(() => import("@/features/precos/PrecosPage")),
+  "/plano-contas": lazy(() => import("@/features/financeiro/PlanoContasPage")),
+  "/contas-pagar": lazy(() => import("@/features/financeiro/ContasPagarPage")),
+  "/contas-receber": lazy(() => import("@/features/financeiro/ContasReceberPage")),
 };
 
 const ContatoDetailPage = lazy(

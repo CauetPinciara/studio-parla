@@ -1,163 +1,229 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Insert } from "@/lib/database.helpers";
-import { formatDate } from "@/lib/format";
-import { useAuth } from "@/lib/auth";
-import { listContatos } from "@/features/contatos/api";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { saveDailyReport, studioDataQueryKey, toggleDailyReport } from "@/features/app-enxuto/api";
+import { addIsoDays, reportStepsForRole } from "@/features/app-enxuto/domain";
+import type { AwaitedStudioData } from "@/features/app-enxuto/types";
+import { useStudioData } from "@/features/app-enxuto/useStudioData";
+import { ConfirmacoesPage } from "@/features/confirmacoes/ConfirmacoesPage";
+import { PagamentosPanel } from "@/features/pagamentos/PagamentosPanel";
 import { PecaForm } from "@/features/pecas/PecaForm";
-import { createPeca, listPecas, setPecaStatus } from "@/features/pecas/api";
-import { PecaBadge } from "@/features/pecas/PecasPage";
+import { createPeca, setPecaStatus } from "@/features/pecas/api";
+import { getNextPecaStatus, pecaActionLabels, pecaStatusLabels, type PecaStatus } from "@/features/pecas/domain";
+import { ReposicaoDialog } from "@/features/reposicoes/ReposicaoDialog";
 import { AttendanceBlocks } from "@/features/relatorios/AttendanceBlocks";
-import { RelatorioForm } from "@/features/relatorios/RelatorioForm";
-import { createRelatorio, listRelatorios, relatoriosQueryKey, updateRelatorio } from "@/features/relatorios/api";
 import { attendanceDayQueryKey, loadAttendanceDay, upsertAttendance } from "@/features/relatorios/attendance-api";
+import type { AttendanceDay } from "@/features/relatorios/attendance-domain";
 import { normalizeReportDate, reportTodayIso } from "@/features/relatorios/date-navigation";
 import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
-import { listTurmas } from "@/features/turmas/api";
+import { useAuth } from "@/lib/auth";
+import { formatDate } from "@/lib/format";
+
+interface ReplacementSource {
+  contatoId: string;
+  turmaId: string;
+  data: string;
+}
 
 export default function RelatoriosPage() {
-  const client = useQueryClient();
+  const queryClient = useQueryClient();
   const { member } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [reportOpen, setReportOpen] = useState(false);
+  const [stepState, setStepState] = useState({ key: "", index: 0 });
   const [pieceOpen, setPieceOpen] = useState(false);
+  const [replacement, setReplacement] = useState<ReplacementSource | null>(null);
   const today = reportTodayIso();
   const candidate = searchParams.get("data");
   const selectedDate = normalizeReportDate(candidate, today);
+  const yesterday = addIsoDays(selectedDate, -1);
+  const role = member?.papel ?? "admin";
+  const author = member?.nome ?? (role === "atendimento" ? "Isabela" : "Catarina");
+  const steps = reportStepsForRole(role);
+  const flowKey = `${role}:${selectedDate}`;
+  const stepIndex = stepState.key === flowKey ? stepState.index : 0;
+  const setStepIndex = (next: number | ((current: number) => number)) => {
+    const index = typeof next === "function" ? next(stepIndex) : next;
+    setStepState({ key: flowKey, index });
+  };
+  const activeStep = steps[stepIndex] ?? steps[0];
+  const studio = useStudioData();
+  const attendanceDay = useQuery({ queryKey: attendanceDayQueryKey(selectedDate), queryFn: () => loadAttendanceDay(selectedDate) });
+  const previousDay = useQuery({ queryKey: attendanceDayQueryKey(yesterday), queryFn: () => loadAttendanceDay(yesterday), enabled: role === "atendimento" });
 
   useEffect(() => {
-    if (candidate !== selectedDate) {
-      setSearchParams({ data: selectedDate }, { replace: true });
-    }
+    if (candidate !== selectedDate) setSearchParams({ data: selectedDate }, { replace: true });
   }, [candidate, selectedDate, setSearchParams]);
 
-  const relatorios = useQuery({ queryKey: relatoriosQueryKey, queryFn: listRelatorios });
-  const pecas = useQuery({ queryKey: ["pecas"], queryFn: listPecas });
-  const contatos = useQuery({ queryKey: ["contatos"], queryFn: listContatos });
-  const turmas = useQuery({ queryKey: ["turmas"], queryFn: listTurmas });
-  const attendanceDay = useQuery({
-    queryKey: attendanceDayQueryKey(selectedDate),
-    queryFn: () => loadAttendanceDay(selectedDate),
-  });
-  const report = relatorios.data?.find((item) => item.data === selectedDate);
-  const goToDate = (date: string) => setSearchParams({ data: date });
-  const refreshReports = () => client.invalidateQueries({ queryKey: relatoriosQueryKey });
-  const refreshPieces = () => client.invalidateQueries({ queryKey: ["pecas"] });
+  const currentReport = studio.data?.relatorios.find((item) => item.data === selectedDate && item.autor === author);
+  const reportKey = currentReport?.id ?? `${selectedDate}:${author}`;
+  const [observationState, setObservationState] = useState({ key: "", value: "" });
+  const observation = observationState.key === reportKey ? observationState.value : currentReport?.resumo ?? "";
+  const setObservation = (value: string) => setObservationState({ key: reportKey, value });
 
-  const saveReport = useMutation({
-    mutationFn: (value: Insert<"relatorios">) => report
-      ? updateRelatorio(report.id, value)
-      : createRelatorio(value),
-    onSuccess: (saved) => {
-      void refreshReports();
-      setReportOpen(false);
-      if (saved) goToDate(saved.data);
-      toast.success("Dia salvo");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  const savePiece = useMutation({
-    mutationFn: createPeca,
-    onSuccess: () => {
-      void refreshPieces();
-      setPieceOpen(false);
-      toast.success("Peça registrada");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  const ready = useMutation({
-    mutationFn: ({ id, date }: { id: string; date: string }) => setPecaStatus(id, "pronta", date),
-    onSuccess: () => {
-      void refreshPieces();
-      toast.success("Marcada como pronta");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
+  const refreshStudio = () => queryClient.invalidateQueries({ queryKey: studioDataQueryKey });
   const attendance = useMutation({
     mutationFn: upsertAttendance,
     onSuccess: (_saved, variables) => {
-      void client.invalidateQueries({
-        queryKey: attendanceDayQueryKey(variables.data),
-      });
-      toast.success(
-        variables.status === "presente"
-          ? "Presença registrada"
-          : "Falta registrada",
-      );
+      void queryClient.invalidateQueries({ queryKey: attendanceDayQueryKey(variables.data) });
+      void refreshStudio();
+      toast.success(variables.status === "presente" ? "Presença registrada" : "Falta registrada");
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const savePiece = useMutation({
+    mutationFn: createPeca,
+    onSuccess: () => { void refreshStudio(); setPieceOpen(false); toast.success("Peça registrada"); },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const advancePiece = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: PecaStatus }) => setPecaStatus(id, status, selectedDate),
+    onSuccess: () => { void refreshStudio(); toast.success("Status da peça atualizado"); },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const saveObservation = useMutation({
+    mutationFn: () => saveDailyReport({ data: selectedDate, autor: author, resumo: observation, turma_id: null }),
+    onSuccess: () => { void refreshStudio(); toast.success("Observação salva"); },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const closeDay = useMutation({
+    mutationFn: async () => {
+      const saved = await saveDailyReport({ data: selectedDate, autor: author, resumo: observation, turma_id: null });
+      if (!saved) throw new Error("Não foi possível salvar o relatório do dia.");
+      const toggled = await toggleDailyReport({ id: saved.id, concluido_em: saved.concluido_em });
+      if (!toggled) throw new Error("Não foi possível atualizar o fechamento do dia.");
+      return toggled;
+    },
+    onSuccess: (saved) => { void refreshStudio(); toast.success(saved.concluido_em ? "Dia fechado" : "Dia reaberto"); },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
-  if (relatorios.isLoading || pecas.isLoading || contatos.isLoading || turmas.isLoading || attendanceDay.isLoading) {
-    return <LoadingState />;
-  }
-  const error = relatorios.error ?? attendanceDay.error ?? pecas.error ?? contatos.error ?? turmas.error;
-  if (error) return <ErrorState error={error} />;
+  const allPieces = studio.data?.pecas ?? [];
+  const pieces = {
+    left: allPieces.filter((item) => item.data_deixou === selectedDate),
+    kiln: allPieces.filter((item) => item.status === "producao" || (item.status === "pronta" && item.data_pronta === selectedDate)),
+  };
 
-  const pessoa = (id: string) => contatos.data?.find((item) => item.id === id)?.nome ?? "?";
-  const turma = (id: string | null) => turmas.data?.find((item) => item.id === id)?.nome ?? "Geral";
-  const left = pecas.data?.filter((item) => item.data_deixou === selectedDate) ?? [];
-  const done = pecas.data?.filter((item) => item.data_pronta === selectedDate) ?? [];
-  const production = pecas.data?.filter((item) => item.status === "producao") ?? [];
+  if (studio.isLoading || attendanceDay.isLoading || (role === "atendimento" && previousDay.isLoading)) return <LoadingState />;
+  const error = studio.error ?? attendanceDay.error ?? previousDay.error;
+  if (error || !studio.data || !attendanceDay.data) return <ErrorState error={error ?? new Error("Não foi possível carregar o relatório.")} />;
 
-  return <div className="flex flex-col gap-6">
-    <AttendanceBlocks
-      day={attendanceDay.data!}
-      pending={attendance.isPending}
-      onMark={attendance.mutate}
-    />
+  const contactName = (id: string) => studio.data.contatos.find((item) => item.id === id)?.nome ?? "Contato";
+  const isLast = stepIndex === steps.length - 1;
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Resumo do dia</CardTitle>
-        <CardDescription>{report ? `${turma(report.turma_id)} · por ${report.autor ?? "Catarina"}` : "Nenhum registro salvo para esta data."}</CardDescription>
-      </CardHeader>
-      <CardContent><p className={report?.resumo ? undefined : "text-muted-foreground"}>{report?.resumo || "Sem resumo."}</p></CardContent>
-      <CardFooter><Button variant="outline" onClick={() => setReportOpen(true)}>{report ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{report ? "Editar dia" : "Anotar este dia"}</Button></CardFooter>
-    </Card>
+  return (
+    <div className="flex flex-col gap-5">
+      <nav className="flex flex-wrap gap-2" aria-label="Etapas do relatório">
+        {steps.map((step, index) => (
+          <Button key={step} type="button" size="sm" variant={index === stepIndex ? "default" : "outline"} className="rounded-full" onClick={() => setStepIndex(index)}>
+            <span className="flex size-5 items-center justify-center rounded-full bg-current/10 text-[11px]">{role === "atendimento" ? index : index + 1}</span>
+            {index === stepIndex && step}
+          </Button>
+        ))}
+      </nav>
 
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Peças deixadas neste dia</h2>
-        <Button className="w-full sm:w-auto" size="sm" onClick={() => setPieceOpen(true)}><Plus data-icon="inline-start" />Registrar peça</Button>
-      </div>
-      <DataTable rows={left} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça registrada neste dia." columns={[
-        { key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> },
-        { key: "peca", header: "Peça", cell: (row) => row.descricao },
-        { key: "estimativa", header: "Estimativa", cell: (row) => row.estimativa },
-        { key: "status", header: "Status", cell: (row) => <PecaBadge status={row.status} /> },
-      ]} />
-    </section>
+      {activeStep === "Chamada" && (
+        <AttendanceBlocks day={attendanceDay.data} pending={attendance.isPending} onMark={attendance.mutate} avisos={studio.data.avisos} reposicoes={studio.data.reposicoes} onReplacement={setReplacement} />
+      )}
 
-    <section className="flex flex-col gap-3">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Marcar peças como prontas hoje</h2>
-      <DataTable rows={production} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça em produção." columns={[
-        { key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> },
-        { key: "peca", header: "Peça", cell: (row) => row.descricao },
-        { key: "deixou", header: "Deixou", cell: (row) => formatDate(row.data_deixou) },
-        { key: "acao", header: "", cell: (row) => <div className="text-right"><Button size="sm" disabled={ready.isPending} onClick={() => ready.mutate({ id: row.id, date: selectedDate })}>Ficou pronta hoje</Button></div> },
-      ]} />
-    </section>
+      {activeStep === "Peças" && (
+        <PiecesStep
+          left={pieces.left}
+          kiln={pieces.kiln}
+          contactName={contactName}
+          pending={advancePiece.isPending}
+          onNew={() => setPieceOpen(true)}
+          onAdvance={(id, status) => advancePiece.mutate({ id, status })}
+        />
+      )}
 
-    <section className="flex flex-col gap-3">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Peças que ficaram prontas neste dia</h2>
-      <DataTable rows={done} getRowKey={(row) => row.id} emptyMessage="Nenhuma peça marcada como pronta neste dia." columns={[
-        { key: "aluno", header: "Aluno", cell: (row) => <strong>{pessoa(row.contato_id)}</strong> },
-        { key: "peca", header: "Peça", cell: (row) => row.descricao },
-        { key: "status", header: "Status", cell: (row) => <PecaBadge status={row.status} /> },
-      ]} />
-    </section>
+      {activeStep === "Resumo de ontem" && previousDay.data && (
+        <PreviousDaySummary day={previousDay.data} date={yesterday} data={studio.data} contactName={contactName} />
+      )}
 
-    <RelatorioForm key={report?.id ?? selectedDate} open={reportOpen} onOpenChange={setReportOpen} relatorio={report} selectedDate={selectedDate} turmas={turmas.data ?? []} author={member?.nome ?? "Catarina"} pending={saveReport.isPending} onSubmit={(value) => saveReport.mutate(value)} />
-    <PecaForm key={`piece-${selectedDate}`} open={pieceOpen} onOpenChange={setPieceOpen} contatos={contatos.data ?? []} date={selectedDate} pending={savePiece.isPending} onSubmit={(value) => savePiece.mutate(value)} />
-  </div>;
+      {activeStep === "Confirmações" && <ConfirmacoesPage startDate={selectedDate} embedded />}
+      {activeStep === "Pagamentos" && <PagamentosPanel data={studio.data} selectedDate={selectedDate} author={author} />}
+
+      {activeStep === "Observações" && (
+        <div className="flex flex-col gap-4">
+          <Textarea rows={7} value={observation} onChange={(event) => setObservation(event.target.value)} placeholder="O que valeu registrar sobre o dia?" />
+          <div className="flex justify-end"><Button type="button" variant="outline" disabled={saveObservation.isPending} onClick={() => saveObservation.mutate()}>Salvar observação</Button></div>
+        </div>
+      )}
+
+      <footer className="sticky -bottom-16 z-20 -mx-5 -mb-16 mt-3 flex min-h-16 flex-wrap items-center gap-3 border-t bg-background/95 px-5 py-3 backdrop-blur md:-mx-8 md:px-8">
+        <span className="text-sm text-muted-foreground">Etapa {stepIndex + 1} de {steps.length} · {activeStep}</span>
+        <div className="ml-auto flex gap-2">
+          {stepIndex > 0 && <Button type="button" variant="outline" onClick={() => setStepIndex((value) => value - 1)}><ChevronLeft data-icon="inline-start" />{steps[stepIndex - 1]}</Button>}
+          {!isLast && <Button type="button" onClick={() => setStepIndex((value) => value + 1)}>{steps[stepIndex + 1]}<ChevronRight data-icon="inline-end" /></Button>}
+          {isLast && <Button type="button" variant={currentReport?.concluido_em ? "secondary" : "default"} disabled={closeDay.isPending} onClick={() => closeDay.mutate()}><CheckCircle2 data-icon="inline-start" />{currentReport?.concluido_em ? "Dia fechado" : "Fechar o dia"}</Button>}
+        </div>
+      </footer>
+
+      <PecaForm key={`piece-${selectedDate}`} open={pieceOpen} onOpenChange={setPieceOpen} contatos={studio.data.contatos} date={selectedDate} pending={savePiece.isPending} onSubmit={(value) => savePiece.mutate(value)} />
+      {replacement && <ReposicaoDialog open onOpenChange={(open) => !open && setReplacement(null)} contatoId={replacement.contatoId} origemData={replacement.data} origemTurmaId={replacement.turmaId} />}
+    </div>
+  );
+}
+
+function PiecesStep({ left, kiln, contactName, pending, onNew, onAdvance }: {
+  left: AwaitedStudioData["pecas"];
+  kiln: AwaitedStudioData["pecas"];
+  contactName: (id: string) => string;
+  pending: boolean;
+  onNew: () => void;
+  onAdvance: (id: string, status: PecaStatus) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-6">
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3"><h2 className="section-title">Peças deixadas neste dia</h2><Button type="button" size="sm" onClick={onNew}><Plus data-icon="inline-start" />Registrar peça</Button></div>
+        <DataTable rows={left} getRowKey={({ id }) => id} emptyMessage="Nenhuma peça registrada neste dia." columns={[
+          { key: "aluno", header: "Aluno", cell: (row) => <strong>{contactName(row.contato_id)}</strong> },
+          { key: "peca", header: "Peça", cell: (row) => row.descricao ?? "Peça sem descrição" },
+          { key: "estimativa", header: "Estimativa", cell: (row) => row.estimativa ?? "-" },
+          { key: "status", header: "Status", cell: (row) => <Badge variant="secondary">{pecaStatusLabels[row.status as PecaStatus]}</Badge> },
+        ]} />
+      </section>
+      <section className="flex flex-col gap-3">
+        <h2 className="section-title">Fila do forno</h2>
+        <DataTable rows={kiln} getRowKey={({ id }) => id} emptyMessage="Nenhuma peça na fila do forno." columns={[
+          { key: "aluno", header: "Aluno", cell: (row) => <strong>{contactName(row.contato_id)}</strong> },
+          { key: "peca", header: "Peça", cell: (row) => row.descricao ?? "Peça sem descrição" },
+          { key: "deixou", header: "Deixou", cell: (row) => formatDate(row.data_deixou) },
+          { key: "status", header: "Status", cell: (row) => {
+            const next = getNextPecaStatus(row.status);
+            return next ? <Button type="button" size="sm" disabled={pending} onClick={() => onAdvance(row.id, next)}>{pecaActionLabels[row.status as PecaStatus]}</Button> : <Badge variant="success">{pecaStatusLabels[row.status as PecaStatus]}</Badge>;
+          } },
+        ]} />
+      </section>
+    </div>
+  );
+}
+
+function PreviousDaySummary({ day, date, data, contactName }: {
+  day: AttendanceDay;
+  date: string;
+  data: AwaitedStudioData;
+  contactName: (id: string) => string;
+}) {
+  const ready = data.pecas.filter(({ status }) => status === "pronta");
+  const teacherReport = data.relatorios.find((item) => item.data === date && (item.autor ?? "").toLocaleLowerCase("pt-BR").includes("catarina"));
+  return (
+    <div className="flex flex-col gap-6">
+      <div><h2 className="text-base font-semibold">O que a Catarina registrou em {formatDate(date)}</h2><p className="text-sm text-muted-foreground">Só leitura, para você começar o dia sabendo o que aconteceu.</p></div>
+      <section className="flex flex-col gap-3"><h3 className="section-title">Presenças e faltas</h3>{day.turmas.map((turma) => <Card key={turma.key}><CardHeader><CardTitle className="text-sm">{turma.turmaNome}</CardTitle><CardDescription>{turma.hora?.slice(0, 5)}</CardDescription></CardHeader><CardContent className="flex flex-col gap-3">{turma.pessoas.map((person) => {
+        const replacement = data.reposicoes.find((item) => item.contato_id === person.contatoId && item.origem_data === date && item.origem_turma_id === turma.turmaId);
+        return <div key={person.key} className="flex flex-wrap items-center gap-2 border-b pb-3 last:border-0 last:pb-0"><strong>{person.nome}</strong><Badge variant={person.status === "presente" ? "success" : person.status === "faltou" ? "destructive" : "outline"}>{person.status === "presente" ? "Presente" : person.status === "faltou" ? "Faltou" : "Sem chamada"}</Badge>{person.status === "faltou" && <Badge variant={replacement ? "info" : "warning"}>{replacement ? `Reposição · ${formatDate(replacement.destino_data)}` : "Sem reposição marcada"}</Badge>}</div>;
+      })}</CardContent></Card>)}</section>
+      <section className="flex flex-col gap-3"><h3 className="section-title">Peças prontas para avisar</h3><Card><CardContent className="pt-5">{ready.length ? ready.map((piece) => <div key={piece.id} className="flex items-center justify-between gap-3 border-b py-3 first:pt-0 last:border-0 last:pb-0"><strong>{contactName(piece.contato_id)}</strong><span className="text-sm text-muted-foreground">{piece.descricao} · {piece.etapa ?? "Etapa não informada"}</span></div>) : <p className="text-sm text-muted-foreground">Nenhuma peça esperando aviso.</p>}</CardContent></Card></section>
+      <section className="flex flex-col gap-3"><h3 className="section-title">Observações da Catarina</h3><Card className="bg-muted/40"><CardContent className="pt-5"><p className="text-sm leading-6">{teacherReport?.resumo || "A Catarina não escreveu observações neste dia."}</p></CardContent></Card></section>
+    </div>
+  );
 }

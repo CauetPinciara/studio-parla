@@ -39,6 +39,10 @@ vi.mock("@/features/relatorios/RelatoriosPage", () => ({
   default: () => <div>Página de relatórios</div>,
 }));
 
+vi.mock("@/features/contatos/ContatoDetailPage", () => ({
+  default: () => <div>Ficha do aluno</div>,
+}));
+
 function LocationProbe() {
   return <output aria-label="Rota atual">{useLocation().pathname}</output>;
 }
