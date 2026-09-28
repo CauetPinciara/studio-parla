@@ -4,7 +4,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import App from "@/App";
 
-const appMocks = vi.hoisted(() => ({ layoutPaths: [] as string[] }));
+const appMocks = vi.hoisted((): {
+  layoutPaths: string[];
+  role: "admin" | "professora" | "atendimento";
+} => ({
+  layoutPaths: [] as string[],
+  role: "admin",
+}));
+
+vi.mock("@/lib/auth", () => ({
+  useAuth: () => ({
+    loading: false,
+    membershipChecked: true,
+    member: { papel: appMocks.role },
+  }),
+}));
 
 vi.mock("@/components/Protected", () => ({
   Protected: ({ children }: { children: ReactNode }) => children,
@@ -42,6 +56,7 @@ describe("rotas do app enxuto", () => {
   beforeEach(() => {
     localStorage.clear();
     appMocks.layoutPaths = [];
+    appMocks.role = "admin";
   });
 
   afterEach(() => cleanup());
@@ -60,5 +75,16 @@ describe("rotas do app enxuto", () => {
     renderApp("/contatos/aluna-1");
     expect(await screen.findByText("Ficha do aluno")).toBeInTheDocument();
     expect(screen.getByLabelText("Rota atual")).toHaveTextContent("/contatos/aluna-1");
+  });
+
+  it("redireciona atendimento em todas as rotas financeiras", async () => {
+    appMocks.role = "atendimento";
+    for (const path of ["/plano-contas", "/contas-pagar", "/contas-receber"]) {
+      const view = renderApp(path);
+      await waitFor(() =>
+        expect(screen.getByLabelText("Rota atual")).toHaveTextContent("/relatorios"),
+      );
+      view.unmount();
+    }
   });
 });

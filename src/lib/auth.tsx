@@ -3,10 +3,13 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { Session } from "@supabase/supabase-js";
 import type { Row } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
+import type { MemberRole } from "@/app/access";
+
+export type AppMember = Row<"app_members"> & { papel: MemberRole };
 
 interface AuthContextValue {
   session: Session | null;
-  member: Row<"app_members"> | null;
+  member: AppMember | null;
   loading: boolean;
   membershipChecked: boolean;
   accessError: string | null;
@@ -18,7 +21,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [membership, setMembership] = useState<{ email: string; member: Row<"app_members"> | null } | null>(null);
+  const [membership, setMembership] = useState<{ email: string; member: AppMember | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [accessError, setAccessError] = useState<string | null>(null);
 
@@ -40,10 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const email = session?.user.email;
     if (!email) return;
     let active = true;
-    void supabase.from("app_members").select("email,nome,created_at").eq("email", email).maybeSingle().then(({ data, error }) => {
+    void supabase.from("app_members").select("email,nome,papel,created_at").eq("email", email).maybeSingle().then(({ data, error }) => {
       if (!active) return;
       setAccessError(error ? `Não foi possível verificar a allowlist: ${error.message}` : null);
-      setMembership({ email, member: data });
+      setMembership({ email, member: data as AppMember | null });
     });
     return () => { active = false; };
   }, [session]);

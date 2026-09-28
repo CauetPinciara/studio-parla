@@ -8,6 +8,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { DEFAULT_ROUTE, NAVIGATION_ITEMS } from "@/app/navigation";
 import { Layout } from "@/components/Layout";
 import { Protected } from "@/components/Protected";
+import { FinanceAccessBoundary } from "@/components/FinanceAccessBoundary";
 import { LoadingState } from "@/features/shared/AsyncState";
 import { ComingSoonPage } from "@/features/shared/ComingSoonPage";
 
@@ -46,7 +47,13 @@ export default function App() {
             <Route
               key={item.path}
               path={item.path}
-              element={suspended(Page ? <Page /> : <ComingSoonPage />)}
+              element={
+                item.workspace === "financeiro" ? (
+                  <FinanceAccessBoundary>
+                    {suspended(Page ? <Page /> : <ComingSoonPage />)}
+                  </FinanceAccessBoundary>
+                ) : suspended(Page ? <Page /> : <ComingSoonPage />)
+              }
             />
           );
         })}

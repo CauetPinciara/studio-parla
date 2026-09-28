@@ -1,28 +1,28 @@
-import { describe, expect, it } from "vitest";
-import { SUPERADMIN_EMAIL, isSuperadminEmail } from "@/app/access";
+import { canAccessWorkspace, visibleWorkspacesForRole } from "@/app/access";
 
-describe("regra única de superadmin", () => {
-  it("exporta o único e-mail permitido", () => {
-    expect(SUPERADMIN_EMAIL).toBe("cauetpinciara@gmail.com");
+describe("acesso por papel", () => {
+  it.each(["professora", "admin"] as const)(
+    "permite todos os workspaces para %s",
+    (role) => {
+      expect(visibleWorkspacesForRole(role).map(({ id }) => id)).toEqual([
+        "operacao",
+        "cadastros",
+        "financeiro",
+      ]);
+      expect(canAccessWorkspace(role, "financeiro")).toBe(true);
+    },
+  );
+
+  it("oculta Financeiro de atendimento", () => {
+    expect(visibleWorkspacesForRole("atendimento").map(({ id }) => id)).toEqual([
+      "operacao",
+      "cadastros",
+    ]);
+    expect(canAccessWorkspace("atendimento", "financeiro")).toBe(false);
   });
 
-  it("aceita o e-mail exato", () => {
-    expect(isSuperadminEmail("cauetpinciara@gmail.com")).toBe(true);
-  });
-
-  it("normaliza espaços e caixa", () => {
-    expect(isSuperadminEmail("  CauetPinciara@GMAIL.COM  ")).toBe(true);
-  });
-
-  it.each([
-    null,
-    undefined,
-    "",
-    "member@studio-parla.com",
-    "cauetpinciara@mail.gmail.com",
-    "cauetpinciara@gmail.com.br",
-    "admin+cauetpinciara@gmail.com",
-  ])("rejeita identidade não autorizada: %s", (email) => {
-    expect(isSuperadminEmail(email)).toBe(false);
+  it("nega acesso quando o papel ainda não foi carregado", () => {
+    expect(canAccessWorkspace(null, "financeiro")).toBe(false);
+    expect(canAccessWorkspace(undefined, "operacao")).toBe(false);
   });
 });

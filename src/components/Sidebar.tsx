@@ -1,6 +1,7 @@
 import { useId } from "react";
 import { LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { visibleWorkspacesForRole, type MemberRole } from "@/app/access";
 import { NAVIGATION_ITEMS, getWorkspaceForPath } from "@/app/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -25,6 +26,7 @@ interface SidebarProps {
   onNavigate?: () => void;
   className?: string;
   visibleWorkspaces?: readonly Workspace[];
+  memberRole?: MemberRole | null;
 }
 
 export function Sidebar({
@@ -33,21 +35,26 @@ export function Sidebar({
   onNavigate,
   className,
   visibleWorkspaces = WORKSPACES,
+  memberRole,
 }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const selectId = useId();
   const hintId = useId();
-  const workspaces = visibleWorkspaces.length > 0
-    ? visibleWorkspaces
-    : WORKSPACES;
+  const allowedWorkspaceIds = new Set(
+    visibleWorkspacesForRole(memberRole).map(({ id }) => id),
+  );
+  const workspaces = visibleWorkspaces.filter(({ id }) => allowedWorkspaceIds.has(id));
+  const safeWorkspaces = workspaces.length > 0
+    ? workspaces
+    : WORKSPACES.filter(({ id }) => id !== "financeiro");
   const routeWorkspace = getWorkspaceForPath(location.pathname);
-  const activeWorkspace = workspaces.find(
+  const activeWorkspace = safeWorkspaces.find(
     (workspace) => workspace.id === routeWorkspace.id,
-  ) ?? workspaces[0];
+  ) ?? safeWorkspaces[0];
 
   const selectWorkspace = (id: WorkspaceId) => {
-    const workspace = workspaces.find((item) => item.id === id);
+    const workspace = safeWorkspaces.find((item) => item.id === id);
     if (!workspace) return;
 
     void navigate(workspace.defaultPath);
@@ -89,7 +96,7 @@ export function Sidebar({
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                {workspaces.map((workspace) => (
+                {safeWorkspaces.map((workspace) => (
                   <SelectItem key={workspace.id} value={workspace.id}>
                     {workspace.label}
                   </SelectItem>

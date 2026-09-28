@@ -25,7 +25,7 @@ async function chooseWorkspace(user: UserEvent, label: string) {
 
 describe("sidebar do app enxuto", () => {
   it("reflete o workspace da rota e usa um seletor não nativo", () => {
-    renderSidebar("/contatos/aluna-1", <Sidebar />);
+    renderSidebar("/contatos/aluna-1", <Sidebar memberRole="admin" />);
 
     const selector = screen.getByLabelText("Workspace");
     expect(selector.tagName).toBe("BUTTON");
@@ -40,7 +40,7 @@ describe("sidebar do app enxuto", () => {
   it("navega aos primeiros destinos dos três workspaces", async () => {
     const user = userEvent.setup();
     const onNavigate = vi.fn();
-    renderSidebar("/relatorios", <Sidebar onNavigate={onNavigate} />);
+    renderSidebar("/relatorios", <Sidebar memberRole="admin" onNavigate={onNavigate} />);
 
     await chooseWorkspace(user, "Cadastros");
     await waitFor(() =>
@@ -61,7 +61,7 @@ describe("sidebar do app enxuto", () => {
 
   it("mostra somente os itens do workspace selecionado", async () => {
     const user = userEvent.setup();
-    renderSidebar("/relatorios", <Sidebar />);
+    renderSidebar("/relatorios", <Sidebar memberRole="admin" />);
 
     expect(screen.getByRole("link", { name: "Aulas & confirmações" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Tarefas" })).not.toBeInTheDocument();
@@ -70,5 +70,14 @@ describe("sidebar do app enxuto", () => {
     expect(screen.getByRole("link", { name: "Plano de Contas" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contas a Pagar" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contas a Receber" })).toBeInTheDocument();
+  });
+
+  it("não oferece o workspace Financeiro para atendimento", async () => {
+    const user = userEvent.setup();
+    renderSidebar("/relatorios", <Sidebar memberRole="atendimento" />);
+
+    await user.click(screen.getByLabelText("Workspace"));
+    expect(screen.queryByRole("option", { name: "Financeiro" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("option")).toHaveLength(2);
   });
 });

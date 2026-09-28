@@ -4,13 +4,15 @@ create extension if not exists pgcrypto;
 create table if not exists app_members (
   email      text primary key,
   nome       text,
+  papel      text not null default 'atendimento'
+    check (papel in ('professora', 'atendimento', 'admin')),
   created_at timestamptz not null default now()
 );
-insert into app_members (email, nome) values
-  ('cauetpinciara@gmail.com',     'Cauet'),
-  ('catarinamosc@gmail.com', 'Catarina'),
-  ('isabelachmatalik@gmail.com',  'Isabela')
-on conflict (email) do nothing;
+insert into app_members (email, nome, papel) values
+  ('cauetpinciara@gmail.com', 'Cauet', 'admin'),
+  ('catarinamosc@gmail.com', 'Catarina', 'professora'),
+  ('isabelachmatalik@gmail.com', 'Isabela', 'atendimento')
+on conflict (email) do update set nome = excluded.nome, papel = excluded.papel;
 
 create or replace function public.is_member()
 returns boolean language sql stable security definer set search_path = public as $$
