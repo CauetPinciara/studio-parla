@@ -7,44 +7,43 @@ import {
 } from "@/app/navigation";
 
 describe("navegação do Studio Parla", () => {
-  it("mantém as 13 rotas na ordem e nos workspaces definidos", () => {
+  it("expõe os 12 destinos do app enxuto na ordem definida", () => {
     expect(
       NAVIGATION_ITEMS.map(({ workspace, path, title }) => [workspace, path, title]),
     ).toEqual([
       ["operacao", "/relatorios", "Relatório do dia"],
-      ["operacao", "/tarefas", "Tarefas"],
-      ["operacao", "/pecas", "Peças & forno"],
-      ["operacao", "/calendario", "Calendário"],
-      ["operacao", "/atendimento", "Atendimento"],
+      ["operacao", "/confirmacoes", "Aulas & confirmações"],
+      ["operacao", "/avisos", "Avisos de falta"],
       ["operacao", "/fechamento", "Fechamento"],
-      ["cadastros", "/contatos", "Contatos"],
+      ["cadastros", "/contatos", "Alunos & contatos"],
       ["cadastros", "/matriculas", "Matrículas"],
       ["cadastros", "/turmas", "Turmas"],
-      ["cadastros", "/workshops", "Workshops & eventos"],
+      ["cadastros", "/promocoes", "Promoções & mensalidades"],
       ["cadastros", "/precos", "Preços & serviços"],
-      ["tatica", "/visao-geral", "Visão geral"],
-      ["admin", "/admin", "Administração"],
+      ["financeiro", "/plano-contas", "Plano de Contas"],
+      ["financeiro", "/contas-pagar", "Contas a Pagar"],
+      ["financeiro", "/contas-receber", "Contas a Receber"],
     ]);
   });
 
-  it("define o primeiro destino de cada workspace", () => {
+  it("define os três workspaces e seus primeiros destinos", () => {
     expect(DEFAULT_ROUTE).toBe("/relatorios");
     expect(WORKSPACES.map(({ id, defaultPath }) => [id, defaultPath])).toEqual([
       ["operacao", "/relatorios"],
       ["cadastros", "/contatos"],
-      ["tatica", "/visao-geral"],
-      ["admin", "/admin"],
+      ["financeiro", "/plano-contas"],
     ]);
   });
 
+  it("mantém Cadastros ativo na ficha de um contato", () => {
+    expect(getNavigationItem("/contatos/aluna-1").path).toBe("/contatos");
+    expect(getWorkspaceForPath("/contatos/aluna-1").id).toBe("cadastros");
+  });
+
   it("normaliza a barra final e usa Relatório do dia como fallback", () => {
-    expect(getNavigationItem("/tarefas/").path).toBe("/tarefas");
-    expect(getWorkspaceForPath("/tarefas/").id).toBe("operacao");
-    expect(getNavigationItem("/pecas/").path).toBe("/pecas");
-    expect(getWorkspaceForPath("/precos/").id).toBe("cadastros");
-    expect(getNavigationItem("/admin/").path).toBe("/admin");
-    expect(getWorkspaceForPath("/admin/").id).toBe("admin");
-    expect(getNavigationItem("/rota-inexistente").path).toBe(DEFAULT_ROUTE);
-    expect(getWorkspaceForPath("/rota-inexistente").id).toBe("operacao");
+    expect(getNavigationItem("/confirmacoes/").path).toBe("/confirmacoes");
+    expect(getWorkspaceForPath("/contas-receber/").id).toBe("financeiro");
+    expect(getNavigationItem("/tarefas").path).toBe(DEFAULT_ROUTE);
+    expect(getWorkspaceForPath("/admin").id).toBe("operacao");
   });
 });

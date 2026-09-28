@@ -1,8 +1,35 @@
-export type WorkspaceId = "operacao" | "cadastros" | "tatica" | "admin";
-export interface Workspace { id: WorkspaceId; label: string; hint: string; defaultPath: string }
+import { Calculator, Folder, Zap, type LucideIcon } from "lucide-react";
+
+export type WorkspaceId = "operacao" | "cadastros" | "financeiro";
+
+export interface Workspace {
+  id: WorkspaceId;
+  label: string;
+  hint: string;
+  defaultPath: string;
+  icon: LucideIcon;
+}
+
 export const WORKSPACES: Workspace[] = [
-  { id: "operacao", label: "Operação", hint: "Uso diário do ateliê", defaultPath: "/relatorios" },
-  { id: "cadastros", label: "Cadastros", hint: "Pessoas, turmas e serviços", defaultPath: "/contatos" },
-  { id: "tatica", label: "Tática", hint: "Visão geral e estratégia", defaultPath: "/visao-geral" },
-  { id: "admin", label: "Admin", hint: "Configurações do sistema", defaultPath: "/admin" },
+  {
+    id: "operacao",
+    label: "Operação",
+    hint: "Uso diário do ateliê",
+    defaultPath: "/relatorios",
+    icon: Zap,
+  },
+  {
+    id: "cadastros",
+    label: "Cadastros",
+    hint: "Pessoas, turmas e serviços",
+    defaultPath: "/contatos",
+    icon: Folder,
+  },
+  {
+    id: "financeiro",
+    label: "Financeiro",
+    hint: "Plano de contas, pagar e receber",
+    defaultPath: "/plano-contas",
+    icon: Calculator,
+  },
 ];

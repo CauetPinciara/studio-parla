@@ -1,16 +1,14 @@
 import {
-  CalendarDays,
   Calculator,
-  CircleGauge,
+  CalendarX2,
+  CircleCheckBig,
   ClipboardList,
   ContactRound,
-  Flame,
+  Folder,
   GraduationCap,
   ListTodo,
-  MessageCircle,
   PanelsTopLeft,
-  ShieldCheck,
-  Sparkles,
+  Percent,
   Tags,
   type LucideIcon,
 } from "lucide-react";
@@ -30,19 +28,18 @@ export interface NavigationItem {
 export const DEFAULT_ROUTE = "/relatorios";
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
-  { workspace: "operacao", path: "/relatorios", title: "Relatório do dia", subtitle: "O que a Catarina registra no fim de cada aula", icon: ClipboardList },
-  { workspace: "operacao", path: "/tarefas", title: "Tarefas", subtitle: "Pendências e responsáveis do dia a dia", icon: ListTodo },
-  { workspace: "operacao", path: "/pecas", title: "Peças & forno", subtitle: "Produção, estimativas e retiradas", icon: Flame },
-  { workspace: "operacao", path: "/calendario", title: "Calendário", subtitle: "Turmas, workshops, avulsas e eventos", icon: CalendarDays },
-  { workspace: "operacao", path: "/atendimento", title: "Atendimento", subtitle: "Mensagens prontas no tom do Studio Parla", icon: MessageCircle },
-  { workspace: "operacao", path: "/fechamento", title: "Fechamento", subtitle: "Calculadora do mês — gera a mensagem pronta", icon: Calculator },
-  { workspace: "cadastros", path: "/contatos", title: "Contatos", subtitle: "Todo mundo — a lista mestre de pessoas", icon: ContactRound },
-  { workspace: "cadastros", path: "/matriculas", title: "Matrículas", subtitle: "Vínculo aluno ↔ turma", icon: GraduationCap },
+  { workspace: "operacao", path: "/relatorios", title: "Relatório do dia", subtitle: "Presenças que a Catarina registra na aula", icon: ClipboardList },
+  { workspace: "operacao", path: "/confirmacoes", title: "Aulas & confirmações", subtitle: "Quem confirmou presença nas próximas aulas", icon: CircleCheckBig },
+  { workspace: "operacao", path: "/avisos", title: "Avisos de falta", subtitle: "O que a Isabela recebe pelo WhatsApp", icon: CalendarX2 },
+  { workspace: "operacao", path: "/fechamento", title: "Fechamento", subtitle: "Calculadora do mês - gera a mensagem pronta", icon: Calculator },
+  { workspace: "cadastros", path: "/contatos", title: "Alunos & contatos", subtitle: "Todo mundo - a lista mestre de pessoas", icon: ContactRound },
+  { workspace: "cadastros", path: "/matriculas", title: "Matrículas", subtitle: "Vínculo aluno e turma", icon: GraduationCap },
   { workspace: "cadastros", path: "/turmas", title: "Turmas", subtitle: "As turmas fixas e quem está em cada uma", icon: PanelsTopLeft },
-  { workspace: "cadastros", path: "/workshops", title: "Workshops & eventos", subtitle: "Eventos pontuais e inscritos", icon: Sparkles },
+  { workspace: "cadastros", path: "/promocoes", title: "Promoções & mensalidades", subtitle: "O que a Isabela pode oferecer", icon: Percent },
   { workspace: "cadastros", path: "/precos", title: "Preços & serviços", subtitle: "A tabela de venda do ateliê", icon: Tags },
-  { workspace: "tatica", path: "/visao-geral", title: "Visão geral", subtitle: "Retrato 360 do ateliê num lugar só", icon: CircleGauge },
-  { workspace: "admin", path: "/admin", title: "Administração", subtitle: "Configurações e acesso do sistema", icon: ShieldCheck },
+  { workspace: "financeiro", path: "/plano-contas", title: "Plano de Contas", subtitle: "Grupos, subgrupos e categorias do ateliê", icon: Folder },
+  { workspace: "financeiro", path: "/contas-pagar", title: "Contas a Pagar", subtitle: "O que sai - vencimentos e pagamentos", icon: ListTodo },
+  { workspace: "financeiro", path: "/contas-receber", title: "Contas a Receber", subtitle: "O que entra - mensalidades, queimas e workshops", icon: Tags },
 ];
 
 function normalizePath(pathname: string) {
@@ -51,7 +48,9 @@ function normalizePath(pathname: string) {
 
 export function getNavigationItem(pathname: string) {
   const normalized = normalizePath(pathname);
-  return NAVIGATION_ITEMS.find((item) => item.path === normalized) ?? NAVIGATION_ITEMS[0];
+  return NAVIGATION_ITEMS.find(
+    (item) => normalized === item.path || normalized.startsWith(`${item.path}/`),
+  ) ?? NAVIGATION_ITEMS[0];
 }
 
 export function getWorkspaceForPath(pathname: string) {
