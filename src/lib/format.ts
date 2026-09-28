@@ -3,7 +3,7 @@ export function formatCurrency(value: number | null | undefined) {
 }
 
 export function formatDate(value: string | null | undefined) {
-  if (!value) return "—";
+  if (!value) return "-";
   const [year, month, day] = value.split("-");
   return year && month && day ? `${day}/${month}/${year}` : value;
 }

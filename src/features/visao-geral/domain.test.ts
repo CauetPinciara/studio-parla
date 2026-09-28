@@ -27,7 +27,7 @@ describe("painel tático derivado dos dados persistidos", () => {
     expect(model.producao).toEqual({ producao: 1, pronta: 1, avisado: 1 });
     expect(model.pendencias).toEqual([
       { title: "Peça pronta de Bia", text: "Avisar o cliente para retirada.", critical: true },
-      { title: "Confirmar pagamento — Bia", text: "Matrícula nova, pagamento antecipado.", critical: false },
+      { title: "Confirmar pagamento - Bia", text: "Matrícula nova, pagamento antecipado.", critical: false },
     ]);
     expect(model.eventos).toEqual([
       { id: "workshop-w1", date: "12/07", title: "Sábado" },
@@ -45,7 +45,7 @@ describe("painel tático derivado dos dados persistidos", () => {
       avulsas: [{ id: "a1", contato_id: "ausente", turma_id: null, data: null, status: null }],
     });
 
-    expect(model.pendencias.map((item) => item.title)).toEqual(["Peça pronta de ?", "Confirmar pagamento — ?"]);
+    expect(model.pendencias.map((item) => item.title)).toEqual(["Peça pronta de ?", "Confirmar pagamento - ?"]);
     expect(model.eventos).toEqual([
       { id: "workshop-w1", date: "Data a definir", title: "Workshop" },
       { id: "avulsa-a1", date: "Data a definir", title: "Aula avulsa · ?" },

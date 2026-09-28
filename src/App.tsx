@@ -33,7 +33,7 @@ const ContatoDetailPage = lazy(
 
 function OrdinaryShell() {
   const shellPreview = import.meta.env.DEV &&
-    localStorage.getItem("studio-parla-shell-preview") === "1";
+    (localStorage.getItem("studio-parla-shell-preview") === "1" || new URLSearchParams(window.location.search).get("preview") === "1");
   const shell = <Layout />;
 
   return shellPreview ? shell : <Protected>{shell}</Protected>;

@@ -27,7 +27,7 @@ export function deriveDashboard(input: DashboardInput) {
   const name = (id: string) => input.contatos.find((item) => item.id === id)?.nome ?? "?";
   const pendencias: DashboardPendingItem[] = [
     ...ready.map((item) => ({ title: `Peça pronta de ${name(item.contato_id)}`, text: "Avisar o cliente para retirada.", critical: true })),
-    ...input.matriculas.filter((item) => item.status === "Nova").map((item) => ({ title: `Confirmar pagamento — ${name(item.contato_id)}`, text: "Matrícula nova, pagamento antecipado.", critical: false })),
+    ...input.matriculas.filter((item) => item.status === "Nova").map((item) => ({ title: `Confirmar pagamento - ${name(item.contato_id)}`, text: "Matrícula nova, pagamento antecipado.", critical: false })),
   ];
   const eventos: DashboardEvent[] = [
     ...input.workshops.map((item) => ({ id: `workshop-${item.id}`, date: item.datas || "Data a definir", title: item.nome })),

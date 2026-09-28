@@ -10,11 +10,11 @@ insert into contatos (id, nome, tel, origem, obs) values
   ('00000000-0000-0000-0000-000000000016', 'Igor Junior', '27 99283-6002', 'Indicação', ''),
   ('00000000-0000-0000-0000-000000000017', 'Catarina Botelho', '27 99960-1910', 'Indicação', 'Terapia do Barro.'),
   ('00000000-0000-0000-0000-000000000018', 'Ana Carolina', '27 99725-2712', 'Instagram', 'Aluna de junho, não retoma agora.'),
-  ('00000000-0000-0000-0000-000000000019', 'Thiago', '—', 'Indicação', 'Namorado da Mariana.'),
-  ('00000000-0000-0000-0000-000000000020', 'Glauciene', '—', 'Instagram', ''),
+  ('00000000-0000-0000-0000-000000000019', 'Thiago', '-', 'Indicação', 'Namorado da Mariana.'),
+  ('00000000-0000-0000-0000-000000000020', 'Glauciene', '-', 'Instagram', ''),
   ('00000000-0000-0000-0000-000000000021', 'Milena', '27 99799-3642', 'Workshop', ''),
   ('00000000-0000-0000-0000-000000000022', 'Wânia', '27 99778-4004', 'Workshop', ''),
-  ('00000000-0000-0000-0000-000000000023', 'Aluna nova', '—', 'Instagram', 'Fechou 10/07.')
+  ('00000000-0000-0000-0000-000000000023', 'Aluna nova', '-', 'Instagram', 'Fechou 10/07.')
 on conflict (id) do nothing;
 
 do $$
@@ -44,7 +44,7 @@ end $$;
 insert into workshops (id, nome, datas, preco) values
   ('40000000-0000-0000-0000-000000000001', 'Colônia de férias (infantil)', '16, 23 e 30/07 · 14h–17h30', '220 / 210 / 200 por dia'),
   ('40000000-0000-0000-0000-000000000002', 'Workshop de sábado', '12/07', 'a definir'),
-  ('40000000-0000-0000-0000-000000000003', 'Workshop 08/07 (realizado)', '08/07', '—')
+  ('40000000-0000-0000-0000-000000000003', 'Workshop 08/07 (realizado)', '08/07', '-')
 on conflict (id) do nothing;
 
 insert into inscricoes (id, contato_id, workshop_id, status) values

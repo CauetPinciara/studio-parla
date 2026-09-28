@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   createTarefa,
   deleteTarefa,
@@ -29,7 +29,6 @@ import {
 } from "@/features/tarefas/domain";
 import { TarefaForm } from "@/features/tarefas/TarefaForm";
 import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
-import { NativeSelect } from "@/features/shared/FormParts";
 import { useAuth } from "@/lib/auth";
 import { localDateIso } from "@/lib/date";
 import type { Insert, Row } from "@/lib/database.helpers";
@@ -72,7 +71,6 @@ function TaskDetails({ tarefa }: { tarefa: Row<"tarefas"> }) {
 
 interface TaskActionsProps {
   tarefa: Row<"tarefas">;
-  controlId: string;
   pending: boolean;
   onStatus: (tarefa: Row<"tarefas">, status: TarefaStatus) => void;
   onEdit: (tarefa: Row<"tarefas">) => void;
@@ -81,7 +79,6 @@ interface TaskActionsProps {
 
 function TaskActions({
   tarefa,
-  controlId,
   pending,
   onStatus,
   onEdit,
@@ -89,25 +86,10 @@ function TaskActions({
 }: TaskActionsProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <FieldLabel className="sr-only" htmlFor={controlId}>
-        Alterar status de {tarefa.titulo}
-      </FieldLabel>
-      <NativeSelect
-        className="w-auto"
-        id={controlId}
-        name={`status-${tarefa.id}`}
-        value={tarefa.status}
-        disabled={pending}
-        onChange={(event) =>
-          onStatus(tarefa, event.target.value as TarefaStatus)
-        }
-      >
-        {TAREFA_STATUS.map((status) => (
-          <option key={status} value={status}>
-            {tarefaStatusLabels[status]}
-          </option>
-        ))}
-      </NativeSelect>
+      <Select value={tarefa.status} disabled={pending} onValueChange={(value) => onStatus(tarefa, value as TarefaStatus)}>
+        <SelectTrigger className="w-auto" aria-label={`Alterar status de ${tarefa.titulo}`}><SelectValue /></SelectTrigger>
+        <SelectContent>{TAREFA_STATUS.map((status) => <SelectItem key={status} value={status}>{tarefaStatusLabels[status]}</SelectItem>)}</SelectContent>
+      </Select>
       <Button
         type="button"
         size="icon"
@@ -132,11 +114,9 @@ function TaskActions({
   );
 }
 
-interface TaskCardProps extends Omit<TaskActionsProps, "controlId"> {
-  prefix: string;
-}
+type TaskCardProps = TaskActionsProps;
 
-function TaskCard({ tarefa, prefix, ...actions }: TaskCardProps) {
+function TaskCard({ tarefa, ...actions }: TaskCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -154,7 +134,6 @@ function TaskCard({ tarefa, prefix, ...actions }: TaskCardProps) {
       <CardFooter>
         <TaskActions
           tarefa={tarefa}
-          controlId={`${prefix}-${tarefa.id}`}
           {...actions}
         />
       </CardFooter>
@@ -257,7 +236,6 @@ export default function TarefasPage() {
                     <StatusBadge status={tarefa.status as TarefaStatus} />
                     <TaskActions
                       tarefa={tarefa}
-                      controlId={`desktop-${tarefa.id}`}
                       {...actions}
                     />
                   </div>
@@ -279,7 +257,7 @@ export default function TarefasPage() {
         >
           {rows.map((tarefa) => (
             <li key={tarefa.id} aria-label={tarefa.titulo}>
-              <TaskCard tarefa={tarefa} prefix="mobile" {...actions} />
+              <TaskCard tarefa={tarefa} {...actions} />
             </li>
           ))}
         </ul>
@@ -304,7 +282,7 @@ export default function TarefasPage() {
                   <ul className="flex flex-col gap-3">
                     {statusRows.map((tarefa) => (
                       <li key={tarefa.id} aria-label={tarefa.titulo}>
-                        <TaskCard tarefa={tarefa} prefix="kanban" {...actions} />
+                        <TaskCard tarefa={tarefa} {...actions} />
                       </li>
                     ))}
                   </ul>

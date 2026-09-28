@@ -4,7 +4,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FormActions, NativeSelect } from "@/features/shared/FormParts";
+import { DatePickerField } from "@/features/shared/DatePickerField";
+import { EntitySelect } from "@/features/shared/EntitySelect";
+import { FormActions } from "@/features/shared/FormParts";
 import {
   buildTarefaInput,
   TAREFA_STATUS,
@@ -81,48 +83,9 @@ export function TarefaForm({
               <AlertDescription>{error.message}</AlertDescription>
             </Alert>
           )}
-          <Field>
-            <FieldLabel htmlFor="tarefa-status">Status</FieldLabel>
-            <NativeSelect
-              id="tarefa-status"
-              name="status"
-              required
-              value={status}
-              onChange={(event) => setStatus(event.target.value as TarefaStatus)}
-            >
-              {TAREFA_STATUS.map((value) => (
-                <option key={value} value={value}>
-                  {tarefaStatusLabels[value]}
-                </option>
-              ))}
-            </NativeSelect>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="tarefa-data-abertura">
-              Data de abertura
-            </FieldLabel>
-            <Input
-              id="tarefa-data-abertura"
-              name="data_abertura"
-              type="date"
-              required
-              value={dataAbertura}
-              onChange={(event) => setDataAbertura(event.target.value)}
-            />
-          </Field>
-          <Field data-disabled={status !== "concluida" || undefined}>
-            <FieldLabel htmlFor="tarefa-data-conclusao">
-              Data de conclusão
-            </FieldLabel>
-            <Input
-              id="tarefa-data-conclusao"
-              name="data_conclusao"
-              type="date"
-              min={dataAbertura}
-              disabled={status !== "concluida"}
-              defaultValue={tarefa?.data_conclusao ?? ""}
-            />
-          </Field>
+          <EntitySelect label="Status" value={status} options={TAREFA_STATUS.map((value) => ({ value, label: tarefaStatusLabels[value] }))} onValueChange={(value) => setStatus(value as TarefaStatus)} />
+          <DatePickerField label="Data de abertura" name="data_abertura" value={dataAbertura} onValueChange={setDataAbertura} required />
+          <DatePickerField label="Data de conclusão" name="data_conclusao" defaultValue={tarefa?.data_conclusao ?? ""} min={dataAbertura} disabled={status !== "concluida"} />
           <Field>
             <FieldLabel htmlFor="tarefa-responsavel">Responsável</FieldLabel>
             <Input

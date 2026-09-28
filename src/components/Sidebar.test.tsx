@@ -80,4 +80,15 @@ describe("sidebar do app enxuto", () => {
     expect(screen.queryByRole("option", { name: "Financeiro" })).not.toBeInTheDocument();
     expect(screen.getAllByRole("option")).toHaveLength(2);
   });
+
+  it("recolhe a navegação e persiste a preferência", async () => {
+    const user = userEvent.setup();
+    renderSidebar("/relatorios", <Sidebar memberRole="admin" />);
+
+    await user.click(screen.getByRole("button", { name: "Recolher sidebar" }));
+
+    expect(screen.getByRole("complementary")).toHaveAttribute("data-collapsed", "true");
+    expect(localStorage.getItem("studio-parla-sidebar-collapsed")).toBe("1");
+    expect(screen.getByRole("button", { name: "Expandir sidebar" })).toBeInTheDocument();
+  });
 });

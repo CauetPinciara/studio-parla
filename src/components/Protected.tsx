@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth";
 import { supabaseConfig } from "@/lib/supabase";
 
-function GateScreen({ children }: { children: ReactNode }) { return <main className="flex min-h-screen items-center justify-center bg-background p-5"><div className="w-full max-w-md">{children}</div></main>; }
+function Brand() { return <img src="/brand/studio-parla-logo.png" alt="Studio Parla" className="mx-auto mb-6 size-28 rounded-3xl object-cover" />; }
+function GateScreen({ children }: { children: ReactNode }) { return <main className="flex min-h-screen items-center justify-center bg-background p-5"><div className="w-full max-w-md"><Brand />{children}</div></main>; }
 
 export function Protected({ children }: { children: ReactNode }) {
   const { session, member, loading, membershipChecked, accessError, signInWithPassword, signOut } = useAuth();

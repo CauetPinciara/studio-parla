@@ -134,8 +134,8 @@ describe("TarefasPage", () => {
     const title = within(dialog).getByLabelText("Título");
     const description = within(dialog).getByLabelText("Descrição");
 
-    expect(status).toHaveValue("a_fazer");
-    expect(opening).toHaveValue("2026-08-24");
+    expect(status).toHaveTextContent("A fazer");
+    expect(opening).toHaveTextContent("24/08/2026");
     expect(completion).toBeDisabled();
     expect(responsible).toHaveValue("Catarina");
     await user.type(title, "Organizar materiais");
@@ -171,10 +171,8 @@ describe("TarefasPage", () => {
     expect(within(doing).queryByRole("listitem")).not.toBeInTheDocument();
     expect(within(done).queryByRole("listitem")).not.toBeInTheDocument();
 
-    await user.selectOptions(
-      within(todo).getByLabelText("Alterar status de Organizar materiais"),
-      "concluida",
-    );
+    await user.click(within(todo).getByLabelText("Alterar status de Organizar materiais"));
+    await user.click(screen.getByRole("option", { name: "Concluída" }));
     await waitFor(() =>
       expect(apiMock.updateTarefa).toHaveBeenLastCalledWith("tarefa-1", {
         status: "concluida",
@@ -216,12 +214,8 @@ describe("TarefasPage", () => {
     const editedItem = await within(done).findByRole("listitem", {
       name: "Organizar materiais do workshop",
     });
-    await user.selectOptions(
-      within(editedItem).getByLabelText(
-        "Alterar status de Organizar materiais do workshop",
-      ),
-      "em_andamento",
-    );
+    await user.click(within(editedItem).getByLabelText("Alterar status de Organizar materiais do workshop"));
+    await user.click(screen.getByRole("option", { name: "Em andamento" }));
     await waitFor(() =>
       expect(apiMock.updateTarefa).toHaveBeenLastCalledWith("tarefa-1", {
         status: "em_andamento",
