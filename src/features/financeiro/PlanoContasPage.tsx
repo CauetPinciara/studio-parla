@@ -1,15 +1,11 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Modal } from "@/components/Modal";
-import { PageHeaderAction } from "@/components/PageHeaderAction";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   createPlanCategory,
   createPlanGroup,
@@ -27,6 +23,7 @@ import { useStudioData } from "@/features/app-enxuto/useStudioData";
 import { EntitySelect } from "@/features/shared/EntitySelect";
 import { ErrorState, LoadingState } from "@/features/shared/AsyncState";
 import { formValue } from "@/lib/forms";
+import { cn } from "@/lib/utils";
 
 type PlanType = "despesa" | "receita";
 type Editor =
@@ -108,6 +105,11 @@ export default function PlanoContasPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const updateClassification = useMutation({
+    mutationFn: ({ id, classificacao }: { id: string; classificacao: string }) => updatePlanGroup(id, { classificacao }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: studioDataQueryKey }),
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const groups = useMemo(() => {
     if (!studio.data) return [];
@@ -127,63 +129,126 @@ export default function PlanoContasPage() {
   const selected = groups.find(({ id }) => id === selectedId) ?? groups[0];
   const categories = selected ? studio.data.planoCategorias.filter(({ grupo_id }) => grupo_id === selected.id) : [];
   const subgroups = selected ? studio.data.planoSubgrupos.filter(({ grupo_id }) => grupo_id === selected.id) : [];
+  const directCategories = categories.filter(({ subgrupo_id }) => !subgrupo_id);
+  const allTypeGroups = studio.data.planoGrupos.filter((group) => group.tipo === type);
+  const categoryCount = allTypeGroups.reduce(
+    (count, group) => count + studio.data.planoCategorias.filter(({ grupo_id }) => grupo_id === group.id).length,
+    0,
+  );
+  const categoryBadgeClass = type === "despesa"
+    ? "bg-[hsla(38,85%,55%,.18)] text-[hsl(30_62%_30%)]"
+    : "bg-[hsla(152,40%,45%,.16)] text-[hsl(152_40%_26%)]";
+  const dotClass = type === "despesa" ? "border-[hsl(24_70%_52%)]" : "border-[hsl(152_32%_40%)]";
+
+  const categoryRow = (category: (typeof categories)[number], last: boolean) => (
+    <div
+      key={category.id}
+      className={cn(
+        "flex items-center gap-2.5 px-3.5 py-[11px] hover:bg-[hsl(30_8%_98%)]",
+        !last && "border-b border-[hsl(30_8%_94%)]",
+      )}
+    >
+      <span className={cn("inline-block size-2.5 shrink-0 rounded-full border-2", dotClass)} />
+      <span className="min-w-0 truncate text-sm font-medium">{category.nome}</span>
+      <span className="ml-auto flex shrink-0 items-center gap-1.5">
+        <span className={cn("inline-flex items-center rounded-full px-[9px] py-[3px] text-[10px] font-bold uppercase tracking-[.05em]", categoryBadgeClass)}>
+          {selected?.classificacao}
+        </span>
+        <button type="button" aria-label="Editar categoria" onClick={() => selected && setEditor({ kind: "category", groupId: selected.id, subgroupId: category.subgrupo_id ?? undefined, id: category.id })} className="inline-flex size-[30px] items-center justify-center rounded-[7px] border-0 bg-transparent hover:bg-[hsl(30_8%_93%)]"><Pencil className="size-4" /></button>
+        <button type="button" aria-label="Remover categoria" onClick={() => setDeleteTarget({ kind: "category", id: category.id, name: category.nome })} className="inline-flex size-[30px] items-center justify-center rounded-[7px] border-0 bg-transparent hover:bg-[hsl(30_8%_93%)]"><Trash2 className="size-4" /></button>
+      </span>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col gap-5">
-      <PageHeaderAction><Button type="button" onClick={() => setEditor({ kind: "group" })}><Plus data-icon="inline-start" />Novo grupo</Button></PageHeaderAction>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <ToggleGroup type="single" variant="outline" value={type} onValueChange={(value) => value && setType(value as PlanType)}>
-          <ToggleGroupItem value="despesa">Despesa</ToggleGroupItem>
-          <ToggleGroupItem value="receita">Receita</ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-2.5 text-muted-foreground" />
-        <Input aria-label="Buscar no plano de contas" className="pl-10" placeholder="Buscar grupo, subgrupo ou categoria" value={search} onChange={(event) => setSearch(event.target.value)} />
-      </div>
-      <div className="grid gap-5 lg:grid-cols-[minmax(240px,0.8fr)_minmax(0,1.6fr)]">
-        <div className="flex flex-col gap-2">
-          {groups.map((group) => (
-            <Button key={group.id} type="button" variant={selected?.id === group.id ? "secondary" : "ghost"} className="h-auto justify-start py-3 text-left" onClick={() => setSelectedId(group.id)}>
-              <span className="flex flex-col items-start gap-1">
-                <strong>{group.nome}</strong>
-                <span className="text-xs text-muted-foreground">{group.classificacao} · {studio.data.planoCategorias.filter(({ grupo_id }) => grupo_id === group.id).length} categorias</span>
-              </span>
-            </Button>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="inline-flex gap-1 rounded-[11px] border border-[hsl(30_8%_90%)] bg-white p-1">
+          {(["despesa", "receita"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => { setType(value); setSelectedId(null); }}
+              className={cn(
+                "inline-flex h-9 items-center rounded-[9px] border-0 px-[18px] text-sm font-semibold",
+                type === value ? "bg-[hsl(340_72%_64%)] text-white" : "bg-transparent text-[hsl(25_5%_45%)]",
+              )}
+            >
+              {value === "despesa" ? "Despesas" : "Receitas"}
+            </button>
           ))}
         </div>
+        <span className="text-[13px] text-[hsl(25_5%_45%)]">{categoryCount} {categoryCount === 1 ? "categoria" : "categorias"}</span>
+        <button type="button" onClick={() => setEditor({ kind: "group" })} className="ml-auto inline-flex h-9 items-center gap-2 rounded-[9px] border-0 bg-[hsl(340_72%_64%)] px-3.5 text-sm font-semibold text-white hover:bg-[hsl(340_65%_58%)]"><Plus className="size-4" />Novo grupo</button>
+      </div>
+      <Input aria-label="Buscar no plano de contas" className="h-10 rounded-[10px] border-[hsl(30_8%_88%)] bg-white px-3.5 text-sm" placeholder="Buscar grupo, subgrupo ou categoria…" value={search} onChange={(event) => setSearch(event.target.value)} />
+      <div className="grid grid-cols-[minmax(0,260px)_minmax(0,1fr)] items-start gap-4">
+        <div className="flex flex-col gap-1 rounded-xl border border-[hsl(30_8%_90%)] bg-white p-2.5">
+          <span className="px-2.5 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-[.08em] text-[hsl(25_5%_50%)]">Grupos</span>
+          {groups.map((group) => (
+            <button key={group.id} type="button" className={cn("flex w-full items-center gap-2.5 rounded-[10px] border-0 px-2.5 py-[9px] text-left hover:bg-[hsl(30_8%_96%)]", selected?.id === group.id ? "bg-[hsl(340_60%_97%)]" : "bg-transparent")} onClick={() => setSelectedId(group.id)}>
+              <span className={cn("inline-block size-[7px] shrink-0 rounded-full border-[3.5px]", dotClass)} />
+              <span className="flex min-w-0 flex-col items-start leading-[1.35]">
+                <strong className="text-sm">{group.nome}</strong>
+                <span className="text-xs text-[hsl(25_5%_48%)]">{studio.data.planoCategorias.filter(({ grupo_id }) => grupo_id === group.id).length} categorias · {group.classificacao}</span>
+              </span>
+            </button>
+          ))}
+          {groups.length === 0 && <span className="px-2.5 py-5 text-center text-[13px] text-[hsl(25_5%_50%)]">Nenhum grupo encontrado.</span>}
+        </div>
         {selected && (
-          <Card>
-            <CardHeader>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div><CardTitle>{selected.nome}</CardTitle><Badge variant="secondary">{selected.classificacao}</Badge></div>
-                <div className="flex gap-2">
-                  <Button type="button" size="icon" variant="ghost" aria-label="Editar grupo" onClick={() => setEditor({ kind: "group", id: selected.id })}><Pencil /></Button>
-                  <Button type="button" size="icon" variant="ghost" aria-label="Remover grupo" onClick={() => setDeleteTarget({ kind: "group", id: selected.id, name: selected.nome })}><Trash2 /></Button>
-                </div>
+          <div className="rounded-xl border border-[hsl(30_8%_90%)] bg-white">
+            <div className="flex flex-wrap items-center gap-3 px-[18px] pb-3.5 pt-[18px]">
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <h2 className="m-0 text-xl font-semibold tracking-[-.01em]">{selected.nome}</h2>
+                <span className="text-[13px] text-[hsl(25_5%_48%)]">{categories.length} {categories.length === 1 ? "categoria" : "categorias"}</span>
               </div>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5">
-              <section className="flex flex-col gap-2">
-                <div className="flex items-center justify-between gap-3"><h3 className="font-semibold">Categorias diretas</h3><Button type="button" size="sm" variant="outline" onClick={() => setEditor({ kind: "category", groupId: selected.id })}><Plus data-icon="inline-start" />Categoria</Button></div>
-                {categories.filter(({ subgrupo_id }) => !subgrupo_id).map((category) => (
-                  <div key={category.id} className="flex items-center justify-between gap-3 rounded-lg border p-3"><span>{category.nome}</span><div className="flex gap-1"><Button type="button" size="icon" variant="ghost" aria-label="Editar categoria" onClick={() => setEditor({ kind: "category", groupId: selected.id, id: category.id })}><Pencil /></Button><Button type="button" size="icon" variant="ghost" aria-label="Remover categoria" onClick={() => setDeleteTarget({ kind: "category", id: category.id, name: category.nome })}><Trash2 /></Button></div></div>
-                ))}
-              </section>
-              <section className="flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-3"><h3 className="font-semibold">Subgrupos</h3><Button type="button" size="sm" variant="outline" onClick={() => setEditor({ kind: "subgroup", groupId: selected.id })}><Plus data-icon="inline-start" />Subgrupo</Button></div>
-                {subgroups.map((subgroup) => (
-                  <Card key={subgroup.id}>
-                    <CardHeader><div className="flex items-center justify-between gap-3"><CardTitle>{subgroup.nome}</CardTitle><div className="flex gap-1"><Button type="button" size="icon" variant="ghost" aria-label="Editar subgrupo" onClick={() => setEditor({ kind: "subgroup", groupId: selected.id, id: subgroup.id })}><Pencil /></Button><Button type="button" size="icon" variant="ghost" aria-label="Remover subgrupo" onClick={() => setDeleteTarget({ kind: "subgroup", id: subgroup.id, name: subgroup.nome })}><Trash2 /></Button></div></div></CardHeader>
-                    <CardContent className="flex flex-col gap-2">
-                      {categories.filter(({ subgrupo_id }) => subgrupo_id === subgroup.id).map((category) => <div key={category.id} className="flex items-center justify-between gap-2"><span>{category.nome}</span><div className="flex gap-1"><Button type="button" size="icon" variant="ghost" aria-label="Editar categoria" onClick={() => setEditor({ kind: "category", groupId: selected.id, subgroupId: subgroup.id, id: category.id })}><Pencil /></Button><Button type="button" size="icon" variant="ghost" aria-label="Remover categoria" onClick={() => setDeleteTarget({ kind: "category", id: category.id, name: category.nome })}><Trash2 /></Button></div></div>)}
-                      <Button type="button" size="sm" variant="outline" onClick={() => setEditor({ kind: "category", groupId: selected.id, subgroupId: subgroup.id })}><Plus data-icon="inline-start" />Categoria</Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </section>
-            </CardContent>
-          </Card>
+              <div className="ml-auto flex gap-1">
+                <button type="button" aria-label="Editar grupo" onClick={() => setEditor({ kind: "group", id: selected.id })} className="inline-flex size-[34px] items-center justify-center rounded-lg border-0 bg-transparent hover:bg-[hsl(30_8%_94%)]"><Pencil className="size-4" /></button>
+                <button type="button" aria-label="Remover grupo" onClick={() => setDeleteTarget({ kind: "group", id: selected.id, name: selected.nome })} className="inline-flex size-[34px] items-center justify-center rounded-lg border-0 bg-transparent hover:bg-[hsl(30_8%_94%)]"><Trash2 className="size-4" /></button>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5 px-[18px] pb-4">
+              <span className="text-[11px] font-semibold uppercase tracking-[.08em] text-[hsl(25_5%_50%)]">Classificação do grupo</span>
+              <EntitySelect
+                label="Classificação do grupo"
+                hideLabel
+                value={selected.classificacao}
+                disabled={updateClassification.isPending}
+                onValueChange={(classificacao) => updateClassification.mutate({ id: selected.id, classificacao })}
+                options={CLASSIFICATIONS[type].map((classification) => ({ value: classification, label: classification }))}
+                triggerClassName="h-[34px] w-auto min-w-[116px] text-[13px] font-semibold"
+              />
+            </div>
+
+            <div className="border-t border-[hsl(30_8%_92%)]">
+              {directCategories.map((category, index) => categoryRow(category, index + 1 === directCategories.length))}
+              <button type="button" onClick={() => setEditor({ kind: "category", groupId: selected.id })} className="flex w-full items-center gap-2 border-0 border-t border-[hsl(30_8%_94%)] bg-transparent px-3.5 py-3 text-left text-[13px] font-semibold text-[hsl(340_50%_42%)] hover:bg-[hsl(340_60%_98%)]"><Plus className="size-4" />Nova categoria</button>
+            </div>
+
+            {subgroups.map((subgroup) => {
+              const subgroupCategories = categories.filter(({ subgrupo_id }) => subgrupo_id === subgroup.id);
+              return (
+                <div key={subgroup.id} className="mx-[18px] mb-4 rounded-[11px] border border-[hsl(30_8%_91%)] bg-[hsl(30_10%_98%)]">
+                  <div className="flex items-center gap-2.5 px-3.5 py-3">
+                    <span className="flex min-w-0 flex-col leading-[1.3]">
+                      <span className="text-[13px] font-bold uppercase tracking-[.05em] text-[hsl(25_5%_35%)]">{subgroup.nome}</span>
+                      <span className="text-xs text-[hsl(25_5%_50%)]">{subgroupCategories.length} {subgroupCategories.length === 1 ? "categoria" : "categorias"}</span>
+                    </span>
+                    <span className="ml-auto flex gap-1">
+                      <button type="button" aria-label="Editar subgrupo" onClick={() => setEditor({ kind: "subgroup", groupId: selected.id, id: subgroup.id })} className="inline-flex size-[30px] items-center justify-center rounded-[7px] border-0 bg-transparent hover:bg-[hsl(30_8%_93%)]"><Pencil className="size-4" /></button>
+                      <button type="button" aria-label="Remover subgrupo" onClick={() => setDeleteTarget({ kind: "subgroup", id: subgroup.id, name: subgroup.nome })} className="inline-flex size-[30px] items-center justify-center rounded-[7px] border-0 bg-transparent hover:bg-[hsl(30_8%_93%)]"><Trash2 className="size-4" /></button>
+                    </span>
+                  </div>
+                  <div className="rounded-b-[10px] border-t border-[hsl(30_8%_92%)] bg-white">
+                    {subgroupCategories.map((category, index) => categoryRow(category, index + 1 === subgroupCategories.length))}
+                    <button type="button" onClick={() => setEditor({ kind: "category", groupId: selected.id, subgroupId: subgroup.id })} className="flex w-full items-center gap-2 rounded-b-[10px] border-0 border-t border-[hsl(30_8%_94%)] bg-transparent px-3.5 py-[11px] text-left text-[13px] font-semibold text-[hsl(340_50%_42%)] hover:bg-[hsl(340_60%_98%)]"><Plus className="size-4" />Nova categoria neste subgrupo</button>
+                  </div>
+                </div>
+              );
+            })}
+            <button type="button" onClick={() => setEditor({ kind: "subgroup", groupId: selected.id })} className="flex w-full items-center gap-2 rounded-b-xl border-0 border-t border-[hsl(30_8%_92%)] bg-transparent px-[18px] py-3.5 text-left text-[13px] font-semibold text-[hsl(25_5%_40%)] hover:bg-[hsl(30_8%_97%)]"><Plus className="size-4" />Novo subgrupo</button>
+          </div>
         )}
       </div>
       {editor && <PlanEditor editor={editor} data={studio.data} type={type} onClose={() => setEditor(null)} />}

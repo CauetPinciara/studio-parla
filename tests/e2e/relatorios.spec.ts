@@ -4,7 +4,7 @@ import { coreSeed, installApp } from "./helpers";
 test("confirmação, aviso, chamada e reposição compartilham o mesmo estado", async ({ page }) => {
   const state = await installApp(page, { role: "admin", seed: coreSeed });
   await page.goto("/confirmacoes");
-  await expect(page.getByRole("heading", { name: /Quinta · 15h-18h/ })).toHaveCount(8);
+  await expect(page.getByRole("heading", { name: /Quinta · 15h-18h/ })).toHaveCount(2);
 
   const firstAna = page.getByRole("listitem").filter({ hasText: "Ana" }).first();
   await firstAna.getByRole("radio", { name: "Não vem", exact: true }).click();
@@ -37,7 +37,26 @@ test("confirmação, aviso, chamada e reposição compartilham o mesmo estado", 
   await page.goto("/avisos");
   await expect(page.getByText("Falta confirmada", { exact: true })).toBeVisible();
   await page.getByLabel("Aula").click();
-  await expect(page.getByRole("option", { name: /16\/07\/2026.*3\/3 ocupados/ })).toBeVisible();
+  await expect(page.getByRole("option", { name: /quinta-feira, 16 de julho.*3\/3 ocupados/ })).toBeVisible();
+});
+
+test("mostra as próximas 8 aulas no passo de confirmações da Isabela", async ({ page }) => {
+  await installApp(page, { role: "atendimento", seed: coreSeed });
+  await page.goto("/relatorios?data=2026-07-09");
+  await page.locator('nav[aria-label="Etapas do relatório"]:visible').getByLabel("Confirmações").click();
+
+  await expect(page.getByRole("heading", { name: /Quinta · 15h-18h/ })).toHaveCount(8);
+});
+
+test("mantém os controles de confirmação acessíveis no celular", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await installApp(page, { role: "admin", seed: coreSeed });
+  await page.goto("/confirmacoes");
+
+  const firstAna = page.getByRole("listitem").filter({ hasText: "Ana" }).first();
+  const controls = firstAna.getByRole("radiogroup", { name: "Confirmação de Ana" });
+  await expect(controls).toBeInViewport();
+  await expect(controls.getByRole("radio", { name: "Não vem", exact: true })).toBeVisible();
 });
 
 test("usa somente controles próprios nas telas e formulários principais", async ({ page }) => {

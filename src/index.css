@@ -15,6 +15,11 @@
   --secondary-foreground: 340 55% 42%;
   --muted: 30 8% 94%;
   --muted-foreground: 25 5% 45%;
+  --quiet-foreground: 25 5% 55%;
+  --nav-foreground: 25 5% 40%;
+  --toggle-foreground: 25 5% 35%;
+  --sidebar-divider: 30 8% 87%;
+  --workspace-icon-background: hsla(340, 72%, 64%, .14);
   --accent: 30 8% 94%;
   --accent-foreground: 24 10% 12%;
   --destructive: 24 65% 44%;
@@ -42,6 +47,11 @@
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-quiet-foreground: hsl(var(--quiet-foreground));
+  --color-nav-foreground: hsl(var(--nav-foreground));
+  --color-toggle-foreground: hsl(var(--toggle-foreground));
+  --color-sidebar-divider: hsl(var(--sidebar-divider));
+  --color-workspace-icon-background: var(--workspace-icon-background);
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
@@ -56,10 +66,12 @@
   --color-info-soft: hsl(var(--info-soft));
 }
 
-* { box-sizing: border-box; border-color: hsl(var(--border)); }
+@layer base {
+  * { box-sizing: border-box; border-color: hsl(var(--border)); }
+  button, a, input, textarea, select { font: inherit; }
+  button { cursor: pointer; }
+}
 html, body, #root { min-height: 100%; }
 body { margin: 0; background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-button, a, input, textarea, select { font: inherit; }
-button { cursor: pointer; }
 svg { width: 1rem; height: 1rem; }
 .section-title { margin: 0; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }

@@ -13,6 +13,8 @@ interface EntitySelectProps {
   onValueChange: (value: string) => void;
   disabled?: boolean;
   name?: string;
+  hideLabel?: boolean;
+  triggerClassName?: string;
 }
 
 export function EntitySelect({
@@ -23,6 +25,8 @@ export function EntitySelect({
   onValueChange,
   disabled,
   name,
+  hideLabel = false,
+  triggerClassName,
 }: EntitySelectProps) {
   const id = useId();
   const listId = `${id}-options`;
@@ -54,7 +58,7 @@ export function EntitySelect({
 
   return (
     <Field>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <FieldLabel htmlFor={id} className={hideLabel ? "sr-only" : undefined}>{label}</FieldLabel>
       {name && <input type="hidden" name={name} value={value ?? ""} />}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -66,7 +70,7 @@ export function EntitySelect({
             aria-controls={listId}
             aria-expanded={open}
             disabled={disabled}
-            className={cn("w-full justify-between font-normal", !selected && "text-muted-foreground")}
+            className={cn("h-[38px] w-full justify-between rounded-[9px] border-[hsl(30_8%_85%)] bg-white px-3 text-left text-sm font-medium text-foreground hover:bg-[hsl(30_8%_96%)]", triggerClassName)}
           >
             <span className="truncate">{selectedLabel ?? placeholder}</span>
             <ChevronDown className="opacity-50" />

@@ -27,10 +27,10 @@ describe("regras de data do relatório diário", () => {
 
   it("formata o rótulo desktop exato do header", () => {
     expect(formatReportHeaderDate("2026-08-26")).toBe(
-      "Quarta Feira, 26/08/2026",
+      "Quarta-feira, 26 de agosto de 2026",
     );
     expect(formatReportHeaderDate("2026-08-04")).toBe(
-      "Terça Feira, 04/08/2026",
+      "Terça-feira, 4 de agosto de 2026",
     );
     expect(() => formatReportHeaderDate("2026-02-30")).toThrow(
       "Invalid report date: 2026-02-30",

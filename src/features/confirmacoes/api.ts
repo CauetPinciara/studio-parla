@@ -11,6 +11,7 @@ interface SetConfirmationInput {
   por: string;
   status: ConfirmationValue;
   today?: string;
+  obs?: string;
 }
 
 async function removeDerivedNotice(input: SetConfirmationInput) {
@@ -57,6 +58,7 @@ export async function setConfirmation(input: SetConfirmationInput) {
         avisou_em: input.today ?? localDateIso(),
         por: input.por,
         origem: "confirmacao",
+        ...(input.obs ? { obs: input.obs } : {}),
       },
       {
         onConflict: "contato_id,turma_id,data",

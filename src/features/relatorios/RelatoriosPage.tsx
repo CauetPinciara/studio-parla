@@ -118,18 +118,32 @@ export default function RelatoriosPage() {
   const contactName = (id: string) => studio.data.contatos.find((item) => item.id === id)?.nome ?? "Contato";
   const isLast = stepIndex === steps.length - 1;
   const stepNavigation = (className?: string) => (
-    <nav className={`flex gap-2 ${className ?? ""}`} aria-label="Etapas do relatório">
+    <nav className={`flex gap-1.5 ${className ?? ""}`} aria-label="Etapas do relatório">
       {steps.map((step, index) => (
-        <Button key={step} type="button" size="sm" variant={index === stepIndex ? "default" : "outline"} className="rounded-full" aria-label={step} aria-current={index === stepIndex ? "step" : undefined} onClick={() => setStepIndex(index)}>
-          <span className="flex size-5 items-center justify-center rounded-full bg-current/10 text-[11px]">{role === "atendimento" ? index : index + 1}</span>
-          <span className={index === stepIndex ? "inline" : "hidden lg:inline"}>{step}</span>
+        <Button
+          key={step}
+          type="button"
+          size="sm"
+          variant="outline"
+          className={index === stepIndex
+            ? "h-[34px] gap-[7px] rounded-full border-foreground bg-foreground py-0 pr-3.5 pl-[7px] text-[13px] font-semibold text-white hover:bg-foreground hover:text-white"
+            : "h-[34px] gap-[7px] rounded-full px-1.5 py-0 text-[13px] font-semibold text-nav-foreground"}
+          aria-label={step}
+          aria-current={index === stepIndex ? "step" : undefined}
+          onClick={() => setStepIndex(index)}
+        >
+          <span className={index === stepIndex
+            ? "flex size-5 shrink-0 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white"
+            : "flex size-5 shrink-0 items-center justify-center rounded-full bg-[hsl(30_8%_93%)] text-[11px] font-bold text-nav-foreground"}
+          >{role === "atendimento" ? index : index + 1}</span>
+          <span className={index === stepIndex ? "inline" : "hidden"}>{step}</span>
         </Button>
       ))}
     </nav>
   );
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-1 flex-col gap-4">
       <PageHeaderAction>{stepNavigation()}</PageHeaderAction>
       {stepNavigation("flex-wrap md:hidden")}
 
@@ -162,12 +176,12 @@ export default function RelatoriosPage() {
         </div>
       )}
 
-      <footer className="sticky -bottom-16 z-20 -mx-5 -mb-16 mt-3 flex min-h-16 flex-wrap items-center gap-3 border-t bg-background/95 px-5 py-3 backdrop-blur md:-mx-8 md:px-8">
-        <span className="text-sm text-muted-foreground">Etapa {stepIndex + 1} de {steps.length} · {activeStep}</span>
+      <footer className="sticky bottom-0 z-30 -mx-5 -mb-8 mt-auto flex h-16 shrink-0 flex-wrap items-center gap-3 border-t bg-[hsl(30_10%_98%)] px-5 md:-mx-7 md:px-6">
+        <span className="text-[13px] text-muted-foreground">Etapa {stepIndex + 1} de {steps.length} · {activeStep}</span>
         <div className="ml-auto flex gap-2">
-          {stepIndex > 0 && <Button type="button" variant="outline" onClick={() => setStepIndex((value) => value - 1)}><ChevronLeft data-icon="inline-start" />{steps[stepIndex - 1]}</Button>}
-          {!isLast && <Button type="button" onClick={() => setStepIndex((value) => value + 1)}>{steps[stepIndex + 1]}<ChevronRight data-icon="inline-end" /></Button>}
-          {isLast && <Button type="button" variant={currentReport?.concluido_em ? "secondary" : "default"} disabled={closeDay.isPending} onClick={() => closeDay.mutate()}><CheckCircle2 data-icon="inline-start" />{currentReport?.concluido_em ? "Dia fechado" : "Fechar o dia"}</Button>}
+          {stepIndex > 0 && <Button className="h-[38px] rounded-[9px] px-3.5 text-[13px] text-toggle-foreground" type="button" variant="outline" onClick={() => setStepIndex((value) => value - 1)}><ChevronLeft size={16} data-icon="inline-start" />{steps[stepIndex - 1]}</Button>}
+          {!isLast && <Button className="h-[38px] rounded-[9px] px-4 text-[13px]" type="button" onClick={() => setStepIndex((value) => value + 1)}>{steps[stepIndex + 1]}<ChevronRight size={16} data-icon="inline-end" /></Button>}
+          {isLast && <Button className="h-[38px] rounded-[9px] px-4 text-[13px]" type="button" variant={currentReport?.concluido_em ? "secondary" : "default"} disabled={closeDay.isPending} onClick={() => closeDay.mutate()}><CheckCircle2 size={16} data-icon="inline-start" />{currentReport?.concluido_em ? "Dia fechado" : "Fechar o dia"}</Button>}
         </div>
       </footer>
 

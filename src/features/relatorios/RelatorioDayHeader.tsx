@@ -30,12 +30,12 @@ export function RelatorioDayHeader() {
   const goToDate = (date: string) => setSearchParams({ data: date });
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2" role="group" aria-label="Navegação da data">
-      <Button className="shrink-0" size="icon" variant="outline" aria-label="Dia anterior" onClick={() => goToDate(shiftReportDate(selectedDate, -1))}><ChevronLeft /></Button>
+    <div className="flex min-w-0 items-center gap-1.5" role="group" aria-label="Navegação da data">
+      <Button className="size-9 shrink-0 rounded-lg p-0" size="icon" variant="outline" aria-label="Dia anterior" onClick={() => goToDate(shiftReportDate(selectedDate, -1))}><ChevronLeft size={16} /></Button>
       <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
         <PopoverTrigger asChild>
-          <Button className="min-w-0 flex-1 justify-start sm:w-[250px] sm:flex-none" variant="outline" aria-label="Selecionar data">
-            <CalendarDays className="hidden sm:block" data-icon="inline-start" />
+          <Button className="h-9 min-w-0 shrink-0 justify-start gap-2 rounded-lg px-3 text-sm font-semibold" variant="outline" aria-label="Selecionar data">
+            <CalendarDays size={16} className="hidden shrink-0 text-muted-foreground sm:block" data-icon="inline-start" />
             <span className="truncate sm:hidden" aria-hidden="true">{formatShortDate(selectedDate)}</span>
             <span className="hidden truncate sm:inline" aria-hidden="true">{formatReportHeaderDate(selectedDate)}</span>
           </Button>
@@ -44,8 +44,8 @@ export function RelatorioDayHeader() {
           <Calendar mode="single" selected={selected} defaultMonth={selected} locale={ptBR} timeZone="America/Sao_Paulo" autoFocus onSelect={(date) => { if (!date) return; goToDate(dateToIso(date)); setCalendarOpen(false); }} />
         </PopoverContent>
       </Popover>
-      <Button className="shrink-0" size="icon" variant="outline" aria-label="Próximo dia" onClick={() => goToDate(shiftReportDate(selectedDate, 1))}><ChevronRight /></Button>
-      {selectedDate !== today && <Button className="shrink-0" size="sm" variant="ghost" onClick={() => goToDate(today)}>Hoje</Button>}
+      <Button className="size-9 shrink-0 rounded-lg p-0" size="icon" variant="outline" aria-label="Próximo dia" onClick={() => goToDate(shiftReportDate(selectedDate, 1))}><ChevronRight size={16} /></Button>
+      {selectedDate !== today && <Button className="h-9 shrink-0 rounded-lg px-2.5 text-[13px] font-semibold text-secondary-foreground" size="sm" variant="ghost" onClick={() => goToDate(today)}>Hoje</Button>}
     </div>
   );
 }

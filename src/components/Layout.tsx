@@ -15,7 +15,6 @@ export function Layout() {
   const [headerActionTarget, setHeaderActionTarget] = useState<HTMLDivElement | null>(null);
   const { member, session, signOut } = useAuth();
   const page = getNavigationItem(location.pathname);
-  const today = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "short", year: "numeric" }).format(new Date());
   const isDailyReport = page.path === "/relatorios";
   const PageIcon = page.icon;
   const sidebar = <Sidebar memberRole={member?.papel} onSignOut={() => void signOut()} userName={member?.nome ?? session?.user.email} />;
@@ -35,13 +34,13 @@ export function Layout() {
         </Dialog.Portal>
       </Dialog.Root>
 
-      <main className="min-w-0 flex-1 bg-background pt-2 md:pr-2">
-        <div className="min-h-[calc(100vh-0.5rem)] overflow-hidden rounded-t-2xl border bg-card">
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-card/95 px-4 backdrop-blur md:px-6">
+      <main className="min-w-0 flex-1 bg-background md:mt-3.5 md:mr-3.5 md:ml-1.5">
+        <div className="flex min-h-[calc(100vh-14px)] flex-col overflow-hidden rounded-t-2xl border border-b-0 bg-card shadow-[0_1px_2px_rgba(24,20,18,.04)]">
+          <header className="z-30 flex h-16 shrink-0 items-center gap-3 rounded-t-2xl border-b bg-card px-4 md:px-6">
             <Button className="shrink-0 md:hidden" size="icon" variant="outline" aria-label="Abrir menu" onClick={() => setMobileOpen(true)}><Menu /></Button>
-            {isDailyReport ? <><RelatorioDayHeader /><div ref={setHeaderActionTarget} className="hidden shrink-0 items-center border-l pl-3 md:flex" /></> : <><span className="flex text-muted-foreground"><PageIcon /></span><h1 className="min-w-0 truncate text-[17px] font-semibold tracking-tight">{page.title}</h1><div className="ml-auto flex items-center gap-3"><span className="hidden text-xs capitalize text-muted-foreground lg:block">{today} · Vitória/ES</span><div ref={setHeaderActionTarget} className="flex shrink-0 items-center" /></div></>}
+            {isDailyReport ? <><RelatorioDayHeader /><div ref={setHeaderActionTarget} className="ml-1.5 hidden shrink-0 items-center gap-1.5 border-l pl-3 md:flex" /></> : <><div className="flex min-w-0 flex-1 items-center gap-2.5"><span className="flex text-muted-foreground"><PageIcon size={18} /></span><h1 className="min-w-0 truncate text-[17px] font-semibold tracking-[-.015em]">{page.title}</h1></div><div ref={setHeaderActionTarget} className="ml-auto flex shrink-0 items-center gap-2" /></>}
           </header>
-          <div className="mx-auto max-w-[1080px] p-5 pb-20 md:p-7 md:pb-20"><Outlet /></div>
+          <div className="mx-auto flex w-full max-w-[1080px] flex-1 flex-col p-5 pb-8 md:p-7 md:pb-8"><Outlet /></div>
         </div>
       </main>
     </div>

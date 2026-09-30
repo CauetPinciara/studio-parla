@@ -26,15 +26,14 @@ export default function ContatosPage() {
   if (studio.isLoading) return <LoadingState />;
   if (studio.error || !studio.data) return <ErrorState error={studio.error ?? new Error("Dados indisponíveis")} />;
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col">
       <PageHeaderAction><Button type="button" onClick={() => { setEditing(undefined); setOpen(true); }}><Plus data-icon="inline-start" />Novo contato</Button></PageHeaderAction>
-      <span className="text-sm text-muted-foreground">{studio.data.contatos.length} contatos</span>
       <DataTable
         rows={studio.data.contatos}
         getRowKey={({ id }) => id}
         onRowClick={(row) => void navigate(`/contatos/${row.id}`)}
         columns={[
-          { key: "nome", header: "Nome", cell: (row) => <strong>{row.nome}</strong> },
+          { key: "nome", header: "Nome", cell: (row) => <strong className="text-secondary-foreground">{row.nome}</strong> },
           { key: "tel", header: "WhatsApp", cell: (row) => row.tel || "-" },
           { key: "origem", header: "Origem", cell: (row) => <Badge variant="secondary">{row.origem || "-"}</Badge> },
           { key: "vinculos", header: "Vínculos", cell: (row) => <div className="flex flex-wrap gap-1">{studio.data.matriculas.some(({ contato_id }) => contato_id === row.id) && <Badge>Turma</Badge>}{studio.data.avulsas.some(({ contato_id }) => contato_id === row.id) && <Badge variant="success">Avulsa</Badge>}{studio.data.inscricoes.some(({ contato_id }) => contato_id === row.id) && <Badge variant="info">Workshop</Badge>}</div> },

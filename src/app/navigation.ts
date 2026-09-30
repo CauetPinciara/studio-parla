@@ -1,6 +1,5 @@
 import {
   Calculator,
-  CalendarX2,
   CircleCheckBig,
   ClipboardList,
   ContactRound,
@@ -10,6 +9,7 @@ import {
   PanelsTopLeft,
   Percent,
   Tags,
+  createLucideIcon,
   type LucideIcon,
 } from "lucide-react";
 import { WORKSPACES, type WorkspaceId } from "@/workspaces";
@@ -26,6 +26,15 @@ export interface NavigationItem {
 }
 
 export const DEFAULT_ROUTE = "/relatorios";
+
+const CalendarX2 = createLucideIcon("CalendarX2", [
+  ["path", { d: "M8 2v4", key: "start" }],
+  ["path", { d: "M16 2v4", key: "end" }],
+  ["rect", { x: "3", y: "4", width: "18", height: "18", rx: "2", key: "calendar" }],
+  ["path", { d: "M3 10h18", key: "divider" }],
+  ["path", { d: "m17 22 5-5", key: "x-forward" }],
+  ["path", { d: "m17 17 5 5", key: "x-back" }],
+]);
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   { workspace: "operacao", path: "/relatorios", title: "Relatório do dia", subtitle: "Presenças que a Catarina registra na aula", icon: ClipboardList },

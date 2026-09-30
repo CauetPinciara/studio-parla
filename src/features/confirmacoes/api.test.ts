@@ -46,15 +46,15 @@ describe("sincronização de confirmações", () => {
     database.avisos.eq.mockImplementation(() => database.avisos);
   });
 
-  it("cria confirmação e aviso sem sobrescrever um aviso manual", async () => {
-    await setConfirmation({ ...input, status: "nao_vem" });
+  it("cria confirmação e aviso com a observação preparada sem sobrescrever um aviso manual", async () => {
+    await setConfirmation({ ...input, status: "nao_vem", obs: "Vai viajar" });
 
     expect(database.confirmacoes.upsert).toHaveBeenCalledWith(
       expect.objectContaining({ status: "nao_vem", por: "Isabela" }),
       { onConflict: "data,turma_id,contato_id" },
     );
     expect(database.avisos.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ origem: "confirmacao", avisou_em: "2026-07-09" }),
+      expect.objectContaining({ origem: "confirmacao", avisou_em: "2026-07-09", obs: "Vai viajar" }),
       { onConflict: "contato_id,turma_id,data", ignoreDuplicates: true },
     );
   });
